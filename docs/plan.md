@@ -17,9 +17,9 @@ _Created Oct 23, 2026. This doc is the source of truth. If a field name changes,
 
 ### Progress — Firebase (relturu)
 - [x] 0. Repo hygiene: `.gitignore`, `CLAUDE.md`, this doc, `.env.example`
-- [ ] 1. Xcode project `FluentIsh` + firebase-ios-sdk (FirebaseAuth, FirebaseFirestore)
-- [ ] 2. Firebase project, `GoogleService-Info.plist`, Firestore DB, Anonymous auth, `FirebaseApp.configure()` _(console side done and verified; `firebase/serviceAccount.json` in place; still to do: add the plist to Xcode + `FirebaseApp.configure()`)_
-- [ ] 3. `FirestoreModels.swift` + `AzureModels.swift` compile
+- [x] 1. Xcode project `FluentIsh` + firebase-ios-sdk (FirebaseAuth, FirebaseFirestore). Uses synchronized folders, so files added under `FluentIsh/FluentIsh/` are compiled automatically. **Turn off Xcode → Settings → Source Control → "Add and remove files automatically"**: it stages gitignored files like `GoogleService-Info.plist`.
+- [x] 2. Firebase project, `GoogleService-Info.plist`, Firestore DB, Anonymous auth, `FirebaseApp.configure()`. The app signs in anonymously on launch (`FluentIshApp.swift`) and keeps the same uid across launches.
+- [x] 3. `FirestoreModels.swift` + `AzureModels.swift` compile (`FluentIsh/FluentIsh/Models/`)
 - [x] 4. Firebase CLI, `firestore.rules` + `firestore.indexes.json` deployed. Deploy with `cd firebase && firebase deploy --only firestore:rules,firestore:indexes`. Check with `node scripts/test-rules.js` (12 allow/deny checks, all pass)
 - [ ] 5. Seed JSON for every collection + `scripts/check-seed.js` passes
 - [ ] 6. `scripts/seed.js` writes everything; second run changes nothing
