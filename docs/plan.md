@@ -10,7 +10,7 @@ _Created Oct 23, 2026. This doc is the source of truth. If a field name changes,
 
 ### Decisions
 - **The repo is PUBLIC** (`github.com/relturu/fluent-ish`). Never commit `firebase/serviceAccount.json`, `GoogleService-Info.plist`, `.env`, `Secrets.xcconfig` or any key. `.gitignore` covers these, but check `git status` before every commit anyway. The playground with the real Azure key is submitted on **Canvas only**.
-- **Ownership:** Firebase/Firestore (build tasks 1–4, 6, 7, 9): **relturu**. Azure Translator / API (build tasks 5, 8): **teammate**, following `docs/azure-handoff.md`.
+- **Ownership:** Firebase/Firestore (build tasks 1–4, 6, 7, 9): **relturu**. Azure Translator / API (build tasks 5, 8): **teammate** (code on `feature/azure-translator`, merged into `feature/firebase-setup`; usage in README.md).
 - **Seed data works without Azure.** `definitionEn`, `example`, `exampleEn` and `textEn` are written by hand, so the app has complete data before enrichment. Azure enrichment adds the `azure` field and fills gaps, then `seed.js` is re-run. It's idempotent, so re-running is safe.
 - **Firebase project:** ID `fluent-ish-9d543` (display name `fluent-ish`). Firestore `(default)` database, Standard edition, location `nam7` (US). Anonymous auth is enabled. The iOS app is registered with bundle ID **`edu.cmu.relturu.FluentIsh`**; the Xcode project must use exactly this ID. Teammates: ask relturu to add you under Project settings → Users and permissions, and to send you `serviceAccount.json` and `GoogleService-Info.plist` privately.
 - **Layout:** Xcode creates `FluentIsh/FluentIsh.xcodeproj` with sources in `FluentIsh/FluentIsh/`. Swift files go in `FluentIsh/FluentIsh/Models/` and `FluentIsh/FluentIsh/Services/`. Firebase config lives in lowercase `firebase/`.
@@ -23,9 +23,8 @@ _Created Oct 23, 2026. This doc is the source of truth. If a field name changes,
 - [x] 4. Firebase CLI, `firestore.rules` + `firestore.indexes.json` deployed. Deploy with `cd firebase && firebase deploy --only firestore:rules,firestore:indexes`. Check with `node scripts/test-rules.js` (12 allow/deny checks, all pass)
 - [x] 5. Seed JSON for every collection + `scripts/check-seed.js` passes (≈4,300 checks; see "Seed data format" below)
 - [x] 6. `scripts/seed.js` writes everything; second run changes nothing (114 docs). Setup: `cd scripts && npm install`. Run: `node seed.js --dry-run`, then `node seed.js`. It runs `check-seed.js` first, writes only changed docs and never deletes.
-- [ ] 7. `scripts/verify.js` + in-app DEBUG smoke test pass
+- [x] 7. `scripts/verify.js` + in-app DEBUG smoke test pass. `node scripts/verify.js` checks the live DB and the 3 indexed queries. `node scripts/demo-user.js <uid>` copies Sofía's data to your simulator's anonymous uid, then run the app and look for 🧪 lines (`Debug/DataSmokeTest.swift`, 16 checks). Models use `nonisolated Codable` because the project defaults to MainActor isolation.
 - [ ] 8. `docs/sample-data.json` + console screenshots / TA added as Viewer
-- [ ] 9. `docs/azure-handoff.md` written for the Azure teammate
 
 ### Seed data format (`firebase/seed/`)
 - **One JSON array per collection; the file name is the collection name** (e.g. `words.json`, `dailyLog.json`). `scripts/enrich-azure.js` reads `words.json` and `dailyPrompts.json` in this format.
@@ -39,10 +38,17 @@ _Created Oct 23, 2026. This doc is the source of truth. If a field name changes,
   - Demo users are `u_sofia`, `u_maya`, `u_lucas`, `u_elena`. The app's own anonymous uid has no seeded data yet.
 
 ### Progress — Azure (teammate)
-- [ ] Azure for Students + Translator F0 resource, key in `scripts/.env`
-- [ ] `Playgrounds/AzureTranslator.playground`: all 4 calls print parsed values
-- [ ] `scripts/enrich-azure.js` run, seed re-uploaded
-- [ ] `FluentIsh/FluentIsh/Services/AzureTranslator.swift`
+- [x] Azure for Students + Translator F0 resource
+- [x] `scripts/enrich-azure.js` written and tested on sample files
+- [x] `FluentIsh/FluentIsh/Services/AzureTranslator.swift` + public `AzureModels.swift` (compiles in the app)
+- [x] `Playgrounds/AzureTranslator.playground` written (keys read from the environment, not hardcoded)
+
+**Remaining Azure steps** (these needed the real seed data or a Mac with Xcode):
+- [ ] **Enrich the real seed:** put `AZURE_KEY`/`AZURE_REGION` in `scripts/.env`, run `node scripts/enrich-azure.js`, then `node scripts/check-seed.js` and `node scripts/seed.js` (needs `firebase/serviceAccount.json`; only enriched words/prompts show as "updated"). Commit the changed `firebase/seed/*.json`.
+- [ ] **Wire the key into Xcode** per README "Azure Translator service": create gitignored `FluentIsh/Secrets.xcconfig`, set it as the target's Base Configuration, add the `INFOPLIST_KEY_AZURE_*` build settings, then make one real call in a DEBUG build.
+- [ ] **Run the playground in Xcode**, confirm all 4 calls print parsed values plus one `from=fr`/`it` call, and save a real response per endpoint for the deliverable.
+- [ ] **Canvas copy** of the playground with the free-tier key filled in. Never commit it (the repo is public).
+- [ ] If Azure responses are decoded off the main actor and Xcode warns about "main actor-isolated conformance", mark the Azure model conformances `nonisolated Codable` like `FirestoreModels.swift`.
 
 ---
 
@@ -873,7 +879,6 @@ scripts/
   .env                             gitignored: AZURE_KEY, AZURE_REGION
 docs/
   plan.md                          this doc
-  azure-handoff.md                 step-by-step guide for the Azure teammate
   sample-data.json                 rubric deliverable
 CLAUDE.md                          auto-loaded context for Claude Code
 ```

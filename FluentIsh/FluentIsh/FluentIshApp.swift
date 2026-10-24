@@ -20,7 +20,12 @@ struct FluentIshApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .task { await signInIfNeeded() }
+                .task {
+                    await signInIfNeeded()
+                    #if DEBUG
+                    await DataSmokeTest.run()   // prints 🧪 results to the console
+                    #endif
+                }
         }
     }
 

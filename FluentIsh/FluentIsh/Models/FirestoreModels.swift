@@ -4,7 +4,12 @@
 //
 //  One Codable struct per Firestore document type (see docs/plan.md).
 //  Field names must match the documents exactly. If you rename one, update
-//  docs/plan.md and the seed data in the same change.
+//  docs/plan.md, scripts/schemas.js and the seed data in the same change.
+//
+//  Conformances are `nonisolated Codable`: the project defaults to MainActor
+//  isolation, but Firestore decodes on a background thread. Marking the whole
+//  struct `nonisolated` instead trips a compiler warning on @DocumentID.
+//  Use the same pattern for any new model.
 //
 
 import Foundation
@@ -12,7 +17,7 @@ import FirebaseFirestore
 
 // MARK: - User data
 
-struct AppUser: Codable, Identifiable {             // users/{uid}
+struct AppUser: nonisolated Codable, Identifiable {             // users/{uid}
     @DocumentID var id: String?
     var displayName: String
     var username: String
@@ -24,11 +29,11 @@ struct AppUser: Codable, Identifiable {             // users/{uid}
     var createdAt: Date
 }
 
-struct UserSettings: Codable {
+struct UserSettings: nonisolated Codable {
     var dailyGoalMinutes: Int
 }
 
-struct LanguageProgress: Codable, Identifiable {   // users/{uid}/progress/{lang}
+struct LanguageProgress: nonisolated Codable, Identifiable {   // users/{uid}/progress/{lang}
     @DocumentID var id: String?
     var language: String
     var level: String
@@ -49,9 +54,9 @@ struct LanguageProgress: Codable, Identifiable {   // users/{uid}/progress/{lang
     }
 }
 
-enum WordStatus: String, Codable { case new, learning, familiar, mastered }
+enum WordStatus: String, nonisolated Codable { case new, learning, familiar, mastered }
 
-struct WordProgress: Codable, Identifiable {        // users/{uid}/wordProgress/{wordId}
+struct WordProgress: nonisolated Codable, Identifiable {        // users/{uid}/wordProgress/{wordId}
     @DocumentID var id: String?
     var wordId: String
     var language: String
@@ -62,9 +67,9 @@ struct WordProgress: Codable, Identifiable {        // users/{uid}/wordProgress/
     var nextReview: String
 }
 
-enum GameStatus: String, Codable { case notStarted, inProgress, completed }
+enum GameStatus: String, nonisolated Codable { case notStarted, inProgress, completed }
 
-struct GameResult: Codable {
+struct GameResult: nonisolated Codable {
     var status: GameStatus
     var score: Double?
     var mistakes: Int?
@@ -74,7 +79,7 @@ struct GameResult: Codable {
     var hintsUsed: Int?
 }
 
-struct DailyLog: Codable, Identifiable {            // users/{uid}/dailyLog/{lang_date}
+struct DailyLog: nonisolated Codable, Identifiable {            // users/{uid}/dailyLog/{lang_date}
     @DocumentID var id: String?
     var date: String
     var language: String
@@ -88,7 +93,7 @@ struct DailyLog: Codable, Identifiable {            // users/{uid}/dailyLog/{lan
     var gamesCompleted: Int { games.values.filter { $0.status == .completed }.count }
 }
 
-struct Friend: Codable, Identifiable {              // users/{uid}/friends/{friendId}
+struct Friend: nonisolated Codable, Identifiable {              // users/{uid}/friends/{friendId}
     @DocumentID var id: String?
     var friendId: String
     var status: String                // "pending" | "accepted"
@@ -97,12 +102,12 @@ struct Friend: Codable, Identifiable {              // users/{uid}/friends/{frie
 
 // MARK: - Content
 
-struct AzureCache: Codable {
+struct AzureCache: nonisolated Codable {
     var translations: [String]
     var fetchedAt: Date
 }
 
-struct Word: Codable, Identifiable {                // words/{wordId}
+struct Word: nonisolated Codable, Identifiable {                // words/{wordId}
     @DocumentID var id: String?
     var language: String
     var term: String
@@ -117,7 +122,7 @@ struct Word: Codable, Identifiable {                // words/{wordId}
     var azure: AzureCache?
 }
 
-struct VocabLesson: Codable, Identifiable {         // vocabLessons/{lang_date}
+struct VocabLesson: nonisolated Codable, Identifiable {         // vocabLessons/{lang_date}
     @DocumentID var id: String?
     var language: String
     var date: String
@@ -127,21 +132,21 @@ struct VocabLesson: Codable, Identifiable {         // vocabLessons/{lang_date}
     var newWordIds: [String]
 }
 
-struct ConnectionsGroup: Codable {
+struct ConnectionsGroup: nonisolated Codable {
     var category: String
     var words: [String]
     var difficulty: Int
 }
 
-struct ConnectionsPuzzle: Codable { var groups: [ConnectionsGroup] }
+struct ConnectionsPuzzle: nonisolated Codable { var groups: [ConnectionsGroup] }
 
-struct WordGuessPuzzle: Codable {
+struct WordGuessPuzzle: nonisolated Codable {
     var answer: String
     var length: Int
     var definitionEn: String
 }
 
-struct CrosswordClue: Codable {
+struct CrosswordClue: nonisolated Codable {
     var number: Int
     var row: Int
     var col: Int
@@ -149,14 +154,14 @@ struct CrosswordClue: Codable {
     var answer: String
 }
 
-struct CrosswordPuzzle: Codable {
+struct CrosswordPuzzle: nonisolated Codable {
     var size: Int
     var solution: [String]            // one string per row, "#" = black square
     var cluesAcross: [CrosswordClue]
     var cluesDown: [CrosswordClue]
 }
 
-struct DailyPuzzle: Codable, Identifiable {         // dailyPuzzles/{lang_date}
+struct DailyPuzzle: nonisolated Codable, Identifiable {         // dailyPuzzles/{lang_date}
     @DocumentID var id: String?
     var language: String
     var date: String
@@ -165,13 +170,13 @@ struct DailyPuzzle: Codable, Identifiable {         // dailyPuzzles/{lang_date}
     var crossword: CrosswordPuzzle
 }
 
-struct ExerciseItem: Codable {
+struct ExerciseItem: nonisolated Codable {
     var prompt: String
     var answer: String
     var choices: [String]?
 }
 
-struct Exercise: Codable, Identifiable {            // exercises/{id}
+struct Exercise: nonisolated Codable, Identifiable {            // exercises/{id}
     @DocumentID var id: String?
     var language: String
     var type: String                  // fillBlank | sentenceBuilder | definitionMatch
@@ -181,7 +186,7 @@ struct Exercise: Codable, Identifiable {            // exercises/{id}
     var items: [ExerciseItem]
 }
 
-struct QuestDay: Codable {
+struct QuestDay: nonisolated Codable {
     var day: Int
     var title: String
     var tier: String                  // L1 | L2 | L3
@@ -189,14 +194,14 @@ struct QuestDay: Codable {
     var mascotMessage: String
 }
 
-struct Quest: Codable, Identifiable {               // quests/{lang_28day}
+struct Quest: nonisolated Codable, Identifiable {               // quests/{lang_28day}
     @DocumentID var id: String?
     var language: String
     var lengthDays: Int
     var days: [QuestDay]
 }
 
-struct DailyPrompt: Codable, Identifiable {         // dailyPrompts/{lang_date}
+struct DailyPrompt: nonisolated Codable, Identifiable {         // dailyPrompts/{lang_date}
     @DocumentID var id: String?
     var language: String
     var date: String
@@ -207,7 +212,7 @@ struct DailyPrompt: Codable, Identifiable {         // dailyPrompts/{lang_date}
 
 // MARK: - Social
 
-struct Post: Codable, Identifiable {                // posts/{postId}
+struct Post: nonisolated Codable, Identifiable {                // posts/{postId}
     @DocumentID var id: String?
     var authorId: String
     var authorName: String
@@ -221,12 +226,12 @@ struct Post: Codable, Identifiable {                // posts/{postId}
     var createdAt: Date
 }
 
-struct Like: Codable, Identifiable {                // posts/{postId}/likes/{uid}
+struct Like: nonisolated Codable, Identifiable {                // posts/{postId}/likes/{uid}
     @DocumentID var id: String?
     var likedAt: Date
 }
 
-struct LeaderboardPeriod: Codable, Identifiable {   // leaderboardPeriods/{weekId}
+struct LeaderboardPeriod: nonisolated Codable, Identifiable {   // leaderboardPeriods/{weekId}
     @DocumentID var id: String?
     var label: String
     var startDate: String

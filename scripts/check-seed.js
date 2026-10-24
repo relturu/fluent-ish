@@ -4,7 +4,7 @@
 // Every record has an "id" (the document ID). Subcollection records also have
 // a "parent" path, e.g. "users/u_sofia". seed.js strips both before writing.
 //
-// Checks: (1) fields and types match the Swift structs in FirestoreModels.swift,
+// Checks: (1) fields and types match the Swift structs (schemas.js),
 // (2) every referenced ID exists, (3) game data follows docs/plan.md rules
 // (crossword grids, Connections, scoring, XP, review intervals).
 //
@@ -16,70 +16,10 @@ const path = require("node:path");
 const argIndex = process.argv.indexOf("--seed-dir");
 const SEED_DIR = argIndex > -1 ? path.resolve(process.argv[argIndex + 1]) : path.join(__dirname, "../firebase/seed");
 
-// Top-level collections and subcollections (with the collection their parent lives in).
-const TOP_LEVEL = ["users", "words", "vocabLessons", "dailyPuzzles", "exercises", "quests", "dailyPrompts", "posts", "leaderboardPeriods"];
-const SUBCOLLECTIONS = { progress: "users", wordProgress: "users", dailyLog: "users", friends: "users", likes: "posts" };
+const { TOP_LEVEL, SUBCOLLECTIONS, GAME_RESULT, SCHEMAS } = require("./schemas");
 
-const CATEGORIES = ["Connector", "Café & Dining", "Daily Verb", "Culture & Idioms"];
 const LEVEL_FLOORS = [["A1", 0], ["A2", 300], ["B1", 800], ["B2", 1500], ["C1", 2500], ["C2", 4000]];
 const REVIEW_DAYS = { learning: 1, familiar: 3, mastered: 7 };
-
-// ---- Schemas: mirror the Swift structs. "?" = optional (may be missing or null). ----
-const GAME_RESULT = {
-  status: "enum:notStarted|inProgress|completed", score: "number?", mistakes: "int?",
-  solvedGroups: "int[]?", guesses: "string[]?", filledCells: "string[]?", hintsUsed: "int?",
-};
-const CLUE = { number: "int", row: "int", col: "int", clue: "string", answer: "string" };
-const SCHEMAS = {
-  users: {
-    displayName: "string", username: "string", avatarInitials: "string", avatarColor: "string",
-    nativeLanguage: "string", targetLanguage: "string", settings: { dailyGoalMinutes: "int" }, createdAt: "timestamp",
-  },
-  progress: {
-    language: "string", level: "string", xp: "int", weeklyXP: "int", weekId: "string", currentStreak: "int",
-    longestStreak: "int", lastActiveDate: "day", wordsLearned: "int", reviewsCorrect: "int", reviewsTotal: "int",
-    displayName: "string", avatarInitials: "string",
-  },
-  wordProgress: {
-    wordId: "string", language: "string", status: "enum:new|learning|familiar|mastered", timesSeen: "int",
-    timesCorrect: "int", lastReviewed: "timestamp?", nextReview: "day",
-  },
-  dailyLog: {
-    date: "day", language: "string", vocabCompleted: "bool", vocabScore: "number?", games: "map:gameResult",
-    exercisesCompleted: "string[]", xpEarned: "int", minutesSpent: "int",
-  },
-  friends: { friendId: "string", status: "enum:pending|accepted", since: "timestamp" },
-  words: {
-    language: "string", term: "string", lemma: "string", gender: "enum?:m|f", partOfSpeech: "string",
-    definitionEn: "string", category: `enum:${CATEGORIES.join("|")}`, level: "string", example: "string?",
-    exampleEn: "string?", azure: { optional: true, translations: "string[]", fetchedAt: "timestamp" },
-  },
-  vocabLessons: {
-    language: "string", date: "day", title: "string", wordCount: "int", reviewRatio: "number", newWordIds: "string[]",
-  },
-  dailyPuzzles: {
-    language: "string", date: "day",
-    connections: { groups: [{ category: "string", words: "string[]", difficulty: "int" }] },
-    wordGuess: { answer: "string", length: "int", definitionEn: "string" },
-    crossword: { size: "int", solution: "string[]", cluesAcross: [CLUE], cluesDown: [CLUE] },
-  },
-  exercises: {
-    language: "string", type: "enum:fillBlank|sentenceBuilder|definitionMatch", title: "string", subtitle: "string",
-    difficulty: "enum:easy|medium|hard", items: [{ prompt: "string", answer: "string", choices: "string[]?" }],
-  },
-  quests: {
-    language: "string", lengthDays: "int",
-    days: [{ day: "int", title: "string", tier: "enum:L1|L2|L3", rewardXp: "int", mascotMessage: "string" }],
-  },
-  dailyPrompts: { language: "string", date: "day", theme: "string", text: "string", textEn: "string?" },
-  posts: {
-    authorId: "string", authorName: "string", authorHandle: "string", language: "string",
-    type: "enum:promptResponse|achievement", promptId: "string?", badge: "string?", text: "string",
-    likesCount: "int", createdAt: "timestamp",
-  },
-  likes: { likedAt: "timestamp" },
-  leaderboardPeriods: { label: "string", startDate: "day", endDate: "day" },
-};
 
 // ---- Reporting ----
 const errors = [];
