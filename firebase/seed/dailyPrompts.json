@@ -1,0 +1,7 @@
+[
+  { "id": "es_2026-10-24", "language": "es", "date": "2026-10-24", "theme": "La Sobremesa", "text": "En nuestra sobremesa nunca falta ________.", "textEn": "Our after-meal chats are never missing ________." },
+  { "id": "es_2026-10-25", "language": "es", "date": "2026-10-25", "theme": "El Mercado", "text": "Lo primero que compro en el mercado es ________.", "textEn": "The first thing I buy at the market is ________." },
+  { "id": "es_2026-10-26", "language": "es", "date": "2026-10-26", "theme": "De Paseo", "text": "Mi paseo favorito es por ________.", "textEn": "My favorite walk is through ________." },
+  { "id": "es_2026-10-27", "language": "es", "date": "2026-10-27", "theme": "Los Vecinos", "text": "Un buen vecino siempre ________.", "textEn": "A good neighbor always ________." },
+  { "id": "es_2026-10-28", "language": "es", "date": "2026-10-28", "theme": "¡A Celebrar!", "text": "Para celebrar algo especial, me gusta ________.", "textEn": "To celebrate something special, I like to ________." }
+]

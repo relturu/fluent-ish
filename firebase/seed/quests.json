@@ -1,0 +1,37 @@
+[
+  {
+    "id": "es_28day",
+    "language": "es",
+    "lengthDays": 28,
+    "days": [
+      { "day": 1, "title": "Primer café", "tier": "L1", "rewardXp": 20, "mascotMessage": "¡Vamos!" },
+      { "day": 2, "title": "Buenos días", "tier": "L1", "rewardXp": 20, "mascotMessage": "¡Un cafecito y a jugar!" },
+      { "day": 3, "title": "En la plaza", "tier": "L1", "rewardXp": 20, "mascotMessage": "¡Qué bien lo haces!" },
+      { "day": 4, "title": "La merienda", "tier": "L1", "rewardXp": 20, "mascotMessage": "¿Algo dulce? ¡Claro que sí!" },
+      { "day": 5, "title": "Mi barrio", "tier": "L1", "rewardXp": 20, "mascotMessage": "¡Saluda a los vecinos!" },
+      { "day": 6, "title": "El mercado", "tier": "L1", "rewardXp": 20, "mascotMessage": "¡A regatear!" },
+      { "day": 7, "title": "Una semana", "tier": "L1", "rewardXp": 20, "mascotMessage": "¡Siete días seguidos!" },
+      { "day": 8, "title": "De paseo", "tier": "L1", "rewardXp": 20, "mascotMessage": "Paso a paso." },
+      { "day": 9, "title": "La sobremesa", "tier": "L1", "rewardXp": 20, "mascotMessage": "¡Charlemos un rato!" },
+      { "day": 10, "title": "Primer nivel", "tier": "L1", "rewardXp": 20, "mascotMessage": "¡Nivel L1 completado!" },
+      { "day": 11, "title": "Nuevos amigos", "tier": "L2", "rewardXp": 50, "mascotMessage": "¡Échale una mano a un amigo!" },
+      { "day": 12, "title": "La cocina", "tier": "L2", "rewardXp": 50, "mascotMessage": "¡Huele de maravilla!" },
+      { "day": 13, "title": "La tertulia", "tier": "L2", "rewardXp": 50, "mascotMessage": "¿Y tú qué opinas?" },
+      { "day": 14, "title": "Dos semanas", "tier": "L2", "rewardXp": 50, "mascotMessage": "¡14 días invictos!" },
+      { "day": 15, "title": "El atardecer", "tier": "L2", "rewardXp": 50, "mascotMessage": "¡Qué vista tan bonita!" },
+      { "day": 16, "title": "Los conectores", "tier": "L2", "rewardXp": 50, "mascotMessage": "Sin embargo... ¡sigues aquí!" },
+      { "day": 17, "title": "La fiesta", "tier": "L2", "rewardXp": 50, "mascotMessage": "¡A bailar!" },
+      { "day": 18, "title": "El brindis", "tier": "L2", "rewardXp": 50, "mascotMessage": "¡Salud!" },
+      { "day": 19, "title": "De madrugada", "tier": "L2", "rewardXp": 50, "mascotMessage": "¿Todavía despierto?" },
+      { "day": 20, "title": "Segundo nivel", "tier": "L2", "rewardXp": 50, "mascotMessage": "¡Nivel L2 completado!" },
+      { "day": 21, "title": "Viaje en tren", "tier": "L3", "rewardXp": 100, "mascotMessage": "Próxima parada: ¡la fluidez!" },
+      { "day": 22, "title": "Callejear", "tier": "L3", "rewardXp": 100, "mascotMessage": "Perderse también es aprender." },
+      { "day": 23, "title": "Tres semanas", "tier": "L3", "rewardXp": 100, "mascotMessage": "¡21 días seguidos!" },
+      { "day": 24, "title": "El abrazo", "tier": "L3", "rewardXp": 100, "mascotMessage": "¡Un abrazo enorme!" },
+      { "day": 25, "title": "Los refranes", "tier": "L3", "rewardXp": 100, "mascotMessage": "Poco a poco se va lejos." },
+      { "day": 26, "title": "La recta final", "tier": "L3", "rewardXp": 100, "mascotMessage": "¡Ya casi!" },
+      { "day": 27, "title": "Enhorabuena", "tier": "L3", "rewardXp": 100, "mascotMessage": "¡Qué orgulloso estoy de ti!" },
+      { "day": 28, "title": "Churro's Quest", "tier": "L3", "rewardXp": 200, "mascotMessage": "¡28 días invictos!" }
+    ]
+  }
+]

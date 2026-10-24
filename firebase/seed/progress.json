@@ -1,0 +1,6 @@
+[
+  { "parent": "users/u_sofia", "id": "es", "language": "es", "level": "B1", "xp": 1245, "weeklyXP": 310, "weekId": "2026-W43", "currentStreak": 14, "longestStreak": 14, "lastActiveDate": "2026-10-24", "wordsLearned": 312, "reviewsCorrect": 1780, "reviewsTotal": 2000, "displayName": "Sofía Martínez", "avatarInitials": "SM" },
+  { "parent": "users/u_maya", "id": "es", "language": "es", "level": "B2", "xp": 1820, "weeklyXP": 385, "weekId": "2026-W43", "currentStreak": 21, "longestStreak": 21, "lastActiveDate": "2026-10-24", "wordsLearned": 268, "reviewsCorrect": 2210, "reviewsTotal": 2400, "displayName": "Maya Lin", "avatarInitials": "ML" },
+  { "parent": "users/u_lucas", "id": "es", "language": "es", "level": "A2", "xp": 640, "weeklyXP": 150, "weekId": "2026-W43", "currentStreak": 3, "longestStreak": 9, "lastActiveDate": "2026-10-23", "wordsLearned": 94, "reviewsCorrect": 610, "reviewsTotal": 780, "displayName": "Lucas Ferreira", "avatarInitials": "LF" },
+  { "parent": "users/u_elena", "id": "es", "language": "es", "level": "B1", "xp": 980, "weeklyXP": 270, "weekId": "2026-W43", "currentStreak": 6, "longestStreak": 6, "lastActiveDate": "2026-10-24", "wordsLearned": 155, "reviewsCorrect": 1020, "reviewsTotal": 1190, "displayName": "Elena Rossi", "avatarInitials": "ER" }
+]

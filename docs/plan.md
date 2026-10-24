@@ -21,11 +21,22 @@ _Created Oct 23, 2026. This doc is the source of truth. If a field name changes,
 - [x] 2. Firebase project, `GoogleService-Info.plist`, Firestore DB, Anonymous auth, `FirebaseApp.configure()`. The app signs in anonymously on launch (`FluentIshApp.swift`) and keeps the same uid across launches.
 - [x] 3. `FirestoreModels.swift` + `AzureModels.swift` compile (`FluentIsh/FluentIsh/Models/`)
 - [x] 4. Firebase CLI, `firestore.rules` + `firestore.indexes.json` deployed. Deploy with `cd firebase && firebase deploy --only firestore:rules,firestore:indexes`. Check with `node scripts/test-rules.js` (12 allow/deny checks, all pass)
-- [ ] 5. Seed JSON for every collection + `scripts/check-seed.js` passes
+- [x] 5. Seed JSON for every collection + `scripts/check-seed.js` passes (≈4,300 checks; see "Seed data format" below)
 - [ ] 6. `scripts/seed.js` writes everything; second run changes nothing
 - [ ] 7. `scripts/verify.js` + in-app DEBUG smoke test pass
 - [ ] 8. `docs/sample-data.json` + console screenshots / TA added as Viewer
 - [ ] 9. `docs/azure-handoff.md` written for the Azure teammate
+
+### Seed data format (`firebase/seed/`)
+- **One JSON array per collection; the file name is the collection name** (e.g. `words.json`, `dailyLog.json`). `scripts/enrich-azure.js` reads `words.json` and `dailyPrompts.json` in this format.
+- Every record has **`id`**, the document ID. Subcollection records (`progress`, `wordProgress`, `dailyLog`, `friends`, `likes`) also have **`parent`**, e.g. `"users/u_sofia"` or `"posts/p_001"`. `seed.js` removes both before writing. (A stored field named `id` would clash with `@DocumentID`.)
+- Timestamps (`createdAt`, `since`, `lastReviewed`, `likedAt`, `azure.fetchedAt`) are ISO strings in JSON, and `seed.js` converts them to Firestore Timestamps. Calendar days (`date`, `nextReview`, `lastActiveDate`…) stay `yyyy-MM-dd` strings.
+- Crossword `filledCells`: one string per row; `"#"` = black square, `"."` = empty cell.
+- **Run `node scripts/check-seed.js` after any edit to seed data.** It checks fields against the Swift models, every ID reference, crossword grids vs. clues, Connections (4×4, unique tiles), and that scores, XP, levels and review dates follow the defaults in this doc.
+- Decisions made while seeding:
+  - `words` contains every word **referenced by ID** (lesson words, Word Guess answers, `wordProgress`): 35 words. Connections tiles are plain strings and don't need a `words` doc.
+  - Demo scores follow the scoring defaults exactly, so they differ from the illustrative sample above (e.g. Connections with 1 mistake = 0.75, not 0.96). `likesCount` equals the number of `likes` docs.
+  - Demo users are `u_sofia`, `u_maya`, `u_lucas`, `u_elena`. The app's own anonymous uid has no seeded data yet.
 
 ### Progress — Azure (teammate)
 - [ ] Azure for Students + Translator F0 resource, key in `scripts/.env`

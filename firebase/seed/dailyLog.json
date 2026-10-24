@@ -1,0 +1,72 @@
+[
+  {
+    "parent": "users/u_sofia", "id": "es_2026-10-22", "date": "2026-10-22", "language": "es",
+    "vocabCompleted": true, "vocabScore": 0.8,
+    "games": {
+      "connections": { "status": "completed", "score": 0.75, "mistakes": 1, "solvedGroups": [0, 1, 2, 3] },
+      "wordGuess": { "status": "completed", "score": 0.83, "guesses": ["PLAYAS", "SIESTA"] },
+      "crossword": { "status": "completed", "score": 1.0, "hintsUsed": 0 }
+    },
+    "exercisesCompleted": [], "xpEarned": 98, "minutesSpent": 14
+  },
+  {
+    "parent": "users/u_sofia", "id": "es_2026-10-23", "date": "2026-10-23", "language": "es",
+    "vocabCompleted": true, "vocabScore": 0.9,
+    "games": {
+      "connections": { "status": "completed", "score": 1.0, "mistakes": 0, "solvedGroups": [0, 1, 2, 3] },
+      "wordGuess": { "status": "completed", "score": 0.67, "guesses": ["CAMINO", "CANTAR", "CALMAR"] },
+      "crossword": { "status": "notStarted", "filledCells": [] }
+    },
+    "exercisesCompleted": ["ex_match_001"], "xpEarned": 80, "minutesSpent": 11
+  },
+  {
+    "parent": "users/u_sofia", "id": "es_2026-10-24", "date": "2026-10-24", "language": "es",
+    "vocabCompleted": true, "vocabScore": 0.9,
+    "games": {
+      "connections": { "status": "completed", "score": 0.75, "mistakes": 1, "solvedGroups": [1, 0, 2, 3] },
+      "wordGuess": { "status": "inProgress", "guesses": ["CHARLO"], "score": null },
+      "crossword": { "status": "notStarted", "filledCells": [], "score": null }
+    },
+    "exercisesCompleted": ["ex_fill_001"], "xpEarned": 53, "minutesSpent": 12
+  },
+  {
+    "parent": "users/u_maya", "id": "es_2026-10-24", "date": "2026-10-24", "language": "es",
+    "vocabCompleted": true, "vocabScore": 1.0,
+    "games": {
+      "connections": { "status": "completed", "score": 1.0, "mistakes": 0, "solvedGroups": [0, 1, 3, 2] },
+      "wordGuess": { "status": "completed", "score": 0.83, "guesses": ["CHARCO", "CHARLA"] },
+      "crossword": { "status": "completed", "score": 0.9, "hintsUsed": 1, "filledCells": ["TARDE", "A#I#N", "COSTE", "O#A#R", "SUSTO"] }
+    },
+    "exercisesCompleted": ["ex_fill_001", "ex_match_001"], "xpEarned": 117, "minutesSpent": 18
+  },
+  {
+    "parent": "users/u_lucas", "id": "es_2026-10-23", "date": "2026-10-23", "language": "es",
+    "vocabCompleted": true, "vocabScore": 0.7,
+    "games": {
+      "connections": { "status": "completed", "score": 0.25, "mistakes": 3, "solvedGroups": [0, 1, 2, 3] },
+      "wordGuess": { "status": "completed", "score": 0.17, "guesses": ["CAMISA", "CORTAR", "CHISTE", "CEREZA", "COLINA", "CAMINO"] },
+      "crossword": { "status": "notStarted", "filledCells": [] }
+    },
+    "exercisesCompleted": [], "xpEarned": 33, "minutesSpent": 7
+  },
+  {
+    "parent": "users/u_lucas", "id": "es_2026-10-24", "date": "2026-10-24", "language": "es",
+    "vocabCompleted": false, "vocabScore": null,
+    "games": {
+      "connections": { "status": "inProgress", "mistakes": 1, "solvedGroups": [0], "score": null },
+      "wordGuess": { "status": "notStarted", "guesses": [] },
+      "crossword": { "status": "notStarted", "filledCells": [] }
+    },
+    "exercisesCompleted": [], "xpEarned": 0, "minutesSpent": 3
+  },
+  {
+    "parent": "users/u_elena", "id": "es_2026-10-24", "date": "2026-10-24", "language": "es",
+    "vocabCompleted": true, "vocabScore": 0.8,
+    "games": {
+      "connections": { "status": "completed", "score": 1.0, "mistakes": 0, "solvedGroups": [0, 1, 2, 3] },
+      "wordGuess": { "status": "completed", "score": 1.0, "guesses": ["CHARLA"] },
+      "crossword": { "status": "inProgress", "hintsUsed": 0, "filledCells": ["TARDE", "A#I#N", "CO...", "O#A#R", "S...."] }
+    },
+    "exercisesCompleted": [], "xpEarned": 80, "minutesSpent": 10
+  }
+]

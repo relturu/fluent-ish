@@ -1,0 +1,12 @@
+[
+  { "parent": "posts/p_001", "id": "u_sofia", "likedAt": "2026-10-24T14:00:00Z" },
+  { "parent": "posts/p_001", "id": "u_lucas", "likedAt": "2026-10-24T14:20:00Z" },
+  { "parent": "posts/p_001", "id": "u_elena", "likedAt": "2026-10-24T16:45:00Z" },
+  { "parent": "posts/p_002", "id": "u_maya", "likedAt": "2026-10-24T15:30:00Z" },
+  { "parent": "posts/p_003", "id": "u_sofia", "likedAt": "2026-10-24T11:30:00Z" },
+  { "parent": "posts/p_003", "id": "u_maya", "likedAt": "2026-10-24T12:10:00Z" },
+  { "parent": "posts/p_004", "id": "u_maya", "likedAt": "2026-10-24T09:45:00Z" },
+  { "parent": "posts/p_004", "id": "u_elena", "likedAt": "2026-10-24T10:02:00Z" },
+  { "parent": "posts/p_004", "id": "u_lucas", "likedAt": "2026-10-24T18:15:00Z" },
+  { "parent": "posts/p_005", "id": "u_sofia", "likedAt": "2026-10-22T21:00:00Z" }
+]

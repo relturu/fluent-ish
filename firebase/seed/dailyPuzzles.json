@@ -1,0 +1,142 @@
+[
+  {
+    "id": "es_2026-10-24",
+    "language": "es",
+    "date": "2026-10-24",
+    "connections": {
+      "groups": [
+        { "category": "Cosas del café", "words": ["cortado", "taza", "azúcar", "leche"], "difficulty": 1 },
+        { "category": "Conectores", "words": ["además", "sin embargo", "aunque", "pues"], "difficulty": 2 },
+        { "category": "Verbos sociales", "words": ["charlar", "compartir", "brindar", "invitar"], "difficulty": 3 },
+        { "category": "Momentos del día", "words": ["merienda", "siesta", "madrugada", "sobremesa"], "difficulty": 4 }
+      ]
+    },
+    "wordGuess": { "answer": "CHARLA", "length": 6, "definitionEn": "a chat, a talk" },
+    "crossword": {
+      "size": 5,
+      "solution": ["TARDE", "A#I#N", "COSTE", "O#A#R", "SUSTO"],
+      "cluesAcross": [
+        { "number": 1, "row": 0, "col": 0, "clue": "Parte del día después del mediodía", "answer": "TARDE" },
+        { "number": 4, "row": 2, "col": 0, "clue": "Lo que cuesta algo", "answer": "COSTE" },
+        { "number": 5, "row": 4, "col": 0, "clue": "Lo que sientes al ver un fantasma", "answer": "SUSTO" }
+      ],
+      "cluesDown": [
+        { "number": 1, "row": 0, "col": 0, "clue": "Comida mexicana con tortilla", "answer": "TACOS" },
+        { "number": 2, "row": 0, "col": 2, "clue": "Nunca faltan en la sobremesa", "answer": "RISAS" },
+        { "number": 3, "row": 0, "col": 4, "clue": "Primer mes del año", "answer": "ENERO" }
+      ]
+    }
+  },
+  {
+    "id": "es_2026-10-25",
+    "language": "es",
+    "date": "2026-10-25",
+    "connections": {
+      "groups": [
+        { "category": "Frutas", "words": ["manzana", "pera", "uva", "naranja"], "difficulty": 1 },
+        { "category": "Para pagar", "words": ["efectivo", "tarjeta", "cambio", "recibo"], "difficulty": 2 },
+        { "category": "Medidas", "words": ["kilo", "docena", "litro", "gramo"], "difficulty": 3 },
+        { "category": "Mercado ___", "words": ["negro", "libre", "laboral", "común"], "difficulty": 4 }
+      ]
+    },
+    "wordGuess": { "answer": "PRECIO", "length": 6, "definitionEn": "price" },
+    "crossword": {
+      "size": 5,
+      "solution": ["PLATO", "A#B#R", "NORTE", "E#I#J", "SALSA"],
+      "cluesAcross": [
+        { "number": 1, "row": 0, "col": 0, "clue": "Donde se sirve la comida", "answer": "PLATO" },
+        { "number": 4, "row": 2, "col": 0, "clue": "Lo contrario del sur", "answer": "NORTE" },
+        { "number": 5, "row": 4, "col": 0, "clue": "Va encima de la pasta... y también se baila", "answer": "SALSA" }
+      ],
+      "cluesDown": [
+        { "number": 1, "row": 0, "col": 0, "clue": "Se compran en la panadería", "answer": "PANES" },
+        { "number": 2, "row": 0, "col": 2, "clue": "Mes entre marzo y mayo", "answer": "ABRIL" },
+        { "number": 3, "row": 0, "col": 4, "clue": "Parte del cuerpo para oír", "answer": "OREJA" }
+      ]
+    }
+  },
+  {
+    "id": "es_2026-10-26",
+    "language": "es",
+    "date": "2026-10-26",
+    "connections": {
+      "groups": [
+        { "category": "El tiempo", "words": ["sol", "lluvia", "viento", "nube"], "difficulty": 1 },
+        { "category": "Lugares de la ciudad", "words": ["plaza", "parque", "puente", "calle"], "difficulty": 2 },
+        { "category": "Verbos de movimiento", "words": ["caminar", "correr", "nadar", "subir"], "difficulty": 3 },
+        { "category": "Dar un ___", "words": ["paseo", "abrazo", "consejo", "salto"], "difficulty": 4 }
+      ]
+    },
+    "wordGuess": { "answer": "PASEAR", "length": 6, "definitionEn": "to go for a walk, to stroll" },
+    "crossword": {
+      "size": 5,
+      "solution": ["VISTA", "A#I#P", "CIELO", "A#T#Y", "SUELO"],
+      "cluesAcross": [
+        { "number": 1, "row": 0, "col": 0, "clue": "Lo que ves desde un mirador", "answer": "VISTA" },
+        { "number": 4, "row": 2, "col": 0, "clue": "Arriba, azul y con nubes", "answer": "CIELO" },
+        { "number": 5, "row": 4, "col": 0, "clue": "Lo que pisas al caminar", "answer": "SUELO" }
+      ],
+      "cluesDown": [
+        { "number": 1, "row": 0, "col": 0, "clue": "Animales del campo que dan leche", "answer": "VACAS" },
+        { "number": 2, "row": 0, "col": 2, "clue": "Número de días de la semana", "answer": "SIETE" },
+        { "number": 3, "row": 0, "col": 4, "clue": "La ayuda que te da un amigo", "answer": "APOYO" }
+      ]
+    }
+  },
+  {
+    "id": "es_2026-10-27",
+    "language": "es",
+    "date": "2026-10-27",
+    "connections": {
+      "groups": [
+        { "category": "Partes de la casa", "words": ["cocina", "balcón", "puerta", "ventana"], "difficulty": 1 },
+        { "category": "Familia", "words": ["abuela", "primo", "tía", "sobrino"], "difficulty": 2 },
+        { "category": "Formas de saludar", "words": ["hola", "buenas", "¿qué tal?", "¿cómo va?"], "difficulty": 3 },
+        { "category": "Echar un/una/la ___", "words": ["mano", "siesta", "vistazo", "culpa"], "difficulty": 4 }
+      ]
+    },
+    "wordGuess": { "answer": "VECINO", "length": 6, "definitionEn": "neighbor" },
+    "crossword": {
+      "size": 5,
+      "solution": ["LOCAL", "I#A#L", "SILLA", "T#L#M", "ACERA"],
+      "cluesAcross": [
+        { "number": 1, "row": 0, "col": 0, "clue": "Tienda o bar en la planta baja de un edificio", "answer": "LOCAL" },
+        { "number": 4, "row": 2, "col": 0, "clue": "Mueble para sentarse", "answer": "SILLA" },
+        { "number": 5, "row": 4, "col": 0, "clue": "Parte de la calle para los peatones", "answer": "ACERA" }
+      ],
+      "cluesDown": [
+        { "number": 1, "row": 0, "col": 0, "clue": "La escribes antes de ir a la compra", "answer": "LISTA" },
+        { "number": 2, "row": 0, "col": 2, "clue": "Tiene nombre, número y muchos vecinos", "answer": "CALLE" },
+        { "number": 3, "row": 0, "col": 4, "clue": "Animal de los Andes... o el fuego de una vela", "answer": "LLAMA" }
+      ]
+    }
+  },
+  {
+    "id": "es_2026-10-28",
+    "language": "es",
+    "date": "2026-10-28",
+    "connections": {
+      "groups": [
+        { "category": "En una fiesta", "words": ["tarta", "globos", "velas", "regalos"], "difficulty": 1 },
+        { "category": "Para brindar", "words": ["cava", "vino", "champán", "sidra"], "difficulty": 2 },
+        { "category": "Emociones", "words": ["alegría", "sorpresa", "nervios", "orgullo"], "difficulty": 3 },
+        { "category": "¡Feliz ___!", "words": ["cumpleaños", "Navidad", "aniversario", "Año Nuevo"], "difficulty": 4 }
+      ]
+    },
+    "wordGuess": { "answer": "ABRAZO", "length": 6, "definitionEn": "a hug" },
+    "crossword": {
+      "size": 5,
+      "solution": ["VELAS", "E#A#A", "NIVEL", "T#A#I", "ABRIR"],
+      "cluesAcross": [
+        { "number": 1, "row": 0, "col": 0, "clue": "Las soplas en la tarta de cumpleaños", "answer": "VELAS" },
+        { "number": 4, "row": 2, "col": 0, "clue": "A1, B1 o C1, por ejemplo", "answer": "NIVEL" },
+        { "number": 5, "row": 4, "col": 0, "clue": "Lo que haces con los regalos", "answer": "ABRIR" }
+      ],
+      "cluesDown": [
+        { "number": 1, "row": 0, "col": 0, "clue": "Lo contrario de compra", "answer": "VENTA" },
+        { "number": 2, "row": 0, "col": 2, "clue": "Lo que haces con los platos después de la fiesta", "answer": "LAVAR" },
+        { "number": 3, "row": 0, "col": 4, "clue": "Ir de fiesta: ___ de noche", "answer": "SALIR" }
+      ]
+    }
+  }
+]
