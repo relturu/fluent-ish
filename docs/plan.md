@@ -22,7 +22,7 @@ _Created Oct 23, 2026. This doc is the source of truth. If a field name changes,
 - [x] 3. `FirestoreModels.swift` + `AzureModels.swift` compile (`FluentIsh/FluentIsh/Models/`)
 - [x] 4. Firebase CLI, `firestore.rules` + `firestore.indexes.json` deployed. Deploy with `cd firebase && firebase deploy --only firestore:rules,firestore:indexes`. Check with `node scripts/test-rules.js` (12 allow/deny checks, all pass)
 - [x] 5. Seed JSON for every collection + `scripts/check-seed.js` passes (≈4,300 checks; see "Seed data format" below)
-- [ ] 6. `scripts/seed.js` writes everything; second run changes nothing
+- [x] 6. `scripts/seed.js` writes everything; second run changes nothing (114 docs). Setup: `cd scripts && npm install`. Run: `node seed.js --dry-run`, then `node seed.js`. It runs `check-seed.js` first, writes only changed docs and never deletes.
 - [ ] 7. `scripts/verify.js` + in-app DEBUG smoke test pass
 - [ ] 8. `docs/sample-data.json` + console screenshots / TA added as Viewer
 - [ ] 9. `docs/azure-handoff.md` written for the Azure teammate
