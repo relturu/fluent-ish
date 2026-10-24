@@ -1,0 +1,486 @@
+{
+  "users/u_sofia": {
+    "displayName": "Sofía Martínez",
+    "username": "sofia",
+    "avatarInitials": "SM",
+    "avatarColor": "#E8743B",
+    "nativeLanguage": "en",
+    "targetLanguage": "es",
+    "settings": {
+      "dailyGoalMinutes": 10
+    },
+    "createdAt": "2026-09-10T14:00:00Z"
+  },
+  "users/u_sofia/progress/es": {
+    "language": "es",
+    "level": "B1",
+    "xp": 1245,
+    "weeklyXP": 310,
+    "weekId": "2026-W43",
+    "currentStreak": 14,
+    "longestStreak": 14,
+    "lastActiveDate": "2026-10-24",
+    "wordsLearned": 312,
+    "reviewsCorrect": 1780,
+    "reviewsTotal": 2000,
+    "displayName": "Sofía Martínez",
+    "avatarInitials": "SM"
+  },
+  "users/u_sofia/wordProgress/w_sobremesa": {
+    "wordId": "w_sobremesa",
+    "language": "es",
+    "status": "familiar",
+    "timesSeen": 6,
+    "timesCorrect": 5,
+    "lastReviewed": "2026-10-22T19:05:00Z",
+    "nextReview": "2026-10-25"
+  },
+  "users/u_sofia/dailyLog/es_2026-10-24": {
+    "date": "2026-10-24",
+    "language": "es",
+    "vocabCompleted": true,
+    "vocabScore": 0.9,
+    "games": {
+      "connections": {
+        "status": "completed",
+        "score": 0.75,
+        "mistakes": 1,
+        "solvedGroups": [
+          1,
+          0,
+          2,
+          3
+        ]
+      },
+      "wordGuess": {
+        "status": "inProgress",
+        "guesses": [
+          "CHARLO"
+        ],
+        "score": null
+      },
+      "crossword": {
+        "status": "notStarted",
+        "filledCells": [],
+        "score": null
+      }
+    },
+    "exercisesCompleted": [
+      "ex_fill_001"
+    ],
+    "xpEarned": 53,
+    "minutesSpent": 12
+  },
+  "users/u_sofia/friends/u_maya": {
+    "friendId": "u_maya",
+    "status": "accepted",
+    "since": "2026-09-15T00:00:00Z"
+  },
+  "words/w_sobremesa": {
+    "language": "es",
+    "term": "la sobremesa",
+    "lemma": "sobremesa",
+    "gender": "f",
+    "partOfSpeech": "noun",
+    "definitionEn": "relaxed conversation at the table after a meal",
+    "category": "Culture & Idioms",
+    "level": "B1",
+    "example": "La sobremesa duró dos horas.",
+    "exampleEn": "The after-dinner chat lasted two hours."
+  },
+  "vocabLessons/es_2026-10-24": {
+    "language": "es",
+    "date": "2026-10-24",
+    "title": "La Sobremesa",
+    "wordCount": 10,
+    "reviewRatio": 0.7,
+    "newWordIds": [
+      "w_sobremesa",
+      "w_cortado",
+      "w_merienda"
+    ]
+  },
+  "dailyPuzzles/es_2026-10-24": {
+    "language": "es",
+    "date": "2026-10-24",
+    "connections": {
+      "groups": [
+        {
+          "category": "Cosas del café",
+          "words": [
+            "cortado",
+            "taza",
+            "azúcar",
+            "leche"
+          ],
+          "difficulty": 1
+        },
+        {
+          "category": "Conectores",
+          "words": [
+            "además",
+            "sin embargo",
+            "aunque",
+            "pues"
+          ],
+          "difficulty": 2
+        },
+        {
+          "category": "Verbos sociales",
+          "words": [
+            "charlar",
+            "compartir",
+            "brindar",
+            "invitar"
+          ],
+          "difficulty": 3
+        },
+        {
+          "category": "Momentos del día",
+          "words": [
+            "merienda",
+            "siesta",
+            "madrugada",
+            "sobremesa"
+          ],
+          "difficulty": 4
+        }
+      ]
+    },
+    "wordGuess": {
+      "answer": "CHARLA",
+      "length": 6,
+      "definitionEn": "a chat, a talk"
+    },
+    "crossword": {
+      "size": 5,
+      "solution": [
+        "TARDE",
+        "A#I#N",
+        "COSTE",
+        "O#A#R",
+        "SUSTO"
+      ],
+      "cluesAcross": [
+        {
+          "number": 1,
+          "row": 0,
+          "col": 0,
+          "clue": "Parte del día después del mediodía",
+          "answer": "TARDE"
+        },
+        {
+          "number": 4,
+          "row": 2,
+          "col": 0,
+          "clue": "Lo que cuesta algo",
+          "answer": "COSTE"
+        },
+        {
+          "number": 5,
+          "row": 4,
+          "col": 0,
+          "clue": "Lo que sientes al ver un fantasma",
+          "answer": "SUSTO"
+        }
+      ],
+      "cluesDown": [
+        {
+          "number": 1,
+          "row": 0,
+          "col": 0,
+          "clue": "Comida mexicana con tortilla",
+          "answer": "TACOS"
+        },
+        {
+          "number": 2,
+          "row": 0,
+          "col": 2,
+          "clue": "Nunca faltan en la sobremesa",
+          "answer": "RISAS"
+        },
+        {
+          "number": 3,
+          "row": 0,
+          "col": 4,
+          "clue": "Primer mes del año",
+          "answer": "ENERO"
+        }
+      ]
+    }
+  },
+  "exercises/ex_fill_001": {
+    "language": "es",
+    "type": "fillBlank",
+    "title": "Fill in the Blank",
+    "subtitle": "Completa la Frase",
+    "difficulty": "medium",
+    "items": [
+      {
+        "prompt": "Después de cenar, nos gusta ___.",
+        "answer": "charlar",
+        "choices": [
+          "charlar",
+          "correr",
+          "dormir"
+        ]
+      },
+      {
+        "prompt": "Llovía; ___, salimos a pasear.",
+        "answer": "sin embargo",
+        "choices": [
+          "sin embargo",
+          "porque",
+          "además"
+        ]
+      },
+      {
+        "prompt": "¿Nos trae la ___, por favor?",
+        "answer": "cuenta",
+        "choices": [
+          "cuenta",
+          "propina",
+          "taza"
+        ]
+      },
+      {
+        "prompt": "Mis vecinos se ___ el mes pasado.",
+        "answer": "mudaron",
+        "choices": [
+          "mudan",
+          "mudaron",
+          "mudarán"
+        ]
+      }
+    ]
+  },
+  "quests/es_28day": {
+    "language": "es",
+    "lengthDays": 28,
+    "days": [
+      {
+        "day": 1,
+        "title": "Primer café",
+        "tier": "L1",
+        "rewardXp": 20,
+        "mascotMessage": "¡Vamos!"
+      },
+      {
+        "day": 2,
+        "title": "Buenos días",
+        "tier": "L1",
+        "rewardXp": 20,
+        "mascotMessage": "¡Un cafecito y a jugar!"
+      },
+      {
+        "day": 3,
+        "title": "En la plaza",
+        "tier": "L1",
+        "rewardXp": 20,
+        "mascotMessage": "¡Qué bien lo haces!"
+      },
+      {
+        "day": 4,
+        "title": "La merienda",
+        "tier": "L1",
+        "rewardXp": 20,
+        "mascotMessage": "¿Algo dulce? ¡Claro que sí!"
+      },
+      {
+        "day": 5,
+        "title": "Mi barrio",
+        "tier": "L1",
+        "rewardXp": 20,
+        "mascotMessage": "¡Saluda a los vecinos!"
+      },
+      {
+        "day": 6,
+        "title": "El mercado",
+        "tier": "L1",
+        "rewardXp": 20,
+        "mascotMessage": "¡A regatear!"
+      },
+      {
+        "day": 7,
+        "title": "Una semana",
+        "tier": "L1",
+        "rewardXp": 20,
+        "mascotMessage": "¡Siete días seguidos!"
+      },
+      {
+        "day": 8,
+        "title": "De paseo",
+        "tier": "L1",
+        "rewardXp": 20,
+        "mascotMessage": "Paso a paso."
+      },
+      {
+        "day": 9,
+        "title": "La sobremesa",
+        "tier": "L1",
+        "rewardXp": 20,
+        "mascotMessage": "¡Charlemos un rato!"
+      },
+      {
+        "day": 10,
+        "title": "Primer nivel",
+        "tier": "L1",
+        "rewardXp": 20,
+        "mascotMessage": "¡Nivel L1 completado!"
+      },
+      {
+        "day": 11,
+        "title": "Nuevos amigos",
+        "tier": "L2",
+        "rewardXp": 50,
+        "mascotMessage": "¡Échale una mano a un amigo!"
+      },
+      {
+        "day": 12,
+        "title": "La cocina",
+        "tier": "L2",
+        "rewardXp": 50,
+        "mascotMessage": "¡Huele de maravilla!"
+      },
+      {
+        "day": 13,
+        "title": "La tertulia",
+        "tier": "L2",
+        "rewardXp": 50,
+        "mascotMessage": "¿Y tú qué opinas?"
+      },
+      {
+        "day": 14,
+        "title": "Dos semanas",
+        "tier": "L2",
+        "rewardXp": 50,
+        "mascotMessage": "¡14 días invictos!"
+      },
+      {
+        "day": 15,
+        "title": "El atardecer",
+        "tier": "L2",
+        "rewardXp": 50,
+        "mascotMessage": "¡Qué vista tan bonita!"
+      },
+      {
+        "day": 16,
+        "title": "Los conectores",
+        "tier": "L2",
+        "rewardXp": 50,
+        "mascotMessage": "Sin embargo... ¡sigues aquí!"
+      },
+      {
+        "day": 17,
+        "title": "La fiesta",
+        "tier": "L2",
+        "rewardXp": 50,
+        "mascotMessage": "¡A bailar!"
+      },
+      {
+        "day": 18,
+        "title": "El brindis",
+        "tier": "L2",
+        "rewardXp": 50,
+        "mascotMessage": "¡Salud!"
+      },
+      {
+        "day": 19,
+        "title": "De madrugada",
+        "tier": "L2",
+        "rewardXp": 50,
+        "mascotMessage": "¿Todavía despierto?"
+      },
+      {
+        "day": 20,
+        "title": "Segundo nivel",
+        "tier": "L2",
+        "rewardXp": 50,
+        "mascotMessage": "¡Nivel L2 completado!"
+      },
+      {
+        "day": 21,
+        "title": "Viaje en tren",
+        "tier": "L3",
+        "rewardXp": 100,
+        "mascotMessage": "Próxima parada: ¡la fluidez!"
+      },
+      {
+        "day": 22,
+        "title": "Callejear",
+        "tier": "L3",
+        "rewardXp": 100,
+        "mascotMessage": "Perderse también es aprender."
+      },
+      {
+        "day": 23,
+        "title": "Tres semanas",
+        "tier": "L3",
+        "rewardXp": 100,
+        "mascotMessage": "¡21 días seguidos!"
+      },
+      {
+        "day": 24,
+        "title": "El abrazo",
+        "tier": "L3",
+        "rewardXp": 100,
+        "mascotMessage": "¡Un abrazo enorme!"
+      },
+      {
+        "day": 25,
+        "title": "Los refranes",
+        "tier": "L3",
+        "rewardXp": 100,
+        "mascotMessage": "Poco a poco se va lejos."
+      },
+      {
+        "day": 26,
+        "title": "La recta final",
+        "tier": "L3",
+        "rewardXp": 100,
+        "mascotMessage": "¡Ya casi!"
+      },
+      {
+        "day": 27,
+        "title": "Enhorabuena",
+        "tier": "L3",
+        "rewardXp": 100,
+        "mascotMessage": "¡Qué orgulloso estoy de ti!"
+      },
+      {
+        "day": 28,
+        "title": "Churro's Quest",
+        "tier": "L3",
+        "rewardXp": 200,
+        "mascotMessage": "¡28 días invictos!"
+      }
+    ]
+  },
+  "dailyPrompts/es_2026-10-24": {
+    "language": "es",
+    "date": "2026-10-24",
+    "theme": "La Sobremesa",
+    "text": "En nuestra sobremesa nunca falta ________.",
+    "textEn": "Our after-meal chats are never missing ________."
+  },
+  "posts/p_001": {
+    "authorId": "u_maya",
+    "authorName": "Maya Lin",
+    "authorHandle": "maya",
+    "language": "es",
+    "type": "promptResponse",
+    "promptId": "es_2026-10-24",
+    "badge": "BEST FILL-IN OF THE DAY",
+    "text": "En nuestra sobremesa nunca falta un cortado bien cargado y risas.",
+    "likesCount": 3,
+    "createdAt": "2026-10-24T13:32:00Z"
+  },
+  "posts/p_001/likes/u_sofia": {
+    "likedAt": "2026-10-24T14:00:00Z"
+  },
+  "leaderboardPeriods/2026-W43": {
+    "label": "Weekly Cup",
+    "startDate": "2026-10-19",
+    "endDate": "2026-10-25"
+  }
+}
