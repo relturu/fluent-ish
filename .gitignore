@@ -1,0 +1,27 @@
+# ---- Secrets (this repo is PUBLIC — never commit these) ----
+firebase/serviceAccount.json
+**/serviceAccount*.json
+**/GoogleService-Info.plist
+**/Secrets.xcconfig
+**/.env
+Playgrounds/**/Secrets.swift
+
+# ---- Xcode ----
+build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.moved-aside
+.swiftpm/
+.build/
+
+# ---- Node / Firebase CLI ----
+node_modules/
+npm-debug.log*
+firebase-debug.log*
+firestore-debug.log*
+.firebase/
+
+# ---- macOS ----
+.DS_Store
