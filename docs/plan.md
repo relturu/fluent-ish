@@ -12,14 +12,15 @@ _Created Oct 23, 2026. This doc is the source of truth. If a field name changes,
 - **The repo is PUBLIC** (`github.com/relturu/fluent-ish`). Never commit `firebase/serviceAccount.json`, `GoogleService-Info.plist`, `.env`, `Secrets.xcconfig` or any key. `.gitignore` covers these, but check `git status` before every commit anyway. The playground with the real Azure key is submitted on **Canvas only**.
 - **Ownership:** Firebase/Firestore (build tasks 1–4, 6, 7, 9): **relturu**. Azure Translator / API (build tasks 5, 8): **teammate**, following `docs/azure-handoff.md`.
 - **Seed data works without Azure.** `definitionEn`, `example`, `exampleEn` and `textEn` are written by hand, so the app has complete data before enrichment. Azure enrichment adds the `azure` field and fills gaps, then `seed.js` is re-run. It's idempotent, so re-running is safe.
+- **Firebase project:** ID `fluent-ish-9d543` (display name `fluent-ish`). Firestore `(default)` database, Standard edition, location `nam7` (US). Anonymous auth is enabled. The iOS app is registered with bundle ID **`edu.cmu.relturu.FluentIsh`**; the Xcode project must use exactly this ID. Teammates: ask relturu to add you under Project settings → Users and permissions, and to send you `serviceAccount.json` and `GoogleService-Info.plist` privately.
 - **Layout:** Xcode creates `FluentIsh/FluentIsh.xcodeproj` with sources in `FluentIsh/FluentIsh/`. Swift files go in `FluentIsh/FluentIsh/Models/` and `FluentIsh/FluentIsh/Services/`. Firebase config lives in lowercase `firebase/`.
 
 ### Progress — Firebase (relturu)
 - [x] 0. Repo hygiene: `.gitignore`, `CLAUDE.md`, this doc, `.env.example`
 - [ ] 1. Xcode project `FluentIsh` + firebase-ios-sdk (FirebaseAuth, FirebaseFirestore)
-- [ ] 2. Firebase project, `GoogleService-Info.plist`, Firestore DB, Anonymous auth, `FirebaseApp.configure()`
+- [ ] 2. Firebase project, `GoogleService-Info.plist`, Firestore DB, Anonymous auth, `FirebaseApp.configure()` _(console side done and verified; `firebase/serviceAccount.json` in place; still to do: add the plist to Xcode + `FirebaseApp.configure()`)_
 - [ ] 3. `FirestoreModels.swift` + `AzureModels.swift` compile
-- [ ] 4. Firebase CLI, `firestore.rules` + `firestore.indexes.json` deployed
+- [x] 4. Firebase CLI, `firestore.rules` + `firestore.indexes.json` deployed. Deploy with `cd firebase && firebase deploy --only firestore:rules,firestore:indexes`. Check with `node scripts/test-rules.js` (12 allow/deny checks, all pass)
 - [ ] 5. Seed JSON for every collection + `scripts/check-seed.js` passes
 - [ ] 6. `scripts/seed.js` writes everything; second run changes nothing
 - [ ] 7. `scripts/verify.js` + in-app DEBUG smoke test pass
