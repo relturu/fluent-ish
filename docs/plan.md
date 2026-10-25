@@ -24,7 +24,7 @@ _Created Oct 23, 2026. This doc is the source of truth. If a field name changes,
 - [x] 5. Seed JSON for every collection + `scripts/check-seed.js` passes (≈4,300 checks; see "Seed data format" below)
 - [x] 6. `scripts/seed.js` writes everything; second run changes nothing (114 docs). Setup: `cd scripts && npm install`. Run: `node seed.js --dry-run`, then `node seed.js`. It runs `check-seed.js` first, writes only changed docs and never deletes.
 - [x] 7. `scripts/verify.js` + in-app DEBUG smoke test pass. `node scripts/verify.js` checks the live DB and the 3 indexed queries. `node scripts/demo-user.js <uid>` copies Sofía's data to your simulator's anonymous uid, then run the app and look for 🧪 lines (`Debug/DataSmokeTest.swift`, 16 checks). Models use `nonisolated Codable` because the project defaults to MainActor isolation.
-- [ ] 8. `docs/sample-data.json` + console screenshots / TA added as Viewer
+- [x] 8. `docs/sample-data.json` (regenerate with `node scripts/export-sample.js`) + console screenshots in `docs/firestore_screenshots/` (collections list, `users/u_sofia`, progress, dailyLog, dailyPuzzles, posts, rules, indexes). The TA doesn't need Viewer access to the Firebase project; the screenshots are the deliverable.
 
 ### Seed data format (`firebase/seed/`)
 - **One JSON array per collection; the file name is the collection name** (e.g. `words.json`, `dailyLog.json`). `scripts/enrich-azure.js` reads `words.json` and `dailyPrompts.json` in this format.
@@ -77,7 +77,7 @@ The free Spark plan covers everything below. Azure is billed separately, so you 
 5. **Turn on Authentication.** Enable Anonymous sign-in for now, and add Email or Sign in with Apple later. Use the signed-in user's uid as the document ID in `users`.
 6. **Seed the content.** Add one real record per collection by hand in the console, or with a one-off seed script. The rubric requires at least one populated record in each collection.
 7. **Add indexes when asked.** The leaderboard query (below) needs a composite index. Firestore's error message includes a link that creates it in one click.
-8. **Give the TA access.** In Project settings > Users and permissions, add the TA as a Viewer. Also take a screenshot of each populated collection as a backup.
+8. **Show the TA the data.** Take a screenshot of each populated collection (saved in `docs/firestore_screenshots/`). The TA doesn't need Viewer access to the project.
 
 ## Starter security rules
 
@@ -802,11 +802,11 @@ Task {
 - [ ] Leave the key in the submitted playground, as the rubric asks, and tell the TA it's a free-tier key. **(Canvas copy only. The repo is public, so the GitHub copy must not contain the key.)**
 
 ### Firestore deliverables
-- [ ] Create the Firestore database and turn on Anonymous auth
-- [ ] Add at least one record to every collection in the table above, including the 4 user subcollections
-- [ ] Paste in the security rules
-- [ ] Write the JSON document with one clean sample per collection, without `//` comments
-- [ ] Take screenshots of each populated collection, or add the TA as a Viewer
+- [x] Create the Firestore database and turn on Anonymous auth
+- [x] Add at least one record to every collection in the table above, including the 4 user subcollections
+- [x] Paste in the security rules
+- [x] Write the JSON document with one clean sample per collection, without `//` comments (`docs/sample-data.json`)
+- [x] Take screenshots of each populated collection (`docs/firestore_screenshots/`; the TA doesn't need Viewer access)
 - [ ] Put all structs (Firestore and Azure) in one Models.swift file for the team
 
 ### Shared deliverables
