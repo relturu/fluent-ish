@@ -1,0 +1,6 @@
+[
+  { "id": "u_sofia", "displayName": "Sofía Martínez", "username": "sofia", "avatarInitials": "SM", "avatarColor": "#E8743B", "nativeLanguage": "en", "targetLanguage": "es", "settings": { "dailyGoalMinutes": 10 }, "createdAt": "2026-09-10T14:00:00Z" },
+  { "id": "u_maya", "displayName": "Maya Lin", "username": "maya", "avatarInitials": "ML", "avatarColor": "#3B82C4", "nativeLanguage": "en", "targetLanguage": "es", "settings": { "dailyGoalMinutes": 15 }, "createdAt": "2026-09-08T18:30:00Z" },
+  { "id": "u_lucas", "displayName": "Lucas Ferreira", "username": "lucas", "avatarInitials": "LF", "avatarColor": "#2E9E6B", "nativeLanguage": "en", "targetLanguage": "es", "settings": { "dailyGoalMinutes": 5 }, "createdAt": "2026-09-20T09:15:00Z" },
+  { "id": "u_elena", "displayName": "Elena Rossi", "username": "elena", "avatarInitials": "ER", "avatarColor": "#8E5BC7", "nativeLanguage": "en", "targetLanguage": "es", "settings": { "dailyGoalMinutes": 10 }, "createdAt": "2026-10-01T20:45:00Z" }
+]

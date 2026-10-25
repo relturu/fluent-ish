@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isMe(uid) { return signedIn() && request.auth.uid == uid; }
+
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow write: if isMe(uid);
+      match /progress/{lang} {
+        allow read: if signedIn();          // leaderboards
+        allow write: if isMe(uid);
+      }
+      match /{sub=**} { allow read, write: if isMe(uid); }
+    }
+    match /{path=**}/progress/{lang} {     // collection-group leaderboard query
+      allow read: if signedIn();
+    }
+
+    // Shared content: read-only in the app, edited in the console
+    match /words/{id}              { allow read: if signedIn(); }
+    match /vocabLessons/{id}       { allow read: if signedIn(); }
+    match /dailyPuzzles/{id}       { allow read: if signedIn(); }
+    match /exercises/{id}          { allow read: if signedIn(); }
+    match /quests/{id}             { allow read: if signedIn(); }
+    match /dailyPrompts/{id}       { allow read: if signedIn(); }
+    match /leaderboardPeriods/{id} { allow read: if signedIn(); }
+
+    match /posts/{postId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update: if signedIn();          // likesCount; tighten in V2
+      allow delete: if isMe(resource.data.authorId);
+      match /likes/{likerId} {
+        allow read: if signedIn();
+        allow write: if isMe(likerId);
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+[
+  { "id": "p_001", "authorId": "u_maya", "authorName": "Maya Lin", "authorHandle": "maya", "language": "es", "type": "promptResponse", "promptId": "es_2026-10-24", "badge": "BEST FILL-IN OF THE DAY", "text": "En nuestra sobremesa nunca falta un cortado bien cargado y risas.", "likesCount": 3, "createdAt": "2026-10-24T13:32:00Z" },
+  { "id": "p_002", "authorId": "u_lucas", "authorName": "Lucas Ferreira", "authorHandle": "lucas", "language": "es", "type": "promptResponse", "promptId": "es_2026-10-24", "badge": null, "text": "En nuestra sobremesa nunca falta el flan de mi abuela.", "likesCount": 1, "createdAt": "2026-10-24T15:10:00Z" },
+  { "id": "p_003", "authorId": "u_elena", "authorName": "Elena Rossi", "authorHandle": "elena", "language": "es", "type": "achievement", "promptId": null, "badge": null, "text": "¡Conexiones 4/4 sin ningún error!", "likesCount": 2, "createdAt": "2026-10-24T11:05:00Z" },
+  { "id": "p_004", "authorId": "u_sofia", "authorName": "Sofía Martínez", "authorHandle": "sofia", "language": "es", "type": "achievement", "promptId": null, "badge": null, "text": "¡14 días seguidos aprendiendo español!", "likesCount": 3, "createdAt": "2026-10-24T09:20:00Z" },
+  { "id": "p_005", "authorId": "u_maya", "authorName": "Maya Lin", "authorHandle": "maya", "language": "es", "type": "achievement", "promptId": null, "badge": null, "text": "¡250 palabras aprendidas!", "likesCount": 1, "createdAt": "2026-10-22T20:00:00Z" }
+]

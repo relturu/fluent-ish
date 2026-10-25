@@ -1,0 +1,15 @@
+{
+  "name": "fluentish-scripts",
+  "private": true,
+  "description": "Seed, check and enrich Firestore data for Fluent·ish",
+  "scripts": {
+    "check": "node check-seed.js",
+    "seed": "node seed.js",
+    "seed:dry": "node seed.js --dry-run",
+    "enrich": "node enrich-azure.js",
+    "test:rules": "node test-rules.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^14.5.0"
+  }
+}

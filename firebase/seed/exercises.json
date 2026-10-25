@@ -1,0 +1,44 @@
+[
+  {
+    "id": "ex_match_001",
+    "language": "es",
+    "type": "definitionMatch",
+    "title": "Definition Match",
+    "subtitle": "Une las Parejas",
+    "difficulty": "easy",
+    "items": [
+      { "prompt": "la sobremesa", "answer": "relaxed conversation after a meal", "choices": ["relaxed conversation after a meal", "afternoon snack", "a dozen"] },
+      { "prompt": "la merienda", "answer": "afternoon snack", "choices": ["afternoon nap", "afternoon snack", "the bill"] },
+      { "prompt": "regatear", "answer": "to haggle", "choices": ["to share", "to haggle", "to celebrate"] },
+      { "prompt": "echar una mano", "answer": "to lend a hand", "choices": ["to lend a hand", "to take a quick look", "to throw away"] },
+      { "prompt": "enhorabuena", "answer": "congratulations", "choices": ["good morning", "congratulations", "cheers"] }
+    ]
+  },
+  {
+    "id": "ex_fill_001",
+    "language": "es",
+    "type": "fillBlank",
+    "title": "Fill in the Blank",
+    "subtitle": "Completa la Frase",
+    "difficulty": "medium",
+    "items": [
+      { "prompt": "Después de cenar, nos gusta ___.", "answer": "charlar", "choices": ["charlar", "correr", "dormir"] },
+      { "prompt": "Llovía; ___, salimos a pasear.", "answer": "sin embargo", "choices": ["sin embargo", "porque", "además"] },
+      { "prompt": "¿Nos trae la ___, por favor?", "answer": "cuenta", "choices": ["cuenta", "propina", "taza"] },
+      { "prompt": "Mis vecinos se ___ el mes pasado.", "answer": "mudaron", "choices": ["mudan", "mudaron", "mudarán"] }
+    ]
+  },
+  {
+    "id": "ex_build_001",
+    "language": "es",
+    "type": "sentenceBuilder",
+    "title": "Sentence Builder",
+    "subtitle": "Construye la Frase",
+    "difficulty": "hard",
+    "items": [
+      { "prompt": "Shall we meet at eight in the square?", "answer": "¿Quedamos a las ocho en la plaza?", "choices": ["plaza?", "¿Quedamos", "las", "nueve", "a", "en", "ocho", "la"] },
+      { "prompt": "Today it's my treat.", "answer": "Hoy invito yo.", "choices": ["invito", "tú", "yo.", "Hoy"] },
+      { "prompt": "We got home in the early hours.", "answer": "Volvimos a casa de madrugada.", "choices": ["de", "casa", "noche", "Volvimos", "madrugada.", "a"] }
+    ]
+  }
+]

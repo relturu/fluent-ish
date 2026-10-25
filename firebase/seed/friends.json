@@ -1,0 +1,14 @@
+[
+  { "parent": "users/u_sofia", "id": "u_maya", "friendId": "u_maya", "status": "accepted", "since": "2026-09-15T00:00:00Z" },
+  { "parent": "users/u_sofia", "id": "u_lucas", "friendId": "u_lucas", "status": "accepted", "since": "2026-09-22T00:00:00Z" },
+  { "parent": "users/u_sofia", "id": "u_elena", "friendId": "u_elena", "status": "accepted", "since": "2026-10-03T00:00:00Z" },
+
+  { "parent": "users/u_maya", "id": "u_sofia", "friendId": "u_sofia", "status": "accepted", "since": "2026-09-15T00:00:00Z" },
+  { "parent": "users/u_maya", "id": "u_lucas", "friendId": "u_lucas", "status": "accepted", "since": "2026-09-25T00:00:00Z" },
+
+  { "parent": "users/u_lucas", "id": "u_sofia", "friendId": "u_sofia", "status": "accepted", "since": "2026-09-22T00:00:00Z" },
+  { "parent": "users/u_lucas", "id": "u_maya", "friendId": "u_maya", "status": "accepted", "since": "2026-09-25T00:00:00Z" },
+  { "parent": "users/u_lucas", "id": "u_elena", "friendId": "u_elena", "status": "pending", "since": "2026-10-20T00:00:00Z" },
+
+  { "parent": "users/u_elena", "id": "u_sofia", "friendId": "u_sofia", "status": "accepted", "since": "2026-10-03T00:00:00Z" }
+]

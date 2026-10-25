@@ -4,7 +4,7 @@ Fluent·ish is an iOS language-learning app with NYT-style games (SwiftUI + Fire
 
 **Before doing anything, read `docs/plan.md`.** It is the source of truth for the data model, rules, indexes and build tasks. Its top section, "Team decisions & progress", shows what's done and who owns what. Check it before starting, and tick boxes as you finish steps.
 
-If you're working on Azure Translator / API, follow `docs/azure-handoff.md` (once it exists).
+If you're working on Azure Translator / API, see "Remaining Azure steps" in `docs/plan.md` and the Azure sections of `README.md`.
 
 ## Ground rules
 - **This repo is PUBLIC.** Never commit `serviceAccount.json`, `GoogleService-Info.plist`, `.env`, `Secrets.xcconfig` or any API key. Run `git status` before committing. A playground containing a real Azure key goes on Canvas, not GitHub.
