@@ -1,0 +1,758 @@
+[1mdiff --git a/firebase/seed/words.json b/firebase/seed/words.json[m
+[1mindex 1f36b4d..770f7cb 100644[m
+[1m--- a/firebase/seed/words.json[m
+[1m+++ b/firebase/seed/words.json[m
+[36m@@ -1,37 +1,718 @@[m
+ [[m
+[31m-  { "id": "w_sobremesa", "language": "es", "term": "la sobremesa", "lemma": "sobremesa", "gender": "f", "partOfSpeech": "noun", "definitionEn": "relaxed conversation at the table after a meal", "category": "Culture & Idioms", "level": "B1", "example": "La sobremesa duró dos horas.", "exampleEn": "The after-dinner chat lasted two hours." },[m
+[31m-  { "id": "w_cortado", "language": "es", "term": "el cortado", "lemma": "cortado", "gender": "m", "partOfSpeech": "noun", "definitionEn": "espresso with a splash of milk", "category": "Café & Dining", "level": "A2", "example": "Un cortado y una tostada, por favor.", "exampleEn": "A cortado and a piece of toast, please." },[m
+[31m-  { "id": "w_merienda", "language": "es", "term": "la merienda", "lemma": "merienda", "gender": "f", "partOfSpeech": "noun", "definitionEn": "afternoon snack", "category": "Café & Dining", "level": "A2", "example": "A las seis tomamos la merienda.", "exampleEn": "At six we have our afternoon snack." },[m
+[31m-  { "id": "w_puesto", "language": "es", "term": "el puesto", "lemma": "puesto", "gender": "m", "partOfSpeech": "noun", "definitionEn": "market stall", "category": "Café & Dining", "level": "B1", "example": "Compro la fruta en el puesto de mi vecina.", "exampleEn": "I buy fruit at my neighbor's stall." },[m
+[31m-  { "id": "w_regatear", "language": "es", "term": "regatear", "lemma": "regatear", "gender": null, "partOfSpeech": "verb", "definitionEn": "to haggle", "category": "Daily Verb", "level": "B1", "example": "En el rastro todo el mundo regatea.", "exampleEn": "At the flea market everyone haggles." },[m
+[31m-  { "id": "w_docena", "language": "es", "term": "la docena", "lemma": "docena", "gender": "f", "partOfSpeech": "noun", "definitionEn": "a dozen", "category": "Café & Dining", "level": "A2", "example": "Me llevo una docena de huevos.", "exampleEn": "I'll take a dozen eggs." },[m
+[31m-  { "id": "w_callejear", "language": "es", "term": "callejear", "lemma": "callejear", "gender": null, "partOfSpeech": "verb", "definitionEn": "to wander the streets with no fixed plan", "category": "Daily Verb", "level": "B1", "example": "Los domingos nos gusta callejear por el centro.", "exampleEn": "On Sundays we like to wander around downtown." },[m
+[31m-  { "id": "w_vistazo", "language": "es", "term": "el vistazo", "lemma": "vistazo", "gender": "m", "partOfSpeech": "noun", "definitionEn": "a quick look, a glance (echar un vistazo)", "category": "Culture & Idioms", "level": "B1", "example": "Echa un vistazo a este mapa.", "exampleEn": "Take a quick look at this map." },[m
+[31m-  { "id": "w_atardecer", "language": "es", "term": "el atardecer", "lemma": "atardecer", "gender": "m", "partOfSpeech": "noun", "definitionEn": "sunset, dusk", "category": "Culture & Idioms", "level": "B1", "example": "Paseamos por la playa al atardecer.", "exampleEn": "We walked along the beach at sunset." },[m
+[31m-  { "id": "w_mudarse", "language": "es", "term": "mudarse", "lemma": "mudarse", "gender": null, "partOfSpeech": "verb", "definitionEn": "to move (to a new home)", "category": "Daily Verb", "level": "B1", "example": "Mis vecinos se mudaron el mes pasado.", "exampleEn": "My neighbors moved last month." },[m
+[31m-  { "id": "w_echar_una_mano", "language": "es", "term": "echar una mano", "lemma": "echar una mano", "gender": null, "partOfSpeech": "expression", "definitionEn": "to lend a hand, to help out", "category": "Culture & Idioms", "level": "B1", "example": "¿Me echas una mano con las bolsas?", "exampleEn": "Can you give me a hand with the bags?" },[m
+[31m-  { "id": "w_vecino", "language": "es", "term": "el vecino", "lemma": "vecino", "gender": "m", "partOfSpeech": "noun", "definitionEn": "neighbor", "category": "Culture & Idioms", "level": "A2", "example": "Mi vecino riega mis plantas cuando viajo.", "exampleEn": "My neighbor waters my plants when I travel." },[m
+[31m-  { "id": "w_brindis", "language": "es", "term": "el brindis", "lemma": "brindis", "gender": "m", "partOfSpeech": "noun", "definitionEn": "a toast (raising glasses)", "category": "Culture & Idioms", "level": "B1", "example": "Hicimos un brindis por los novios.", "exampleEn": "We made a toast to the bride and groom." },[m
+[31m-  { "id": "w_enhorabuena", "language": "es", "term": "enhorabuena", "lemma": "enhorabuena", "gender": null, "partOfSpeech": "interjection", "definitionEn": "congratulations", "category": "Culture & Idioms", "level": "B1", "example": "¡Enhorabuena por tu nuevo trabajo!", "exampleEn": "Congratulations on your new job!" },[m
+[31m-  { "id": "w_festejar", "language": "es", "term": "festejar", "lemma": "festejar", "gender": null, "partOfSpeech": "verb", "definitionEn": "to celebrate", "category": "Daily Verb", "level": "B1", "example": "Vamos a festejar el cumpleaños de Lucas.", "exampleEn": "We're going to celebrate Lucas's birthday." },[m
+[31m-  { "id": "w_charla", "language": "es", "term": "la charla", "lemma": "charla", "gender": "f", "partOfSpeech": "noun", "definitionEn": "a chat, a talk", "category": "Culture & Idioms", "level": "A2", "example": "Tuvimos una charla muy agradable.", "exampleEn": "We had a very pleasant chat." },[m
+[31m-  { "id": "w_precio", "language": "es", "term": "el precio", "lemma": "precio", "gender": "m", "partOfSpeech": "noun", "definitionEn": "price", "category": "Café & Dining", "level": "A2", "example": "¿Cuál es el precio de las fresas?", "exampleEn": "What's the price of the strawberries?" },[m
+[31m-  { "id": "w_pasear", "language": "es", "term": "pasear", "lemma": "pasear", "gender": null, "partOfSpeech": "verb", "definitionEn": "to go for a walk, to stroll", "category": "Daily Verb", "level": "A2", "example": "Me gusta pasear con mi perro.", "exampleEn": "I like to go for walks with my dog." },[m
+[31m-  { "id": "w_abrazo", "language": "es", "term": "el abrazo", "lemma": "abrazo", "gender": "m", "partOfSpeech": "noun", "definitionEn": "a hug", "category": "Culture & Idioms", "level": "A2", "example": "Le di un abrazo muy fuerte.", "exampleEn": "I gave her a big hug." },[m
+[31m-  { "id": "w_ademas", "language": "es", "term": "además", "lemma": "además", "gender": null, "partOfSpeech": "connector", "definitionEn": "besides, in addition", "category": "Connector", "level": "A2", "example": "Es barato y, además, está muy rico.", "exampleEn": "It's cheap and, besides, it's delicious." },[m
+[31m-  { "id": "w_sin_embargo", "language": "es", "term": "sin embargo", "lemma": "sin embargo", "gender": null, "partOfSpeech": "connector", "definitionEn": "however, nevertheless", "category": "Connector", "level": "B1", "example": "Llovía; sin embargo, salimos a pasear.", "exampleEn": "It was raining; however, we went out for a walk." },[m
+[31m-  { "id": "w_aunque", "language": "es", "term": "aunque", "lemma": "aunque", "gender": null, "partOfSpeech": "connector", "definitionEn": "although, even though", "category": "Connector", "level": "B1", "example": "Aunque estoy cansada, voy a la fiesta.", "exampleEn": "Even though I'm tired, I'm going to the party." },[m
+[31m-  { "id": "w_pues", "language": "es", "term": "pues", "lemma": "pues", "gender": null, "partOfSpeech": "connector", "definitionEn": "well, so, then", "category": "Connector", "level": "A2", "example": "Pues, no sé qué decirte.", "exampleEn": "Well, I don't know what to tell you." },[m
+[31m-  { "id": "w_por_cierto", "language": "es", "term": "por cierto", "lemma": "por cierto", "gender": null, "partOfSpeech": "connector", "definitionEn": "by the way", "category": "Connector", "level": "B1", "example": "Por cierto, ¿has visto a Elena?", "exampleEn": "By the way, have you seen Elena?" },[m
+[31m-  { "id": "w_de_hecho", "language": "es", "term": "de hecho", "lemma": "de hecho", "gender": null, "partOfSpeech": "connector", "definitionEn": "in fact, actually", "category": "Connector", "level": "B1", "example": "No es caro; de hecho, es una ganga.", "exampleEn": "It's not expensive; in fact, it's a bargain." },[m
+[31m-  { "id": "w_charlar", "language": "es", "term": "charlar", "lemma": "charlar", "gender": null, "partOfSpeech": "verb", "definitionEn": "to chat", "category": "Daily Verb", "level": "A2", "example": "Después de cenar, nos gusta charlar.", "exampleEn": "After dinner, we like to chat." },[m
+[31m-  { "id": "w_compartir", "language": "es", "term": "compartir", "lemma": "compartir", "gender": null, "partOfSpeech": "verb", "definitionEn": "to share", "category": "Daily Verb", "level": "A2", "example": "¿Compartimos un postre?", "exampleEn": "Shall we share a dessert?" },[m
+[31m-  { "id": "w_invitar", "language": "es", "term": "invitar", "lemma": "invitar", "gender": null, "partOfSpeech": "verb", "definitionEn": "to invite; to treat (pay for someone)", "category": "Daily Verb", "level": "A2", "example": "Hoy invito yo.", "exampleEn": "Today it's my treat." },[m
+[31m-  { "id": "w_quedar", "language": "es", "term": "quedar", "lemma": "quedar", "gender": null, "partOfSpeech": "verb", "definitionEn": "to meet up, to arrange to meet", "category": "Daily Verb", "level": "B1", "example": "¿Quedamos a las ocho en la plaza?", "exampleEn": "Shall we meet at eight in the square?" },[m
+[31m-  { "id": "w_probar", "language": "es", "term": "probar", "lemma": "probar", "gender": null, "partOfSpeech": "verb", "definitionEn": "to try, to taste", "category": "Daily Verb", "level": "A2", "example": "Tienes que probar esta tortilla.", "exampleEn": "You have to try this tortilla." },[m
+[31m-  { "id": "w_siesta", "language": "es", "term": "la siesta", "lemma": "siesta", "gender": "f", "partOfSpeech": "noun", "definitionEn": "afternoon nap", "category": "Culture & Idioms", "level": "A2", "example": "Después de comer, echo una siesta.", "exampleEn": "After lunch, I take a nap." },[m
+[31m-  { "id": "w_madrugada", "language": "es", "term": "la madrugada", "lemma": "madrugada", "gender": "f", "partOfSpeech": "noun", "definitionEn": "the early hours (after midnight, before dawn)", "category": "Culture & Idioms", "level": "B1", "example": "Volvimos a casa de madrugada.", "exampleEn": "We got home in the early hours." },[m
+[31m-  { "id": "w_taza", "language": "es", "term": "la taza", "lemma": "taza", "gender": "f", "partOfSpeech": "noun", "definitionEn": "cup, mug", "category": "Café & Dining", "level": "A1", "example": "Una taza de café, por favor.", "exampleEn": "A cup of coffee, please." },[m
+[31m-  { "id": "w_cuenta", "language": "es", "term": "la cuenta", "lemma": "cuenta", "gender": "f", "partOfSpeech": "noun", "definitionEn": "the bill, the check", "category": "Café & Dining", "level": "A2", "example": "¿Nos trae la cuenta, por favor?", "exampleEn": "Could you bring us the check, please?" },[m
+[31m-  { "id": "w_propina", "language": "es", "term": "la propina", "lemma": "propina", "gender": "f", "partOfSpeech": "noun", "definitionEn": "tip (gratuity)", "category": "Café & Dining", "level": "B1", "example": "Dejamos una propina para el camarero.", "exampleEn": "We left a tip for the waiter." }[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_sobremesa",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "la sobremesa",[m
+[32m+[m[32m    "lemma": "sobremesa",[m
+[32m+[m[32m    "gender": "f",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "relaxed conversation at the table after a meal",[m
+[32m+[m[32m    "category": "Culture & Idioms",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "La sobremesa duró dos horas.",[m
+[32m+[m[32m    "exampleEn": "The after-dinner chat lasted two hours.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "tablecloth"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_cortado",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "el cortado",[m
+[32m+[m[32m    "lemma": "cortado",[m
+[32m+[m[32m    "gender": "m",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "espresso with a splash of milk",[m
+[32m+[m[32m    "category": "Café & Dining",[m
+[32m+[m[32m    "level": "A2",[m
+[32m+[m[32m    "example": "Un cortado y una tostada, por favor.",[m
+[32m+[m[32m    "exampleEn": "A cortado and a piece of toast, please.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "cut",[m
+[32m+[m[32m        "off",[m
+[32m+[m[32m        "clipped"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_merienda",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "la merienda",[m
+[32m+[m[32m    "lemma": "merienda",[m
+[32m+[m[32m    "gender": "f",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "afternoon snack",[m
+[32m+[m[32m    "category": "Café & Dining",[m
+[32m+[m[32m    "level": "A2",[m
+[32m+[m[32m    "example": "A las seis tomamos la merienda.",[m
+[32m+[m[32m    "exampleEn": "At six we have our afternoon snack.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "snack",[m
+[32m+[m[32m        "supper"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_puesto",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "el puesto",[m
+[32m+[m[32m    "lemma": "puesto",[m
+[32m+[m[32m    "gender": "m",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "market stall",[m
+[32m+[m[32m    "category": "Café & Dining",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "Compro la fruta en el puesto de mi vecina.",[m
+[32m+[m[32m    "exampleEn": "I buy fruit at my neighbor's stall.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "post",[m
+[32m+[m[32m        "position",[m
+[32m+[m[32m        "stall"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_regatear",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "regatear",[m
+[32m+[m[32m    "lemma": "regatear",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "verb",[m
+[32m+[m[32m    "definitionEn": "to haggle",[m
+[32m+[m[32m    "category": "Daily Verb",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "En el rastro todo el mundo regatea.",[m
+[32m+[m[32m    "exampleEn": "At the flea market everyone haggles.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "haggle",[m
+[32m+[m[32m        "bargain"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_docena",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "la docena",[m
+[32m+[m[32m    "lemma": "docena",[m
+[32m+[m[32m    "gender": "f",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "a dozen",[m
+[32m+[m[32m    "category": "Café & Dining",[m
+[32m+[m[32m    "level": "A2",[m
+[32m+[m[32m    "example": "Me llevo una docena de huevos.",[m
+[32m+[m[32m    "exampleEn": "I'll take a dozen eggs.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "dozen"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_callejear",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "callejear",[m
+[32m+[m[32m    "lemma": "callejear",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "verb",[m
+[32m+[m[32m    "definitionEn": "to wander the streets with no fixed plan",[m
+[32m+[m[32m    "category": "Daily Verb",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "Los domingos nos gusta callejear por el centro.",[m
+[32m+[m[32m    "exampleEn": "On Sundays we like to wander around downtown.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_vistazo",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "el vistazo",[m
+[32m+[m[32m    "lemma": "vistazo",[m
+[32m+[m[32m    "gender": "m",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "a quick look, a glance (echar un vistazo)",[m
+[32m+[m[32m    "category": "Culture & Idioms",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "Echa un vistazo a este mapa.",[m
+[32m+[m[32m    "exampleEn": "Take a quick look at this map.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "look",[m
+[32m+[m[32m        "glance",[m
+[32m+[m[32m        "glimpse",[m
+[32m+[m[32m        "peek"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_atardecer",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "el atardecer",[m
+[32m+[m[32m    "lemma": "atardecer",[m
+[32m+[m[32m    "gender": "m",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "sunset, dusk",[m
+[32m+[m[32m    "category": "Culture & Idioms",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "Paseamos por la playa al atardecer.",[m
+[32m+[m[32m    "exampleEn": "We walked along the beach at sunset.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "sunset",[m
+[32m+[m[32m        "dusk",[m
+[32m+[m[32m        "sundown"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_mudarse",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "mudarse",[m
+[32m+[m[32m    "lemma": "mudarse",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "verb",[m
+[32m+[m[32m    "definitionEn": "to move (to a new home)",[m
+[32m+[m[32m    "category": "Daily Verb",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "Mis vecinos se mudaron el mes pasado.",[m
+[32m+[m[32m    "exampleEn": "My neighbors moved last month.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "move",[m
+[32m+[m[32m        "relocate"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_echar_una_mano",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "echar una mano",[m
+[32m+[m[32m    "lemma": "echar una mano",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "expression",[m
+[32m+[m[32m    "definitionEn": "to lend a hand, to help out",[m
+[32m+[m[32m    "category": "Culture & Idioms",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "¿Me echas una mano con las bolsas?",[m
+[32m+[m[32m    "exampleEn": "Can you give me a hand with the bags?",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_vecino",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "el vecino",[m
+[32m+[m[32m    "lemma": "vecino",[m
+[32m+[m[32m    "gender": "m",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "neighbor",[m
+[32m+[m[32m    "category": "Culture & Idioms",[m
+[32m+[m[32m    "level": "A2",[m
+[32m+[m[32m    "example": "Mi vecino riega mis plantas cuando viajo.",[m
+[32m+[m[32m    "exampleEn": "My neighbor waters my plants when I travel.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "neighbor"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_brindis",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "el brindis",[m
+[32m+[m[32m    "lemma": "brindis",[m
+[32m+[m[32m    "gender": "m",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "a toast (raising glasses)",[m
+[32m+[m[32m    "category": "Culture & Idioms",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "Hicimos un brindis por los novios.",[m
+[32m+[m[32m    "exampleEn": "We made a toast to the bride and groom.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "toast"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_enhorabuena",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "enhorabuena",[m
+[32m+[m[32m    "lemma": "enhorabuena",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "interjection",[m
+[32m+[m[32m    "definitionEn": "congratulations",[m
+[32m+[m[32m    "category": "Culture & Idioms",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "¡Enhorabuena por tu nuevo trabajo!",[m
+[32m+[m[32m    "exampleEn": "Congratulations on your new job!",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "congratulations"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_festejar",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "festejar",[m
+[32m+[m[32m    "lemma": "festejar",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "verb",[m
+[32m+[m[32m    "definitionEn": "to celebrate",[m
+[32m+[m[32m    "category": "Daily Verb",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "Vamos a festejar el cumpleaños de Lucas.",[m
+[32m+[m[32m    "exampleEn": "We're going to celebrate Lucas's birthday.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "celebrate",[m
+[32m+[m[32m        "fete"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_charla",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "la charla",[m
+[32m+[m[32m    "lemma": "charla",[m
+[32m+[m[32m    "gender": "f",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "a chat, a talk",[m
+[32m+[m[32m    "category": "Culture & Idioms",[m
+[32m+[m[32m    "level": "A2",[m
+[32m+[m[32m    "example": "Tuvimos una charla muy agradable.",[m
+[32m+[m[32m    "exampleEn": "We had a very pleasant chat.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "talk",[m
+[32m+[m[32m        "lecture"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_precio",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "el precio",[m
+[32m+[m[32m    "lemma": "precio",[m
+[32m+[m[32m    "gender": "m",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "price",[m
+[32m+[m[32m    "category": "Café & Dining",[m
+[32m+[m[32m    "level": "A2",[m
+[32m+[m[32m    "example": "¿Cuál es el precio de las fresas?",[m
+[32m+[m[32m    "exampleEn": "What's the price of the strawberries?",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "price",[m
+[32m+[m[32m        "rate",[m
+[32m+[m[32m        "cost"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_pasear",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "pasear",[m
+[32m+[m[32m    "lemma": "pasear",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "verb",[m
+[32m+[m[32m    "definitionEn": "to go for a walk, to stroll",[m
+[32m+[m[32m    "category": "Daily Verb",[m
+[32m+[m[32m    "level": "A2",[m
+[32m+[m[32m    "example": "Me gusta pasear con mi perro.",[m
+[32m+[m[32m    "exampleEn": "I like to go for walks with my dog.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "walking",[m
+[32m+[m[32m        "stroll",[m
+[32m+[m[32m        "wander",[m
+[32m+[m[32m        "promenade"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_abrazo",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "el abrazo",[m
+[32m+[m[32m    "lemma": "abrazo",[m
+[32m+[m[32m    "gender": "m",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "a hug",[m
+[32m+[m[32m    "category": "Culture & Idioms",[m
+[32m+[m[32m    "level": "A2",[m
+[32m+[m[32m    "example": "Le di un abrazo muy fuerte.",[m
+[32m+[m[32m    "exampleEn": "I gave her a big hug.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "hug",[m
+[32m+[m[32m        "embrace",[m
+[32m+[m[32m        "cuddle"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_ademas",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "además",[m
+[32m+[m[32m    "lemma": "además",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "connector",[m
+[32m+[m[32m    "definitionEn": "besides, in addition",[m
+[32m+[m[32m    "category": "Connector",[m
+[32m+[m[32m    "level": "A2",[m
+[32m+[m[32m    "example": "Es barato y, además, está muy rico.",[m
+[32m+[m[32m    "exampleEn": "It's cheap and, besides, it's delicious.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "also",[m
+[32m+[m[32m        "additionally",[m
+[32m+[m[32m        "plus",[m
+[32m+[m[32m        "further",[m
+[32m+[m[32m        "again",[m
+[32m+[m[32m        "besides"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_sin_embargo",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "sin embargo",[m
+[32m+[m[32m    "lemma": "sin embargo",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "connector",[m
+[32m+[m[32m    "definitionEn": "however, nevertheless",[m
+[32m+[m[32m    "category": "Connector",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "Llovía; sin embargo, salimos a pasear.",[m
+[32m+[m[32m    "exampleEn": "It was raining; however, we went out for a walk.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "however",[m
+[32m+[m[32m        "yet",[m
+[32m+[m[32m        "nevertheless",[m
+[32m+[m[32m        "with that said",[m
+[32m+[m[32m        "nonetheless"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_aunque",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "aunque",[m
+[32m+[m[32m    "lemma": "aunque",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "connector",[m
+[32m+[m[32m    "definitionEn": "although, even though",[m
+[32m+[m[32m    "category": "Connector",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "Aunque estoy cansada, voy a la fiesta.",[m
+[32m+[m[32m    "exampleEn": "Even though I'm tired, I'm going to the party.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "although",[m
+[32m+[m[32m        "while",[m
+[32m+[m[32m        "albeit"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_pues",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "pues",[m
+[32m+[m[32m    "lemma": "pues",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "connector",[m
+[32m+[m[32m    "definitionEn": "well, so, then",[m
+[32m+[m[32m    "category": "Connector",[m
+[32m+[m[32m    "level": "A2",[m
+[32m+[m[32m    "example": "Pues, no sé qué decirte.",[m
+[32m+[m[32m    "exampleEn": "Well, I don't know what to tell you.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "because"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_por_cierto",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "por cierto",[m
+[32m+[m[32m    "lemma": "por cierto",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "connector",[m
+[32m+[m[32m    "definitionEn": "by the way",[m
+[32m+[m[32m    "category": "Connector",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "Por cierto, ¿has visto a Elena?",[m
+[32m+[m[32m    "exampleEn": "By the way, have you seen Elena?",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "by the way",[m
+[32m+[m[32m        "indeed",[m
+[32m+[m[32m        "for that matter",[m
+[32m+[m[32m        "speaking of which"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_de_hecho",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "de hecho",[m
+[32m+[m[32m    "lemma": "de hecho",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "connector",[m
+[32m+[m[32m    "definitionEn": "in fact, actually",[m
+[32m+[m[32m    "category": "Connector",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "No es caro; de hecho, es una ganga.",[m
+[32m+[m[32m    "exampleEn": "It's not expensive; in fact, it's a bargain.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "common law",[m
+[32m+[m[32m        "in fact",[m
+[32m+[m[32m        "in effect",[m
+[32m+[m[32m        "for that matter",[m
+[32m+[m[32m        "in reality"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_charlar",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "charlar",[m
+[32m+[m[32m    "lemma": "charlar",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "verb",[m
+[32m+[m[32m    "definitionEn": "to chat",[m
+[32m+[m[32m    "category": "Daily Verb",[m
+[32m+[m[32m    "level": "A2",[m
+[32m+[m[32m    "example": "Después de cenar, nos gusta charlar.",[m
+[32m+[m[32m    "exampleEn": "After dinner, we like to chat.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "chat",[m
+[32m+[m[32m        "gab"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_compartir",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "compartir",[m
+[32m+[m[32m    "lemma": "compartir",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "verb",[m
+[32m+[m[32m    "definitionEn": "to share",[m
+[32m+[m[32m    "category": "Daily Verb",[m
+[32m+[m[32m    "level": "A2",[m
+[32m+[m[32m    "example": "¿Compartimos un postre?",[m
+[32m+[m[32m    "exampleEn": "Shall we share a dessert?",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "share"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_invitar",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "invitar",[m
+[32m+[m[32m    "lemma": "invitar",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "verb",[m
+[32m+[m[32m    "definitionEn": "to invite; to treat (pay for someone)",[m
+[32m+[m[32m    "category": "Daily Verb",[m
+[32m+[m[32m    "level": "A2",[m
+[32m+[m[32m    "example": "Hoy invito yo.",[m
+[32m+[m[32m    "exampleEn": "Today it's my treat.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "invite"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_quedar",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "quedar",[m
+[32m+[m[32m    "lemma": "quedar",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "verb",[m
+[32m+[m[32m    "definitionEn": "to meet up, to arrange to meet",[m
+[32m+[m[32m    "category": "Daily Verb",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "¿Quedamos a las ocho en la plaza?",[m
+[32m+[m[32m    "exampleEn": "Shall we meet at eight in the square?",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "meet",[m
+[32m+[m[32m        "be left",[m
+[32m+[m[32m        "remain"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_probar",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "probar",[m
+[32m+[m[32m    "lemma": "probar",[m
+[32m+[m[32m    "gender": null,[m
+[32m+[m[32m    "partOfSpeech": "verb",[m
+[32m+[m[32m    "definitionEn": "to try, to taste",[m
+[32m+[m[32m    "category": "Daily Verb",[m
+[32m+[m[32m    "level": "A2",[m
+[32m+[m[32m    "example": "Tienes que probar esta tortilla.",[m
+[32m+[m[32m    "exampleEn": "You have to try this tortilla.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "test",[m
+[32m+[m[32m        "try",[m
+[32m+[m[32m        "prove",[m
+[32m+[m[32m        "taste",[m
+[32m+[m[32m        "sample",[m
+[32m+[m[32m        "trial"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_siesta",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "la siesta",[m
+[32m+[m[32m    "lemma": "siesta",[m
+[32m+[m[32m    "gender": "f",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "afternoon nap",[m
+[32m+[m[32m    "category": "Culture & Idioms",[m
+[32m+[m[32m    "level": "A2",[m
+[32m+[m[32m    "example": "Después de comer, echo una siesta.",[m
+[32m+[m[32m    "exampleEn": "After lunch, I take a nap.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "nap"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_madrugada",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "la madrugada",[m
+[32m+[m[32m    "lemma": "madrugada",[m
+[32m+[m[32m    "gender": "f",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "the early hours (after midnight, before dawn)",[m
+[32m+[m[32m    "category": "Culture & Idioms",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "Volvimos a casa de madrugada.",[m
+[32m+[m[32m    "exampleEn": "We got home in the early hours.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "morning",[m
+[32m+[m[32m        "dawn",[m
+[32m+[m[32m        "wee hours"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_taza",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "la taza",[m
+[32m+[m[32m    "lemma": "taza",[m
+[32m+[m[32m    "gender": "f",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "cup, mug",[m
+[32m+[m[32m    "category": "Café & Dining",[m
+[32m+[m[32m    "level": "A1",[m
+[32m+[m[32m    "example": "Una taza de café, por favor.",[m
+[32m+[m[32m    "exampleEn": "A cup of coffee, please.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "cup",[m
+[32m+[m[32m        "mug",[m
+[32m+[m[32m        "bowl"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_cuenta",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "la cuenta",[m
+[32m+[m[32m    "lemma": "cuenta",[m
+[32m+[m[32m    "gender": "f",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "the bill, the check",[m
+[32m+[m[32m    "category": "Café & Dining",[m
+[32m+[m[32m    "level": "A2",[m
+[32m+[m[32m    "example": "¿Nos trae la cuenta, por favor?",[m
+[32m+[m[32m    "exampleEn": "Could you bring us the check, please?",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "account",[m
+[32m+[m[32m        "check",[m
+[32m+[m[32m        "he tells",[m
+[32m+[m[32m        "bill"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "w_propina",[m
+[32m+[m[32m    "language": "es",[m
+[32m+[m[32m    "term": "la propina",[m
+[32m+[m[32m    "lemma": "propina",[m
+[32m+[m[32m    "gender": "f",[m
+[32m+[m[32m    "partOfSpeech": "noun",[m
+[32m+[m[32m    "definitionEn": "tip (gratuity)",[m
+[32m+[m[32m    "category": "Café & Dining",[m
+[32m+[m[32m    "level": "B1",[m
+[32m+[m[32m    "example": "Dejamos una propina para el camarero.",[m
+[32m+[m[32m    "exampleEn": "We left a tip for the waiter.",[m
+[32m+[m[32m    "azure": {[m
+[32m+[m[32m      "translations": [[m
+[32m+[m[32m        "tip",[m
+[32m+[m[32m        "gratuity"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "fetchedAt": "2026-10-25T20:41:01.687Z"[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+ ][m
