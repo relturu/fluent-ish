@@ -23,6 +23,8 @@ final class AppState {
     private(set) var uid: String?
     private(set) var user: AppUser?
     private(set) var progress: LanguageProgress?
+    /// Today's `dailyLog/{lang}_{today}`; nil until the first activity today.
+    private(set) var todayLog: DailyLog?
     /// Set when sign-in or a listener fails, so the UI can say so.
     private(set) var errorMessage: String?
 
@@ -31,6 +33,8 @@ final class AppState {
 
     @ObservationIgnored private var listeners: [ListenerRegistration] = []
     @ObservationIgnored private let db = Firestore.firestore()
+    /// All reads and writes go through here (Services/FirestoreService.swift).
+    @ObservationIgnored let service = FirestoreService()
 
     // MARK: Derived values for the top bar
 
@@ -88,7 +92,22 @@ final class AppState {
             db.document("users/\(uid)/progress/\(language)").addSnapshotListener { [weak self] snapshot, error in
                 self?.handle(snapshot, error, label: "progress") { self?.progress = $0 }
             },
+            // Today's game cards and "0/3 games" read this. Keyed by the date
+            // at launch; step 17 re-attaches it when the date changes.
+            service.dailyLogRef(uid: uid, language: language, day: today).addSnapshotListener { [weak self] snapshot, error in
+                self?.handle(snapshot, error, label: "daily log") { self?.todayLog = $0 }
+            },
         ]
+    }
+
+    // MARK: Writes
+
+    /// Finish (or save part of) an activity as the signed-in user. The
+    /// listeners above pick up the new XP and streak by themselves.
+    @discardableResult
+    func record(_ activity: ProgressRules.Activity, minutes: Int) async throws -> ActivityOutcome {
+        guard let uid else { throw FirestoreServiceError.noProgress }
+        return try await service.record(activity, minutes: minutes, uid: uid, language: language, today: today)
     }
 
     /// Decodes a listener update. A missing document isn't an error: a brand
