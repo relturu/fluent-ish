@@ -69,7 +69,7 @@ The goal is the full app running end to end. The UI is rebuilt in SwiftUI from t
 
 **Progress:**
 - [x] 1. Checklist + decisions here, unit test target `FluentIshTests` (Swift Testing, hosted by the app; synchronized folder `FluentIsh/FluentIshTests/`). Run with ⌘U or `xcodebuild test`. Simulators must be on iOS 27 (the deployment target).
-- [ ] 2. Design system: colors, fonts (Plus Jakarta Sans + Fraunces), type scale, 3D button, haptics, DEBUG style guide
+- [x] 2. Design system (`DesignSystem/`): colors (light/dark), fonts (Plus Jakarta Sans + Fraunces variable fonts in `Resources/Fonts`, OFL, registered at launch), type scale (`.textStyle(.h1)`), `.tactile(...)` 3D button, haptics. DEBUG `Debug/StyleGuideView.swift` mirrors the design doc; launch with `-scrollTo type|buttons`.
 - [ ] 3. Mascot (SwiftUI paths, 6 moods) + confetti
 - [ ] 4. App shell: AppState, routing, tab bar, top bar, streak indicator
 - [ ] 5. Data layer: FirestoreService + ProgressRules (levels, streak, scores, week ID, content fallback) with unit tests

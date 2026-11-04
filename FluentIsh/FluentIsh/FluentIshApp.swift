@@ -15,6 +15,9 @@ struct FluentIshApp: App {
         // Reads GoogleService-Info.plist and connects to fluent-ish-9d543.
         // Must run before any Auth or Firestore call.
         FirebaseApp.configure()
+        // Plus Jakarta Sans + Fraunces live in Resources/Fonts; register them
+        // before the first view draws.
+        FontRegistry.registerAll()
     }
 
     var body: some Scene {
