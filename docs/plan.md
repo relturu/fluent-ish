@@ -78,7 +78,7 @@ The UI is rebuilt in SwiftUI from the Google AI Studio prototype (React/Vite, ke
 **Scope change (Nov 4):** Arielle's part is the styling integration (AI Studio → Xcode) and Firebase. The remaining screens belong to teammates (see the sprint timeline), so steps 8–10 only leave styled filler and a handoff for them.
 - [x] 8. Filler screens (`Components/FillerScreen.swift`): Play/Start on Today opens a `FillerScreen` naming the owner (vocab Sean, Connections Jessica, Word Guess Sai, exercises Arielle). Its DEBUG "Finish (test)" button makes the same `appState.record(...)` call the real screen should make, then shows the celebration (+XP, or +0 on a replay). Progress, Friends and Settings tabs show `FillerSection` cards per section; Settings keeps the dark mode switch. Crossword card shows "Soon" and the games counter is x/2 (`V1Games`). The top bar never squeezes its right-hand actions. DEBUG: `-todayOpen vocab|connections|wordGuess|exercise`.
 - [x] 9. Teammate handoff: `docs/app-guide.md` (linked from the README) covers running the app, folders, replacing each filler, styling, `AppState` / `record` / `FirestoreService` / rules, tests and DEBUG launch arguments.
-- [ ] 10. Wrap-up: all tests pass (⌘U), then merge `feature/firebase-setup` into `main` so teammates build on it.
+- [x] 10. Wrap-up: 77 unit tests pass; PR #3 opens `feature/firebase-setup` → `main` (merges cleanly with the Azure PRs).
 
 **Handed off to teammates** (from the sprint timeline):
 
