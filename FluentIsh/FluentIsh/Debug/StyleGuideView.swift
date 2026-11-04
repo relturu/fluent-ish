@@ -65,13 +65,31 @@ struct StyleGuideView: View {
                         buttonPanel(title: "DARK MODE", scheme: .dark)
                     }
                 }
+
+                section("Mascot · Churro el Ajolote", id: "mascot") {
+                    mascotSection
+                }
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 40)
         }
         .background(Color.canvas)
         .scrollIndicators(.hidden)
+        .overlay {
+            if celebrating {
+                CelebrationOverlay { celebrating = false }
+            }
+        }
+        .overlay(alignment: .bottom) {
+            if showToast {
+                MascotToast { showToast = false }
+                    .padding(.bottom, 24)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
         .onAppear {
+            // `-celebrate YES` opens the confetti overlay on launch (for screenshots).
+            if UserDefaults.standard.bool(forKey: "celebrate") { celebrating = true }
             // Launch with `-scrollTo type` or `-scrollTo buttons` to jump to a
             // section (lets screenshots be taken from the command line).
             if let target = UserDefaults.standard.string(forKey: "scrollTo") {
@@ -81,7 +99,49 @@ struct StyleGuideView: View {
         }
     }
 
+    @State private var celebrating = false
+    @State private var showToast = false
+
     // MARK: Pieces
+
+    private var mascotSection: some View {
+        VStack(spacing: 14) {
+            Text("Playful, encouraging Mexican axolotl. Tap one to make it bounce.")
+                .textStyle(.body).foregroundStyle(Color.inkMuted)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3), spacing: 10) {
+                ForEach(MascotMood.allCases, id: \.self) { mood in
+                    VStack(spacing: 8) {
+                        MascotView(mood: mood, size: .md, onTap: {})
+                        Text(mood.rawValue.capitalized).font(.jakarta(12, 700)).foregroundStyle(Color.ink)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(Color.hairline))
+                }
+            }
+            HStack(alignment: .bottom, spacing: 12) {
+                VStack(spacing: 2) {
+                    SpeechBubble(text: "¡Un cafecito y a jugar!", maxWidth: 160)
+                    MascotView(mood: .waving, size: .sm)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 10) {
+                    Button("Celebrate!") { celebrating = true }
+                        .buttonStyle(.tactile(.primary, size: .small))
+                    Button("Wrong answer") {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) { showToast = true }
+                        Task {
+                            try? await Task.sleep(for: .seconds(2.4))
+                            withAnimation { showToast = false }
+                        }
+                    }
+                    .buttonStyle(.tactile(.outline, size: .small))
+                }
+            }
+        }
+    }
 
     private var header: some View {
         HStack(spacing: 10) {
