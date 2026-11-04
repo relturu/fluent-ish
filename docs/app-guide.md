@@ -29,15 +29,24 @@ New files under `FluentIsh/FluentIsh/` are picked up by Xcode automatically (syn
 
 ## 3. Replace your filler
 
-| Your screen | File to edit | Reached from |
-|---|---|---|
-| Daily Vocab deck (Sean) | new `Features/VocabDeck/`, then `TodayDestination` in `Features/Today/TodayView.swift` | Today › Start |
-| Connections (Jessica) | new `Features/Games/Connections/`, then `TodayDestination` | Today › Connections › Play |
-| Word Guess (Sai) | new `Features/Games/WordGuess/`, then `TodayDestination` | Today › Word Guess › Play |
-| Exercises (Arielle) | new `Features/Exercises/`, then `TodayDestination` | Today › Skill Exercises row |
-| Progress tab (Sai) | `Features/Progress/ProgressTabView.swift` | Tab bar |
-| Friends tab (Sean) | `Features/Friends/FriendsView.swift` | Tab bar |
-| Settings tab (Jessica) | `Features/Settings/SettingsView.swift` | Tab bar |
+| Your screen | File to edit | Reached from | Design |
+|---|---|---|---|
+| Daily Vocab deck (Sean) | new `Features/VocabDeck/`, then `TodayDestination` in `Features/Today/TodayView.swift` | Today › Start | prototype only (see below) |
+| Connections (Jessica) | new `Features/Games/Connections/`, then `TodayDestination` | Today › Connections › Play | prototype only |
+| Word Guess (Sai) | new `Features/Games/WordGuess/`, then `TodayDestination` | Today › Word Guess › Play | prototype only |
+| Exercises (Arielle) | new `Features/Exercises/`, then `TodayDestination` | Today › Skill Exercises row | prototype only |
+| Progress tab (Sai) | `Features/Progress/ProgressTabView.swift` | Tab bar | [1](design_screenshots/progress-1.png), [2](design_screenshots/progress-2.png) |
+| Friends tab (Sean) | `Features/Friends/FriendsView.swift` | Tab bar | [1](design_screenshots/friends-1.png), [2](design_screenshots/friends-2.png) |
+| Settings tab (Jessica) | `Features/Settings/SettingsView.swift` | Tab bar | [1](design_screenshots/settings-1.png), [2](design_screenshots/settings-2.png) |
+
+**Design reference** (`docs/design_screenshots/`, from the AI Studio prototype):
+- [design system 1](design_screenshots/design-system-1.png) and [2](design_screenshots/design-system-2.png): palette, type and buttons
+- [mascot](design_screenshots/mascot.png): Churro's moods
+- onboarding [1](design_screenshots/onboarding-1.png), [2](design_screenshots/onboarding-2.png), [3](design_screenshots/onboarding-3.png), [4](design_screenshots/onboarding-4.png)
+- today [1](design_screenshots/today-1.png), [2](design_screenshots/today-2.png)
+- the tabs: in the table above
+
+The vocab deck, games and exercises have no screenshots. Their prototype layouts are in the AI Studio code (`src/pages/Page03Daily.tsx` and `src/pages/GamesAndExercises.tsx`); ask Arielle for a copy. Where the mockup and plan.md disagree (XP numbers, "Lv.1", "Lumi"), follow plan.md.
 
 For a Today screen, swap the `FillerScreen(...)` case in `TodayDestination` for your view. The filler's DEBUG "Finish (test)" button shows the exact `record(...)` call your screen should make when the player finishes, so copy that.
 
