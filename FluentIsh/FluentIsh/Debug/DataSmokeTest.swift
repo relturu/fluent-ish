@@ -61,7 +61,10 @@ enum DataSmokeTest {
             return "\(due.count) due: " + due.map(\.wordId).joined(separator: ", ")
         }
         await check("DailyLog") {
-            let log = try await db.document("users/\(uid)/dailyLog/es_\(demoDate)").getDocument(as: DailyLog.self)
+            let ref = db.document("users/\(uid)/dailyLog/es_\(demoDate)")
+            // A user from onboarding has no seeded history; that's fine.
+            guard try await ref.getDocument().exists else { return "no log on \(demoDate) (new user)" }
+            let log = try await ref.getDocument(as: DailyLog.self)
             return "\(log.gamesCompleted)/3 games, \(log.xpEarned) XP, \(log.minutesSpent) min"
         }
         await check("Friend") {

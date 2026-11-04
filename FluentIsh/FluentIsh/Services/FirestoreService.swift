@@ -162,6 +162,22 @@ final class FirestoreService {
 
     // MARK: Writes
 
+    /// Onboarding: the user's profile, their progress in the chosen language,
+    /// and the starter friends, in one batch (all or nothing). Only for a new
+    /// user: it overwrites progress, so "Replay onboarding" (step 16) must not
+    /// call it.
+    func createProfile(uid: String, user: AppUser, progress: LanguageProgress,
+                       friendIds: [String], now: Date = Date()) async throws {
+        let batch = db.batch()
+        try batch.setData(from: user, forDocument: db.document("users/\(uid)"))
+        try batch.setData(from: progress, forDocument: progressRef(uid: uid, language: progress.language))
+        for friendId in friendIds {
+            try batch.setData(from: Friend(friendId: friendId, status: "accepted", since: now),
+                              forDocument: db.document("users/\(uid)/friends/\(friendId)"))
+        }
+        try await batch.commit()
+    }
+
     /// Finish (or save part of) an activity: one transaction that updates
     /// today's log and, if XP was earned, progress (XP, weekly XP, streak,
     /// level). Saving an in-progress game earns 0 XP and only updates the log.

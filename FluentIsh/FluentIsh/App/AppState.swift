@@ -28,6 +28,15 @@ final class AppState {
     /// Set when sign-in or a listener fails, so the UI can say so.
     private(set) var errorMessage: String?
 
+    /// True once the first profile and progress snapshots have arrived
+    /// (even if the documents don't exist). Until then RootView shows a
+    /// splash, so a returning user never sees onboarding flash by.
+    var loaded: Bool { userLoaded && progressLoaded }
+    /// A signed-in user with no profile or progress yet → onboarding.
+    var needsOnboarding: Bool { loaded && (user == nil || progress == nil) }
+    private var userLoaded = false
+    private var progressLoaded = false
+
     /// Target language code (es · fr · it · pt). Only Spanish is seeded for V1.
     var language = "es"
 
@@ -62,6 +71,15 @@ final class AppState {
 
     /// Signs in (anonymously, V1) and starts listening to the user's data.
     func start() async {
+        #if DEBUG
+        // `-freshStart YES`: sign out first, so this launch gets a brand-new
+        // anonymous user and onboarding. The old uid's data stays in
+        // Firestore, but this device can't get back to it.
+        if UserDefaults.standard.bool(forKey: "freshStart") {
+            try? Auth.auth().signOut()
+            print("🔥 -freshStart: signed out")
+        }
+        #endif
         do {
             let uid: String
             if let current = Auth.auth().currentUser {
@@ -87,10 +105,10 @@ final class AppState {
         listeners.forEach { $0.remove() }
         listeners = [
             db.document("users/\(uid)").addSnapshotListener { [weak self] snapshot, error in
-                self?.handle(snapshot, error, label: "profile") { self?.user = $0 }
+                self?.handle(snapshot, error, label: "profile") { self?.user = $0; self?.userLoaded = true }
             },
             db.document("users/\(uid)/progress/\(language)").addSnapshotListener { [weak self] snapshot, error in
-                self?.handle(snapshot, error, label: "progress") { self?.progress = $0 }
+                self?.handle(snapshot, error, label: "progress") { self?.progress = $0; self?.progressLoaded = true }
             },
             // Today's game cards and "0/3 games" read this. Keyed by the date
             // at launch; step 17 re-attaches it when the date changes.
@@ -101,6 +119,17 @@ final class AppState {
     }
 
     // MARK: Writes
+
+    /// Saves onboarding answers. The listeners then see the new profile and
+    /// RootView switches to the tabs by itself.
+    func completeOnboarding(_ choices: OnboardingChoices) async throws {
+        guard let uid else { throw FirestoreServiceError.noProgress }
+        language = choices.language
+        try await service.createProfile(uid: uid,
+                                        user: choices.makeUser(uid: uid),
+                                        progress: choices.makeProgress(weekId: ProgressRules.weekId()),
+                                        friendIds: OnboardingChoices.starterFriends)
+    }
 
     /// Finish (or save part of) an activity as the signed-in user. The
     /// listeners above pick up the new XP and streak by themselves.

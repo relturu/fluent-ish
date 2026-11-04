@@ -18,10 +18,11 @@ struct SpeechBubble: View {
     var style: Style = .dark
     var pointer: Pointer = .bottom
     var maxWidth: CGFloat = 230
+    var fontSize: CGFloat = 13
 
     var body: some View {
         Text(text)
-            .font(.jakarta(13, 700))
+            .font(.jakarta(fontSize, 700))
             .multilineTextAlignment(.center)
             .foregroundStyle(style == .dark ? Color.white : Color.ink)
             .padding(.horizontal, 14)
