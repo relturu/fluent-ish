@@ -20,14 +20,20 @@ struct PageTopBar<Trailing: View>: View {
     var body: some View {
         HStack(spacing: 8) {
             BrandWordmark()
+                .fixedSize()
             Text("/")
                 .font(.jakarta(17, 700))
                 .foregroundStyle(Color.ink.opacity(0.3))
+            // The title is the only part allowed to shrink when space is tight
+            // (Progress has both "Rules" and the streak on the right).
             Text(title)
                 .font(.jakarta(15, 700))
                 .foregroundStyle(Color.ink.opacity(0.9))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
             Spacer(minLength: 8)
             trailing
+                .fixedSize()
         }
         .padding(.horizontal, 20)
         .frame(height: 52)
@@ -138,6 +144,8 @@ struct PillButton: View {
             Text(title)
                 .font(.jakarta(13, 700))
                 .foregroundStyle(Color.connPurple)
+                .lineLimit(1)
+                .fixedSize()   // never wrap ("Rule / s") when the top bar is tight
                 .padding(.horizontal, 12).padding(.vertical, 6)
                 .background(Color.connPurple.opacity(0.12), in: Capsule())
                 .overlay(Capsule().strokeBorder(Color.connPurple.opacity(0.3)))

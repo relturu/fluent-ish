@@ -57,22 +57,3 @@ struct AppStreakIndicator: View {
         StreakIndicator(count: appState.streak, countedToday: appState.streakCountedToday, action: action)
     }
 }
-
-/// Placeholder body for tabs that haven't been built yet.
-struct ComingSoon: View {
-    let step: Int
-    let text: String
-
-    var body: some View {
-        VStack(spacing: 14) {
-            MascotView(mood: .thinking, size: .lg)
-            Text("Coming in step \(step)").textStyle(.h2).foregroundStyle(Color.ink)
-            Text(text).textStyle(.body).foregroundStyle(Color.inkMuted)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 40)
-        .background(Color.card, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(Color.hairline))
-    }
-}

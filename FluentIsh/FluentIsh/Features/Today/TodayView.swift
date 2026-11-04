@@ -7,10 +7,13 @@
 //  TodayModel; progress (solved games, lesson done, 0/3) comes live from
 //  `appState.todayLog`, so finishing a game updates this screen by itself.
 //
-//  Play / Start push screens that arrive in steps 8 and 10–13.
+//  Play / Start push filler screens until teammates build the real ones
+//  (TodayDestination below). The Mini Crossword is V2: its card shows the
+//  grid with a "Soon" pill, and the counter is x/2.
 //
 //  DEBUG: `-todaySheet vocab|connections|wordGuess|crossword|fillBlank|level`
-//  opens a sheet at launch (for screenshots).
+//  opens a sheet at launch; `-todayOpen vocab|connections|wordGuess|exercise`
+//  opens a filler screen (for screenshots).
 //
 
 import SwiftUI
@@ -46,8 +49,8 @@ struct TodayView: View {
                 exercisesSection
             }
         }
-        .navigationDestination(for: TodayRoute.self) { TodayDestination(route: $0) }
-        .navigationDestination(item: $pushed) { TodayDestination(route: $0) }
+        .navigationDestination(for: TodayRoute.self) { TodayDestination(route: $0, puzzle: model.puzzle) }
+        .navigationDestination(item: $pushed) { TodayDestination(route: $0, puzzle: model.puzzle) }
         .sheet(item: $info) { content in
             InfoSheet(content: content) { route in pushed = route }
         }
@@ -122,10 +125,10 @@ struct TodayView: View {
             HStack {
                 Text("TODAY'S GAMES").textStyle(.caption).foregroundStyle(Color.inkMuted)
                 Spacer()
-                Text("\(log?.gamesCompleted ?? 0)/3")
+                Text("\(V1Games.completed(in: log))/\(V1Games.keys.count)")
                     .font(.system(size: 13, weight: .bold, design: .monospaced))
                     .foregroundStyle(Color.inkMuted)
-                    .accessibilityLabel("\(log?.gamesCompleted ?? 0) of 3 games done")
+                    .accessibilityLabel("\(V1Games.completed(in: log)) of \(V1Games.keys.count) games done")
             }
             .padding(.top, 6)
 
@@ -145,7 +148,7 @@ struct TodayView: View {
                 }
                 TodayCard {
                     GameCardHeader(title: "Mini Crossword", kind: .init(games["crossword"]),
-                                   onInfo: { info = TodayInfo.crossword }, route: .crossword)
+                                   onInfo: { info = TodayInfo.crossword }, route: nil)
                     CrosswordPreview(solution: puzzle.crossword.solution,
                                      completed: games["crossword"]?.status == .completed)
                         .padding(.bottom, 4)
@@ -251,6 +254,13 @@ struct TodayView: View {
 
     private func openDebugSheet() {
         #if DEBUG
+        switch UserDefaults.standard.string(forKey: "todayOpen") {
+        case "vocab": pushed = .vocab
+        case "connections": pushed = .connections
+        case "wordGuess": pushed = .wordGuess
+        case "exercise": pushed = .exercise(id: "fillBlank")
+        default: break
+        }
         switch UserDefaults.standard.string(forKey: "todaySheet") {
         case "level": showLevel = true
         case "connections": info = TodayInfo.connections
@@ -342,22 +352,43 @@ private struct DifficultyPicker: View {
     }
 }
 
-/// Where Play / Start goes. Placeholders until each screen is built.
+/// Where Play / Start goes: a filler screen naming the teammate who builds
+/// it. Each test action is the exact `record` call the real screen should
+/// make when the player finishes.
 struct TodayDestination: View {
     let route: TodayRoute
+    let puzzle: DailyPuzzle?
+
+    @Environment(AppState.self) private var appState
 
     var body: some View {
-        ScrollView {
-            switch route {
-            case .vocab: ComingSoon(step: 8, text: "The vocab deck")
-            case .connections: ComingSoon(step: 10, text: "Connections")
-            case .wordGuess: ComingSoon(step: 11, text: "Word Guess")
-            case .crossword: ComingSoon(step: 12, text: "Mini Crossword")
-            case .exercise: ComingSoon(step: 13, text: "Skill exercises")
+        switch route {
+        case .vocab:
+            FillerScreen(title: "Daily Vocab", owner: "Sean", mood: .encouraging,
+                         summary: "Flip cards and list view for today's 70/30 deck, with pronunciation. Finishing calls service.completeVocabLesson(...) with one answer per card.") {
+                try await appState.record(.vocab(score: 1), minutes: 3)
+            }
+        case .connections:
+            FillerScreen(title: "Connections", owner: "Jessica", mood: .thinking,
+                         summary: "Find the four groups of four. Score with ProgressRules.connectionsScore(mistakes:); save partial progress with record(.game(...)) as status .inProgress.") {
+                try await appState.record(.game(key: "connections", result: GameResult(
+                    status: .completed, score: ProgressRules.connectionsScore(mistakes: 0), mistakes: 0,
+                    solvedGroups: [0, 1, 2, 3], guesses: nil, filledCells: nil, hintsUsed: nil)), minutes: 3)
+            }
+        case .wordGuess:
+            FillerScreen(title: "Word Guess", owner: "Sai", mood: .quest,
+                         summary: "Six tries at today's word. Colour each guess with GameRules.feedback(guess:answer:); score with ProgressRules.wordGuessScore.") {
+                let answer = puzzle?.wordGuess.answer ?? "PRECIO"
+                return try await appState.record(.game(key: "wordGuess", result: GameResult(
+                    status: .completed, score: ProgressRules.wordGuessScore(guessesUsed: 1, solved: true),
+                    mistakes: nil, solvedGroups: nil, guesses: [answer], filledCells: nil, hintsUsed: nil)), minutes: 2)
+            }
+        case .exercise(let id):
+            FillerScreen(title: "Skill Exercise", owner: "Arielle", mood: .proud,
+                         summary: "Fill in the Blank, Sentence Builder and Definition Match, from the exercises collection. Finishing calls record(.exercise(id:)).") {
+                try await appState.record(.exercise(id: id), minutes: 2)
             }
         }
-        .contentMargins(20)
-        .background(Color.canvas)
     }
 }
 
@@ -396,7 +427,7 @@ enum TodayInfo {
         subtitle: "5×5 grid · Across & Down",
         description: "A bite-sized 5×5 Spanish crossword that tests vocabulary and grammar clues in a couple of minutes.",
         tip: "Tap a square twice to switch between Across (Horizontales) and Down (Verticales).",
-        reward: "Up to +\(ProgressRules.gameMaxXP) XP, hints cost XP", actionLabel: "Play Crossword", route: .crossword)
+        reward: "Coming in a later version", actionLabel: "Play Crossword", route: nil)
 
     static func exercise(type: String, title: String, exercise: Exercise?) -> InfoContent {
         let route = exercise?.id.map { TodayRoute.exercise(id: $0) }

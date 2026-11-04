@@ -59,14 +59,22 @@ final class TodayModel {
     }
 }
 
-/// Where the Today tab can navigate. Each case becomes a real screen in
-/// steps 8 and 10–13.
+/// Where the Today tab can navigate. Each case is a filler screen until its
+/// owner builds it (see TodayDestination). The Mini Crossword is V2.
 enum TodayRoute: Hashable {
     case vocab
     case connections
     case wordGuess
-    case crossword
     case exercise(id: String)
+}
+
+/// The games that count toward "x/2" on Today in V1.
+enum V1Games {
+    static let keys = ["connections", "wordGuess"]
+
+    static func completed(in log: DailyLog?) -> Int {
+        keys.filter { log?.games[$0]?.status == .completed }.count
+    }
 }
 
 /// Churro's greeting above "¡Hola!", one per day.

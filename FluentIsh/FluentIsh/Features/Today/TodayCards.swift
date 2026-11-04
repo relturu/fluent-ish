@@ -98,12 +98,13 @@ extension PlayPill.Kind {
     }
 }
 
-/// Title + (i) + Play, the header row of every game card.
+/// Title + (i) + Play, the header row of every game card. A nil route
+/// means the game isn't in V1 yet: it shows a muted "Soon" pill instead.
 struct GameCardHeader: View {
     let title: String
     let kind: PlayPill.Kind
     let onInfo: () -> Void
-    let route: TodayRoute
+    let route: TodayRoute?
 
     var body: some View {
         HStack(spacing: 4) {
@@ -113,9 +114,19 @@ struct GameCardHeader: View {
                 .foregroundStyle(Color.ink)
             Spacer()
             InfoButton(label: title, action: onInfo)
-            NavigationLink(value: route) { PlayPill(kind: kind) }
-                .buttonStyle(.plain)
-                .accessibilityLabel("\(kindLabel) \(title)")
+            if let route {
+                NavigationLink(value: route) { PlayPill(kind: kind) }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("\(kindLabel) \(title)")
+            } else {
+                Text("Soon")
+                    .font(.jakarta(13, 700))
+                    .foregroundStyle(Color.inkMuted)
+                    .padding(.horizontal, 12)
+                    .frame(height: 30)
+                    .background(Color.segmentTrack, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+                    .accessibilityLabel("\(title) coming soon")
+            }
         }
     }
 
