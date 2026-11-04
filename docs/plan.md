@@ -71,7 +71,7 @@ The goal is the full app running end to end. The UI is rebuilt in SwiftUI from t
 - [x] 1. Checklist + decisions here, unit test target `FluentIshTests` (Swift Testing, hosted by the app; synchronized folder `FluentIsh/FluentIshTests/`). Run with ⌘U or `xcodebuild test`. Simulators must be on iOS 27 (the deployment target).
 - [x] 2. Design system (`DesignSystem/`): colors (light/dark), fonts (Plus Jakarta Sans + Fraunces variable fonts in `Resources/Fonts`, OFL, registered at launch), type scale (`.textStyle(.h1)`), `.tactile(...)` 3D button, haptics. DEBUG `Debug/StyleGuideView.swift` mirrors the design doc; launch with `-scrollTo type|buttons`.
 - [x] 3. Mascot + confetti (`Components/`): `MascotView` draws Churro from the prototype's SVG path strings (`SVGPath` parser), 6 moods, idle blink/breathe/tilt/gill flutter, dance, nod, tap bounce, still under Reduce Motion. `CelebrationOverlay` (3-wave confetti + cheer + dancing Churro), `MascotToast`, `SpeechBubble`. Style guide `-scrollTo mascot`, `-celebrate YES`. Celebration sound deferred to step 9.
-- [ ] 4. App shell: AppState, routing, tab bar, top bar, streak indicator
+- [x] 4. App shell: `App/AppState.swift` (anonymous sign-in + live listeners on `users/{uid}` and `progress/es`), `RootView`, `MainTabView` with custom tab bar, `PageTopBar` / `StreakIndicator` / `LevelPill`, `TabPage` layout, stub tabs. `Services/ProgressRules.swift` has day keys, CEFR level from XP, and displayed streak (shows 0 once a day is missed). DEBUG launch args: `-tab progress|friends|settings`, `-screen styleguide`, `-darkMode YES`.
 - [ ] 5. Data layer: FirestoreService + ProgressRules (levels, streak, scores, week ID, content fallback) with unit tests
 - [ ] 6. Onboarding
 - [ ] 7. Today

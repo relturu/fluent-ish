@@ -14,15 +14,19 @@
 //
 
 import SwiftUI
+import Synchronization
 
-enum SVGPath {
+nonisolated enum SVGPath {
     /// Parses once and caches, since the mascot redraws every animation frame.
-    private static var cache: [String: Path] = [:]
+    /// The Mutex makes the cache safe to use from several threads at once
+    /// (parallel tests, or a Canvas rendering off the main thread). Without
+    /// it, two simultaneous writes corrupt the dictionary and crash.
+    private static let cache = Mutex<[String: Path]>([:])
 
     static func path(_ d: String) -> Path {
-        if let cached = cache[d] { return cached }
+        if let cached = cache.withLock({ $0[d] }) { return cached }
         let parsed = parse(d)
-        cache[d] = parsed
+        cache.withLock { $0[d] = parsed }
         return parsed
     }
 

@@ -7,47 +7,34 @@
 
 import SwiftUI
 import FirebaseCore
-import FirebaseAuth
 
 @main
 struct FluentIshApp: App {
+    /// App-wide state (auth, profile, progress), shared with every screen.
+    @State private var appState: AppState
+
     init() {
         // Reads GoogleService-Info.plist and connects to fluent-ish-9d543.
-        // Must run before any Auth or Firestore call.
+        // Must run before any Auth or Firestore call (AppState uses Firestore).
         FirebaseApp.configure()
         // Plus Jakarta Sans + Fraunces live in Resources/Fonts; register them
         // before the first view draws.
         FontRegistry.registerAll()
+        _appState = State(initialValue: AppState())
     }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environment(appState)
                 .task {
-                    await signInIfNeeded()
+                    // V1 uses anonymous auth: every device gets a uid with no
+                    // login screen, saved on the device across launches.
+                    await appState.start()
                     #if DEBUG
                     await DataSmokeTest.run()   // prints 🧪 results to the console
                     #endif
                 }
-        }
-    }
-
-    // V1 uses anonymous auth: every device gets a uid with no login screen.
-    // The session is saved on the device, so this only signs in on first launch.
-    private func signInIfNeeded() async {
-        if let user = Auth.auth().currentUser {
-            #if DEBUG
-            print("🔥 Already signed in, uid: \(user.uid)")
-            #endif
-            return
-        }
-        do {
-            let result = try await Auth.auth().signInAnonymously()
-            #if DEBUG
-            print("🔥 Signed in anonymously, uid: \(result.user.uid)")
-            #endif
-        } catch {
-            print("🔥 Anonymous sign-in failed: \(error)")
         }
     }
 }

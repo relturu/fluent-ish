@@ -1,0 +1,65 @@
+//
+//  TabPage.swift
+//  FluentIsh
+//
+//  Shared layout for the four tab screens: the pinned PageTopBar, a scrolling
+//  cream page underneath, and room for the tab bar at the bottom. Each tab
+//  only supplies its title, top-bar actions and content:
+//
+//      TabPage(title: "Friends") { AppStreakIndicator() } content: { … }
+//
+
+import SwiftUI
+
+struct TabPage<Trailing: View, Content: View>: View {
+    let title: String
+    @ViewBuilder var trailing: Trailing
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                content
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
+            .padding(.bottom, 32)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .scrollIndicators(.hidden)
+        .background(Color.canvas)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            PageTopBar(title: title) { trailing }
+        }
+        .toolbar(.hidden, for: .navigationBar)
+    }
+}
+
+/// The streak flame wired to the signed-in user's progress. Used on every tab.
+struct AppStreakIndicator: View {
+    @Environment(AppState.self) private var appState
+    var action: (() -> Void)? = nil
+
+    var body: some View {
+        StreakIndicator(count: appState.streak, countedToday: appState.streakCountedToday, action: action)
+    }
+}
+
+/// Placeholder body for tabs that haven't been built yet.
+struct ComingSoon: View {
+    let step: Int
+    let text: String
+
+    var body: some View {
+        VStack(spacing: 14) {
+            MascotView(mood: .thinking, size: .lg)
+            Text("Coming in step \(step)").textStyle(.h2).foregroundStyle(Color.ink)
+            Text(text).textStyle(.body).foregroundStyle(Color.inkMuted)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 40)
+        .background(Color.card, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(Color.hairline))
+    }
+}
