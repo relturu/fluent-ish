@@ -50,6 +50,42 @@ _Created Oct 23, 2026. This doc is the source of truth. If a field name changes,
 - [ ] **Canvas copy** of the playground with the free-tier key filled in. Never commit it (the repo is public).
 - [ ] If Azure responses are decoded off the main actor and Xcode warns about "main actor-isolated conformance", mark the Azure model conformances `nonisolated Codable` like `FirestoreModels.swift`.
 
+### V1 app build (Sprint 4, started Nov 4, 2026)
+The goal is the full app running end to end. The UI is rebuilt in SwiftUI from the Google AI Studio prototype (React/Vite, kept outside the repo; its screenshots and handoff docs are the visual reference). Building screens is in scope this sprint.
+
+**Decisions (Nov 4):**
+- **Same Firestore schema as above.** The AI Studio handoff proposed `users/{uid}/stats/current`, `game_sessions` and `user_vocab`. We are **not** adopting those. The UI maps onto `progress/{lang}`, `dailyLog`, `wordProgress` and the content collections.
+- **Levels are CEFR**, using the floors in "Defaults to implement". Where the mockup says "Lv.1" or "1,470 / 1,500", the app shows e.g. "B1" and "1,245 / 1,500 XP → B2".
+- **XP, scoring and streak follow "Defaults to implement"**, not the prototype's numbers (it used +30/+40 XP and a level every 1,500 XP).
+- **Content date fallback.** If `{lang}_{today}` doesn't exist, the app rotates through the seeded days by day number, so Today always has content. This is a code-only change; seeding more days is optional.
+- **Today game cards match the mockup**, including the (i) info buttons and mini preview grids. The grids show real progress.
+- **Onboarding** writes `users/{uid}`, `progress/es`, and `friends/{u_maya,u_lucas,u_elena}`, so a new anonymous user has a leaderboard and a feed.
+- **The mascot is "Churro el Ajolote"** (the prototype also calls it "Lumi" in places).
+- **Not copied from the prototype:**
+  - Pre-filled Word Guess and Crossword boards
+  - Connections with no game-over
+  - Exercises that never check answers
+  - A streak that never resets
+
+**Progress:**
+- [x] 1. Checklist + decisions here, unit test target `FluentIshTests` (Swift Testing, hosted by the app; synchronized folder `FluentIsh/FluentIshTests/`). Run with ⌘U or `xcodebuild test`. Simulators must be on iOS 27 (the deployment target).
+- [ ] 2. Design system: colors, fonts (Plus Jakarta Sans + Fraunces), type scale, 3D button, haptics, DEBUG style guide
+- [ ] 3. Mascot (SwiftUI paths, 6 moods) + confetti
+- [ ] 4. App shell: AppState, routing, tab bar, top bar, streak indicator
+- [ ] 5. Data layer: FirestoreService + ProgressRules (levels, streak, scores, week ID, content fallback) with unit tests
+- [ ] 6. Onboarding
+- [ ] 7. Today
+- [ ] 8. Vocab deck (70/30 mix, card/list modes, speech)
+- [ ] 9. Session Review, Rules modal, Level-up modal
+- [ ] 10. Connections
+- [ ] 11. Word Guess
+- [ ] 12. Mini Crossword
+- [ ] 13. Skill exercises (Fill in the Blank, Sentence Builder, Definition Match)
+- [ ] 14. Progress (stats, Quest Path, Word Log)
+- [ ] 15. Friends (leaderboard, daily prompt, feed, likes, Azure translate/detect)
+- [ ] 16. Settings
+- [ ] 17. Polish: dark mode everywhere, minutes tracking, reduced motion
+
 ---
 
 ## Overview
