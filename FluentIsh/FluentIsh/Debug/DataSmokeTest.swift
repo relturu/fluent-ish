@@ -61,7 +61,10 @@ enum DataSmokeTest {
             return "\(due.count) due: " + due.map(\.wordId).joined(separator: ", ")
         }
         await check("DailyLog") {
-            let log = try await db.document("users/\(uid)/dailyLog/es_\(demoDate)").getDocument(as: DailyLog.self)
+            let ref = db.document("users/\(uid)/dailyLog/es_\(demoDate)")
+            // A user from onboarding has no seeded history; that's fine.
+            guard try await ref.getDocument().exists else { return "no log on \(demoDate) (new user)" }
+            let log = try await ref.getDocument(as: DailyLog.self)
             return "\(log.gamesCompleted)/3 games, \(log.xpEarned) XP, \(log.minutesSpent) min"
         }
         await check("Friend") {
@@ -135,11 +138,54 @@ enum DataSmokeTest {
             } catch let error as NSError where error.code == FirestoreErrorCode.permissionDenied.rawValue {
                 return "permission denied, as expected"
             }
-            throw NSError(domain: "DataSmokeTest", code: 1,
-                          userInfo: [NSLocalizedDescriptionKey: "write to users/u_maya was ALLOWED"])
+            throw smokeError("write to users/u_maya was ALLOWED")
+        }
+
+        // MARK: FirestoreService (step 5): what Today will load
+        let service = FirestoreService()
+        let today = ProgressRules.dayKey()
+        var contentDay: String?
+        await check("Content day for \(today) (rotation fallback)") {
+            contentDay = try await service.contentDay(language: "es", today: today)
+            guard let contentDay else { throw smokeError("no seeded days found") }
+            return contentDay == today ? "today's own content" : "using seeded day \(contentDay)"
+        }
+        if let contentDay {
+            await check("Today's lesson + 70/30 deck") {
+                let lesson = try await service.vocabLesson(language: "es", day: contentDay)
+                let deck = try await service.lessonDeck(uid: uid, language: "es", today: today, lesson: lesson)
+                let words = try await service.words(ids: deck.wordIds)
+                return "\(lesson.title): \(words.count) cards: " + words.map(\.term).joined(separator: ", ")
+            }
+            await check("Today's puzzles + prompt") {
+                let puzzle = try await service.dailyPuzzle(language: "es", day: contentDay)
+                let prompt = try await service.dailyPrompt(language: "es", day: contentDay)
+                return "Word Guess \(puzzle.wordGuess.answer), prompt: \(prompt.text.prefix(40))…"
+            }
+        }
+        await check("Recent logs (28 days)") {
+            let logs = try await service.recentLogs(uid: uid, language: "es", today: today)
+            return "\(logs.count) days, newest \(logs.first?.date ?? "-")"
+        }
+
+        // MARK: Write check, opt-in: launch with `-smokeWrite YES`
+        // Records a fake exercise "smoke_test" twice. The first earns 10 XP
+        // and starts today's streak; the second must earn 0 (no farming).
+        if UserDefaults.standard.bool(forKey: "smokeWrite") {
+            await check("Record activity (transaction)") {
+                let first = try await service.record(.exercise(id: "smoke_test"), minutes: 1, uid: uid, language: "es")
+                let second = try await service.record(.exercise(id: "smoke_test"), minutes: 0, uid: uid, language: "es")
+                guard second.xpAwarded == 0 else { throw smokeError("replay earned \(second.xpAwarded) XP") }
+                return "+\(first.xpAwarded) XP then +0 on replay; streak \(second.progress.currentStreak), "
+                    + "\(second.progress.xp) XP, week \(second.progress.weekId) \(second.progress.weeklyXP) XP"
+            }
         }
 
         print("🧪 \(failed == 0 ? "All" : "\(passed) of") \(passed + failed) checks passed\(failed == 0 ? "" : ", \(failed) failed")")
+    }
+
+    private static func smokeError(_ message: String) -> NSError {
+        NSError(domain: "DataSmokeTest", code: 1, userInfo: [NSLocalizedDescriptionKey: message])
     }
 }
 #endif
