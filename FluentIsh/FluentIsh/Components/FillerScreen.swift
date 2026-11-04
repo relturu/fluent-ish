@@ -69,8 +69,10 @@ struct FillerScreen: View {
             .frame(maxWidth: .infinity)
         }
         .background(Color.canvas)
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            GameHeaderBar(title: title, subtitle: "Coming soon")
+        }
+        .toolbar(.hidden, for: .navigationBar)
         .overlay {
             if let celebration {
                 CelebrationOverlay(message: celebration) { self.celebration = nil }

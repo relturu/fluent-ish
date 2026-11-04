@@ -4,6 +4,7 @@ Games + a little bit of language learning. Fluent·ish is an iOS app (SwiftUI) w
 ## Start here
 - `docs/plan.md`: the data plan and source of truth. Its top section tracks team progress.
 - `docs/app-guide.md`: how to build your screen in the SwiftUI app (styling, data, tests, debug options).
+- `docs/porting-guide.md`: how to port a screen from the AI Studio prototype (`design/ai-studio/src/`), with a prompt for your AI agent.
 - `CLAUDE.md`: context Claude Code loads automatically.
 
 ## Secrets (this repo is public)

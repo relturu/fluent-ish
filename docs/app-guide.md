@@ -31,10 +31,10 @@ New files under `FluentIsh/FluentIsh/` are picked up by Xcode automatically (syn
 
 | Your screen | File to edit | Reached from | Design |
 |---|---|---|---|
-| Daily Vocab deck (Sean) | new `Features/VocabDeck/`, then `TodayDestination` in `Features/Today/TodayView.swift` | Today › Start | prototype only (see below) |
-| Connections (Jessica) | new `Features/Games/Connections/`, then `TodayDestination` | Today › Connections › Play | prototype only |
-| Word Guess (Sai) | new `Features/Games/WordGuess/`, then `TodayDestination` | Today › Word Guess › Play | prototype only |
-| Exercises (Arielle) | new `Features/Exercises/`, then `TodayDestination` | Today › Skill Exercises row | prototype only |
+| Daily Vocab deck (Sean) | new `Features/VocabDeck/`, then `TodayDestination` in `Features/Today/TodayView.swift` | Today › Start | [session review](design_screenshots/session-review.png) |
+| Connections (Jessica) | new `Features/Games/Connections/`, then `TodayDestination` | Today › Connections › Play | [1](design_screenshots/connections-1-playing.png), [2](design_screenshots/connections-2-group-solved.png) |
+| Word Guess (Sai) | new `Features/Games/WordGuess/`, then `TodayDestination` | Today › Word Guess › Play | [1](design_screenshots/word-guess-1-playing.png), [hint](design_screenshots/word-guess-2-hint-popup.png) |
+| Exercises (Arielle) | new `Features/Exercises/`, then `TodayDestination` | Today › Skill Exercises row | [info](design_screenshots/exercise-info-sheet.png), [fill in the blank](design_screenshots/fill-blank-playing.png) |
 | Progress tab (Sai) | `Features/Progress/ProgressTabView.swift` | Tab bar | [1](design_screenshots/progress-1.png), [2](design_screenshots/progress-2.png) |
 | Friends tab (Sean) | `Features/Friends/FriendsView.swift` | Tab bar | [1](design_screenshots/friends-1.png), [2](design_screenshots/friends-2.png) |
 | Settings tab (Jessica) | `Features/Settings/SettingsView.swift` | Tab bar | [1](design_screenshots/settings-1.png), [2](design_screenshots/settings-2.png) |
@@ -46,7 +46,7 @@ New files under `FluentIsh/FluentIsh/` are picked up by Xcode automatically (syn
 - today [1](design_screenshots/today-1.png), [2](design_screenshots/today-2.png)
 - the tabs: in the table above
 
-The vocab deck, games and exercises have no screenshots. Their prototype layouts are in the AI Studio code (`src/pages/Page03Daily.tsx` and `src/pages/GamesAndExercises.tsx`); ask Arielle for a copy. Where the mockup and plan.md disagree (XP numbers, "Lv.1", "Lumi"), follow plan.md.
+The full prototype code is in `design/ai-studio/src/`. **To port a screen from it (or have your AI agent do it), follow `docs/porting-guide.md`**: it says which file and lines hold your screen, how to translate React/Tailwind to SwiftUI, what not to copy from the mockup, and has a prompt to paste into your agent. Where the mockup and plan.md disagree (XP numbers, "Lv.1", "Lumi", the pre-filled Word Guess board), follow plan.md.
 
 For a Today screen, swap the `FillerScreen(...)` case in `TodayDestination` for your view. The filler's DEBUG "Finish (test)" button shows the exact `record(...)` call your screen should make when the player finishes, so copy that.
 
@@ -74,6 +74,8 @@ Every colour has a light and dark version already, so dark mode works if you use
 | Piece | Use it for |
 |---|---|
 | `MascotView(mood: .celebrating, size: .lg)` | Churro. Moods: waving, celebrating, quest, thinking, proud, encouraging |
+| `GameHeaderBar(title:onHowToPlay:onHint:)` | The Back / title / ? / ! header on game and exercise screens |
+| `AudioButton(text:)`, `Speech.speak(_:)` | Spanish pronunciation (on-device) |
 | `SpeechBubble(text:style:pointer:)` | Churro's lines |
 | `CelebrationOverlay(message:onDone:)` | Confetti and a dancing Churro when something is finished |
 | `TodayCard { }` | The white rounded card used on Today |
