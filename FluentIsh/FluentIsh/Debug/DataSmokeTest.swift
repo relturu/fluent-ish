@@ -153,8 +153,8 @@ enum DataSmokeTest {
         if let contentDay {
             await check("Today's lesson + 70/30 deck") {
                 let lesson = try await service.vocabLesson(language: "es", day: contentDay)
-                let ids = try await service.lessonWordIds(uid: uid, language: "es", today: today, lesson: lesson)
-                let words = try await service.words(ids: ids)
+                let deck = try await service.lessonDeck(uid: uid, language: "es", today: today, lesson: lesson)
+                let words = try await service.words(ids: deck.wordIds)
                 return "\(lesson.title): \(words.count) cards: " + words.map(\.term).joined(separator: ", ")
             }
             await check("Today's puzzles + prompt") {

@@ -51,7 +51,7 @@ _Created Oct 23, 2026. This doc is the source of truth. If a field name changes,
 - [ ] If Azure responses are decoded off the main actor and Xcode warns about "main actor-isolated conformance", mark the Azure model conformances `nonisolated Codable` like `FirestoreModels.swift`.
 
 ### V1 app build (Sprint 4, started Nov 4, 2026)
-The goal is the full app running end to end. The UI is rebuilt in SwiftUI from the Google AI Studio prototype (React/Vite, kept outside the repo; its screenshots and handoff docs are the visual reference). Building screens is in scope this sprint.
+The UI is rebuilt in SwiftUI from the Google AI Studio prototype (React/Vite, kept outside the repo; its screenshots and handoff docs are the visual reference). Steps 1–7 built the shared foundation and the onboarding and Today screens; the other screens are owned by teammates (see "Scope change" below).
 
 **Decisions (Nov 4):**
 - **Same Firestore schema as above.** The AI Studio handoff proposed `users/{uid}/stats/current`, `game_sessions` and `user_vocab`. We are **not** adopting those. The UI maps onto `progress/{lang}`, `dailyLog`, `wordProgress` and the content collections.
@@ -74,17 +74,25 @@ The goal is the full app running end to end. The UI is rebuilt in SwiftUI from t
 - [x] 4. App shell: `App/AppState.swift` (anonymous sign-in + live listeners on `users/{uid}` and `progress/es`), `RootView`, `MainTabView` with custom tab bar, `PageTopBar` / `StreakIndicator` / `LevelPill`, `TabPage` layout, stub tabs. `Services/ProgressRules.swift` has day keys, CEFR level from XP, and displayed streak (shows 0 once a day is missed). DEBUG launch args: `-tab progress|friends|settings`, `-screen styleguide`, `-darkMode YES`.
 - [x] 5. Data layer: `Services/FirestoreService.swift` (content-day lookup, lesson/puzzle/prompt/exercise/word reads, due reviews, 70/30 deck IDs, recent logs; `record(...)` and `completeVocabLesson(...)` write progress + dailyLog (+ wordProgress) in one transaction). `ProgressRules` adds ISO week ID, streak update, game scores, XP (replays earn 0; minutes still count), word status + review intervals, lesson mix, content-day rotation. `AppState` now also listens to today's dailyLog. Recall % counts only words seen before. DEBUG `-smokeWrite YES` records a test exercise `smoke_test` twice (+10 XP, then +0).
 - [x] 6. Onboarding (`Features/Onboarding/`): 7 steps from the prototype (welcome, language, why, pace, games, level, plan ready) with a name field on the last step. Writes `users/{uid}`, `progress/es` (starting XP = the chosen CEFR floor: A1 0, A2 300, B1 800, B2 1500) and `friends/{u_maya,u_lucas,u_elena}` in one batch. Motivation, weekly frequency and favourite games stay on the device (`@AppStorage`). `RootView`: splash → onboarding (no profile) → tabs. DEBUG: `-freshStart YES` (new anonymous user), `-screen onboarding` (preview), `-onboardingStep N`, `-onboardingName X`, `-onboardingAutoFinish YES`.
-- [ ] 7. Today
-- [ ] 8. Vocab deck (70/30 mix, card/list modes, speech)
-- [ ] 9. Session Review, Rules modal, Level-up modal
-- [ ] 10. Connections
-- [ ] 11. Word Guess
-- [ ] 12. Mini Crossword
-- [ ] 13. Skill exercises (Fill in the Blank, Sentence Builder, Definition Match)
-- [ ] 14. Progress (stats, Quest Path, Word Log)
-- [ ] 15. Friends (leaderboard, daily prompt, feed, likes, Azure translate/detect)
-- [ ] 16. Settings
-- [ ] 17. Polish: dark mode everywhere, minutes tracking, reduced motion
+- [x] 7. Today (`Features/Today/`): greeting with a daily Churro line, Daily Vocab card (deck from `lessonDeck`: aqua review / orange new chips), Today's Games with live previews from `todayLog` (solved Connections rows in group colours, last Word Guess colours with letters hidden, real crossword grid), Skill Exercises with Easy/Medium/Hard (`@AppStorage("exerciseDifficulty")`, falls back to the one seeded exercise per type). (i)/About open `InfoSheet` (XP from plan.md rules); the level pill opens `LevelProgressSheet`. `Services/GameRules.swift`: Word Guess colouring (repeated letters, accents ignored, Ñ kept) + crossword black squares. Play buttons push placeholders until steps 8, 10–13. DEBUG: `-todaySheet …`, `-scrollBottom YES`.
+**Scope change (Nov 4):** Arielle's part is the styling integration (AI Studio → Xcode) and Firebase. The remaining screens belong to teammates (see the sprint timeline), so steps 8–10 only leave styled filler and a handoff for them.
+- [ ] 8. Filler screens: every Play/Start route (vocab deck, Connections, Word Guess, Crossword, 3 exercises) opens a styled placeholder with a back button and the owner's name. A DEBUG "Finish (test)" button calls `appState.record(...)`, so XP, streak and the Today previews can be tested before the real screens exist. The Progress, Friends and Settings tabs get styled filler too (Settings keeps the dark mode toggle).
+- [ ] 9. Teammate handoff: how to add a screen (folders, `TodayRoute`, `TabPage`), the design-system pieces (colours, `.textStyle`, `.tactile`, `MascotView`, `OptionCard`, `InfoSheet`, `CelebrationOverlay`), the data APIs (`AppState`, `FirestoreService.record` / `completeVocabLesson`, `ProgressRules`, `GameRules`), the DEBUG launch args and the test simulator setup.
+- [ ] 10. Wrap-up: all tests pass (⌘U), then merge `feature/firebase-setup` into `main` so teammates build on it.
+
+**Handed off to teammates** (from the sprint timeline):
+
+| Screen | Owner | Notes from steps 1–7 |
+|---|---|---|
+| Vocab deck + Session Review | Sean | Use `lessonDeck` + `completeVocabLesson`. Celebration sound, Rules modal and Level-up modal not built. |
+| Connections | Jessica (content) | Score with `ProgressRules.connectionsScore`; save partial state with `record(.game(...))` |
+| Word Guess | Sai (content) | Colouring is done: `GameRules.feedback` |
+| Mini Crossword | Not in V1 (V2 list) | Today shows the grid with a "Soon" pill. `GameRules.blackSquares` exists; `filledCells` format not decided |
+| Exercises (easy mode) | Arielle (Sprint 2 content) | `record(.exercise(id:))` |
+| Progress tab | Sai | `recentLogs`, `allWordProgress` already exist |
+| Friends tab | Sean | Social reads/writes not written yet |
+| Settings tab | Jessica | Must not call `createProfile` for "replay onboarding" |
+| Polish (dark mode Churro outline, minutes tracking, date change at midnight) | V2 list | |
 
 ---
 

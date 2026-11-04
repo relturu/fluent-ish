@@ -13,12 +13,13 @@ import SwiftUI
 
 struct TabPage<Trailing: View, Content: View>: View {
     let title: String
+    var spacing: CGFloat = 24
     @ViewBuilder var trailing: Trailing
     @ViewBuilder var content: Content
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: spacing) {
                 content
             }
             .padding(.horizontal, 20)
@@ -27,11 +28,23 @@ struct TabPage<Trailing: View, Content: View>: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .scrollIndicators(.hidden)
+        .defaultScrollAnchor(Self.startAtBottom ? .bottom : .top)
         .background(Color.canvas)
         .safeAreaInset(edge: .top, spacing: 0) {
             PageTopBar(title: title) { trailing }
         }
         .toolbar(.hidden, for: .navigationBar)
+    }
+}
+
+extension TabPage {
+    /// DEBUG: `-scrollBottom YES` opens tabs scrolled to the end (screenshots).
+    static var startAtBottom: Bool {
+        #if DEBUG
+        UserDefaults.standard.bool(forKey: "scrollBottom")
+        #else
+        false
+        #endif
     }
 }
 

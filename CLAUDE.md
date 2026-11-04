@@ -13,5 +13,5 @@ If you're working on Azure Translator / API, see "Remaining Azure steps" in `doc
 - No arrays inside arrays in Firestore data (the crossword grid is one string per row, with `#` for black squares).
 - Only the seed scripts (Admin SDK) write content collections. The app only reads them.
 - Spanish content is written at B1 level and stays neutral between Spain and Latin America where possible.
-- Sprint 4 (V1) builds the app screens from the AI Studio design. Follow "V1 app build" in `docs/plan.md` one step at a time.
+- Sprint 4 (V1) builds the app screens from the AI Studio design. Follow "V1 app build" in `docs/plan.md` one step at a time. Game, Progress, Friends and Settings screens belong to teammates: only build filler for them unless asked.
 - The person you're working with wants to understand each step. Explain why, and give a test to run before moving on.

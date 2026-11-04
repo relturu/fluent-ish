@@ -29,6 +29,14 @@ struct ActivityOutcome {
     var leveledUp: Bool { level.name != previousLevel }
 }
 
+/// The word IDs in today's vocab lesson.
+struct LessonDeck: Equatable {
+    var wordIds: [String]
+    var reviewIds: Set<String>
+
+    func isReview(_ wordId: String) -> Bool { reviewIds.contains(wordId) }
+}
+
 /// One card in a finished vocab lesson.
 struct VocabAnswer: Equatable {
     let wordId: String
@@ -132,17 +140,19 @@ final class FirestoreService {
             .documents.map { try $0.data(as: WordProgress.self) }
     }
 
-    /// The word IDs for today's deck: the 70/30 mix from ProgressRules.
-    func lessonWordIds(uid: String, language: String, today: String, lesson: VocabLesson) async throws -> [String] {
+    /// Today's deck: the 70/30 mix from ProgressRules, plus which of those
+    /// words are reviews (aqua chips on Today) and which are new (orange).
+    func lessonDeck(uid: String, language: String, today: String, lesson: VocabLesson) async throws -> LessonDeck {
         // Ask for a few extra due words so they can fill in when new words run out.
         let due = try await dueReviews(uid: uid, language: language, today: today, limit: lesson.wordCount)
         var seen: Set<String> = []
         for id in lesson.newWordIds {
             if try await db.document("users/\(uid)/wordProgress/\(id)").getDocument().exists { seen.insert(id) }
         }
-        return ProgressRules.lessonWordIds(dueReviewIds: due.map(\.wordId), newWordIds: lesson.newWordIds,
-                                           alreadySeen: seen, wordCount: lesson.wordCount,
-                                           reviewRatio: lesson.reviewRatio)
+        let ids = ProgressRules.lessonWordIds(dueReviewIds: due.map(\.wordId), newWordIds: lesson.newWordIds,
+                                              alreadySeen: seen, wordCount: lesson.wordCount,
+                                              reviewRatio: lesson.reviewRatio)
+        return LessonDeck(wordIds: ids, reviewIds: Set(due.map(\.wordId)).intersection(ids))
     }
 
     // MARK: Day logs
