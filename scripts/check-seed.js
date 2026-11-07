@@ -231,6 +231,9 @@ for (const p of data.dailyPuzzles) {
 for (const ex of data.exercises) {
   for (const [i, item] of (ex.items ?? []).entries()) {
     const where = `exercises/${ex.id} item ${i}`;
+    if (ex.type === "fillBlank") {
+      check(item.prompt.split("___").length === 2, `${where}: a fillBlank prompt needs exactly one ___`);
+    }
     if (!item.choices) continue;
     if (ex.type === "sentenceBuilder") {
       const pool = [...item.choices];

@@ -23,6 +23,13 @@ How to turn a screen from the AI Studio prototype (React + Tailwind) into a Swif
 | Fill in the Blank (Arielle) | `pages/GamesAndExercises.tsx` lines 1107–1254 | `fill-blank-playing.png`, `exercise-info-sheet.png` |
 | Sentence Builder (Arielle) | `pages/GamesAndExercises.tsx` lines 1255–1388 | (none) |
 | Definition Match (Arielle) | `pages/GamesAndExercises.tsx` lines 1389–1553 | (none) |
+
+**A finished example:** the three exercises are built (`FluentIsh/FluentIsh/Features/Exercises/`). Copy their pattern for your game:
+- `GameHeaderBar` with `?` (a `HowToPlaySheet`) and `!` (a hint counter the board reacts to)
+- `.shake(misses)` and `Haptics.error()` on a wrong answer
+- `FlowLayout` for wrapping tiles
+- `appState.record(...)` when the player finishes, then a recap
+- pure checking logic in a tested `nonisolated enum` (`Services/ExerciseRules.swift`)
 | Progress tab (Sai) | `pages/Page01Progress.tsx` | `progress-1.png`, `progress-2.png` |
 | Friends tab (Sean) | `pages/Page02Friends.tsx` | `friends-1.png`, `friends-2.png` |
 | Settings tab (Jessica) | `pages/Page04Settings.tsx` | `settings-1.png`, `settings-2.png` |

@@ -15,6 +15,20 @@
     ]
   },
   {
+    "id": "ex_fill_easy_001",
+    "language": "es",
+    "type": "fillBlank",
+    "title": "Fill in the Blank",
+    "subtitle": "Completa la Frase",
+    "difficulty": "easy",
+    "items": [
+      { "prompt": "Yo ___ café por la mañana.", "answer": "bebo", "choices": ["bebo", "como", "leo"], "promptEn": "I drink coffee in the morning." },
+      { "prompt": "Mi hermana ___ en una tienda.", "answer": "trabaja", "choices": ["duerme", "trabaja", "llueve"], "promptEn": "My sister works in a shop." },
+      { "prompt": "¿___ cuesta el pan?", "answer": "Cuánto", "choices": ["Dónde", "Quién", "Cuánto"], "promptEn": "How much is the bread?" },
+      { "prompt": "Hoy hace mucho ___.", "answer": "calor", "choices": ["calor", "mesa", "libro"], "promptEn": "It's very hot today." }
+    ]
+  },
+  {
     "id": "ex_fill_001",
     "language": "es",
     "type": "fillBlank",
@@ -22,10 +36,23 @@
     "subtitle": "Completa la Frase",
     "difficulty": "medium",
     "items": [
-      { "prompt": "Después de cenar, nos gusta ___.", "answer": "charlar", "choices": ["charlar", "correr", "dormir"] },
-      { "prompt": "Llovía; ___, salimos a pasear.", "answer": "sin embargo", "choices": ["sin embargo", "porque", "además"] },
-      { "prompt": "¿Nos trae la ___, por favor?", "answer": "cuenta", "choices": ["cuenta", "propina", "taza"] },
-      { "prompt": "Mis vecinos se ___ el mes pasado.", "answer": "mudaron", "choices": ["mudan", "mudaron", "mudarán"] }
+      { "prompt": "Después de cenar, nos gusta ___.", "answer": "charlar", "choices": ["charlar", "correr", "dormir"], "promptEn": "After dinner, we like to chat." },
+      { "prompt": "Llovía; ___, salimos a pasear.", "answer": "sin embargo", "choices": ["sin embargo", "porque", "además"], "promptEn": "It was raining; however, we went out for a walk." },
+      { "prompt": "¿Nos trae la ___, por favor?", "answer": "cuenta", "choices": ["cuenta", "propina", "taza"], "promptEn": "Could you bring us the bill, please?" },
+      { "prompt": "Mis vecinos se ___ el mes pasado.", "answer": "mudaron", "choices": ["mudan", "mudaron", "mudarán"], "promptEn": "My neighbours moved last month." }
+    ]
+  },
+  {
+    "id": "ex_build_easy_001",
+    "language": "es",
+    "type": "sentenceBuilder",
+    "title": "Sentence Builder",
+    "subtitle": "Construye la Frase",
+    "difficulty": "easy",
+    "items": [
+      { "prompt": "I like coffee.", "answer": "Me gusta el café.", "choices": ["café.", "Me", "el", "gusta"] },
+      { "prompt": "Where is the bathroom?", "answer": "¿Dónde está el baño?", "choices": ["el", "¿Dónde", "baño?", "está"] },
+      { "prompt": "We eat at home.", "answer": "Comemos en casa.", "choices": ["casa.", "Comemos", "en"] }
     ]
   },
   {
