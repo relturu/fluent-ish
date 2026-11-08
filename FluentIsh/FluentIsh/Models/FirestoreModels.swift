@@ -171,9 +171,10 @@ struct DailyPuzzle: nonisolated Codable, Identifiable {         // dailyPuzzles/
 }
 
 struct ExerciseItem: nonisolated Codable {
-    var prompt: String
+    var prompt: String                // fillBlank: sentence with one ___ · sentenceBuilder: English · definitionMatch: Spanish
     var answer: String
-    var choices: [String]?
+    var choices: [String]?            // fillBlank options · sentenceBuilder tiles (may include decoys)
+    var promptEn: String?             // fillBlank: English line under the sentence
 }
 
 struct Exercise: nonisolated Codable, Identifiable {            // exercises/{id}
