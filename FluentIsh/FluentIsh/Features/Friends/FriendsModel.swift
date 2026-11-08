@@ -48,7 +48,7 @@ final class FriendsModel {
             let fetchedFriends = try await friendRequest
             let friends = fetchedFriends.filter { $0.status == "accepted" }
             let ids = friends.map(\.friendId)
-            let feedRequest = service.friendPosts(authorIds: ids)
+            async let feedRequest = service.friendPosts(authorIds: ids)
             let leaderboard = try await leaderboardRequest
             let fetchedPosts = try await feedRequest
             let contentDay = try await contentDayRequest
