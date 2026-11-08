@@ -36,7 +36,7 @@ New files under `FluentIsh/FluentIsh/` are picked up by Xcode automatically (syn
 | Word Guess (Sai) | new `Features/Games/WordGuess/`, then `TodayDestination` | Today › Word Guess › Play | [1](design_screenshots/word-guess-1-playing.png), [hint](design_screenshots/word-guess-2-hint-popup.png) |
 | Exercises (Arielle, done) | `Features/Exercises/` | Today › Skill Exercises row | [info](design_screenshots/exercise-info-sheet.png), [fill in the blank](design_screenshots/fill-blank-playing.png) |
 | Progress tab (Sai) | `Features/Progress/ProgressTabView.swift` | Tab bar | [1](design_screenshots/progress-1.png), [2](design_screenshots/progress-2.png) |
-| Friends tab (Sean) | `Features/Friends/FriendsView.swift` | Tab bar | [1](design_screenshots/friends-1.png), [2](design_screenshots/friends-2.png) |
+| Friends tab (Sean; V1 implementation) | `Features/Friends/FriendsView.swift` | Tab bar | [1](design_screenshots/friends-1.png), [2](design_screenshots/friends-2.png) |
 | Settings tab (Jessica) | `Features/Settings/SettingsView.swift` | Tab bar | [1](design_screenshots/settings-1.png), [2](design_screenshots/settings-2.png) |
 
 **Design reference** (`docs/design_screenshots/`, from the AI Studio prototype):

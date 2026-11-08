@@ -11,8 +11,8 @@
 //  A transaction means two quick finishes (or two devices) can't both read
 //  "1,245 XP" and both write "1,275": Firestore retries one of them.
 //
-//  Social reads (friends, posts, leaderboard) arrive with the Friends tab
-//  (step 15), and onboarding writes with step 6.
+//  Social reads and writes for the Friends tab live here; onboarding creates
+//  the initial friend list.
 //
 
 import Foundation
@@ -45,12 +45,21 @@ struct VocabAnswer: Equatable {
 
 enum FirestoreServiceError: LocalizedError {
     case noProgress
+    case missingPost
 
     var errorDescription: String? {
         switch self {
         case .noProgress: "You don't have progress for this language yet. Finish onboarding first."
+        case .missingPost: "This post is no longer available."
         }
     }
+}
+
+struct LeaderboardEntry: Identifiable {
+    let userId: String
+    let progress: LanguageProgress
+
+    var id: String { userId }
 }
 
 final class FirestoreService {
@@ -96,6 +105,87 @@ final class FirestoreService {
 
     func dailyPrompt(language: String, day: String) async throws -> DailyPrompt {
         try await db.document("dailyPrompts/\(Self.dayDocId(language, day))").getDocument(as: DailyPrompt.self)
+    }
+
+    // MARK: Friends
+
+    func friends(uid: String) async throws -> [Friend] {
+        try await db.collection("users/\(uid)/friends")
+            .getDocuments()
+            .documents.map { try $0.data(as: Friend.self) }
+    }
+
+    func leaderboard(language: String, weekId: String) async throws -> [LeaderboardEntry] {
+        let snapshot = try await db.collectionGroup("progress")
+            .whereField("language", isEqualTo: language)
+            .whereField("weekId", isEqualTo: weekId)
+            .order(by: "weeklyXP", descending: true)
+            .getDocuments()
+
+        return try snapshot.documents.compactMap { document in
+            guard let userId = document.reference.parent.parent?.documentID else { return nil }
+            return LeaderboardEntry(userId: userId, progress: try document.data(as: LanguageProgress.self))
+        }
+    }
+
+    func friendPosts(authorIds: [String]) async throws -> [Post] {
+        guard !authorIds.isEmpty else { return [] }
+        return try await db.collection("posts")
+            .whereField("authorId", in: Array(authorIds.prefix(30)))
+            .order(by: "createdAt", descending: true)
+            .limit(to: 20)
+            .getDocuments()
+            .documents.map { try $0.data(as: Post.self) }
+    }
+
+    func hasLiked(postId: String, uid: String) async throws -> Bool {
+        try await db.document("posts/\(postId)/likes/\(uid)").getDocument().exists
+    }
+
+    func createPromptPost(uid: String, user: AppUser, prompt: DailyPrompt, text: String) async throws -> Post {
+        let reference = db.collection("posts").document()
+        try await reference.setData([
+            "authorId": uid,
+            "authorName": user.displayName,
+            "authorHandle": user.username,
+            "language": prompt.language,
+            "type": "promptResponse",
+            "promptId": prompt.id ?? "",
+            "badge": NSNull(),
+            "text": text,
+            "likesCount": 0,
+            "createdAt": Timestamp(date: Date()),
+        ])
+        return try await reference.getDocument(as: Post.self)
+    }
+
+    /// Toggles the signed-in user's like and its visible count atomically.
+    func toggleLike(postId: String, uid: String) async throws -> Bool {
+        let postReference = db.document("posts/\(postId)")
+        let likeReference = db.document("posts/\(postId)/likes/\(uid)")
+        let result = try await db.runTransaction { transaction, errorPointer -> Any? in
+            do {
+                let post = try transaction.getDocument(postReference)
+                let like = try transaction.getDocument(likeReference)
+                guard post.exists, let count = post.data()?["likesCount"] as? Int else {
+                    throw FirestoreServiceError.missingPost
+                }
+
+                if like.exists {
+                    transaction.deleteDocument(likeReference)
+                    transaction.updateData(["likesCount": max(0, count - 1)], forDocument: postReference)
+                    return false
+                } else {
+                    transaction.setData(["likedAt": Timestamp(date: Date())], forDocument: likeReference)
+                    transaction.updateData(["likesCount": count + 1], forDocument: postReference)
+                    return true
+                }
+            } catch {
+                errorPointer?.pointee = error as NSError
+                return nil
+            }
+        }
+        return result as? Bool ?? false
     }
 
     func exercises(language: String) async throws -> [Exercise] {
