@@ -34,7 +34,7 @@ New files under `FluentIsh/FluentIsh/` are picked up by Xcode automatically (syn
 | Daily Vocab deck (Sean) | new `Features/VocabDeck/`, then `TodayDestination` in `Features/Today/TodayView.swift` | Today › Start | [session review](design_screenshots/session-review.png) |
 | Connections (Jessica) | new `Features/Games/Connections/`, then `TodayDestination` | Today › Connections › Play | [1](design_screenshots/connections-1-playing.png), [2](design_screenshots/connections-2-group-solved.png) |
 | Word Guess (Sai) | new `Features/Games/WordGuess/`, then `TodayDestination` | Today › Word Guess › Play | [1](design_screenshots/word-guess-1-playing.png), [hint](design_screenshots/word-guess-2-hint-popup.png) |
-| Exercises (Arielle) | new `Features/Exercises/`, then `TodayDestination` | Today › Skill Exercises row | [info](design_screenshots/exercise-info-sheet.png), [fill in the blank](design_screenshots/fill-blank-playing.png) |
+| Exercises (Arielle, done) | `Features/Exercises/` | Today › Skill Exercises row | [info](design_screenshots/exercise-info-sheet.png), [fill in the blank](design_screenshots/fill-blank-playing.png) |
 | Progress tab (Sai) | `Features/Progress/ProgressTabView.swift` | Tab bar | [1](design_screenshots/progress-1.png), [2](design_screenshots/progress-2.png) |
 | Friends tab (Sean) | `Features/Friends/FriendsView.swift` | Tab bar | [1](design_screenshots/friends-1.png), [2](design_screenshots/friends-2.png) |
 | Settings tab (Jessica) | `Features/Settings/SettingsView.swift` | Tab bar | [1](design_screenshots/settings-1.png), [2](design_screenshots/settings-2.png) |
@@ -75,6 +75,7 @@ Every colour has a light and dark version already, so dark mode works if you use
 |---|---|
 | `MascotView(mood: .celebrating, size: .lg)` | Churro. Moods: waving, celebrating, quest, thinking, proud, encouraging |
 | `GameHeaderBar(title:onHowToPlay:onHint:)` | The Back / title / ? / ! header on game and exercise screens |
+| `.shake(count)`, `FlowLayout`, `HowToPlaySheet` | Wrong-answer wobble, wrapping tiles, the "?" sheet (see `Features/Exercises/`) |
 | `AudioButton(text:)`, `Speech.speak(_:)` | Spanish pronunciation (on-device) |
 | `SpeechBubble(text:style:pointer:)` | Churro's lines |
 | `CelebrationOverlay(message:onDone:)` | Confetti and a dancing Churro when something is finished |
@@ -164,7 +165,8 @@ Add these in Xcode › Product › Scheme › Edit Scheme › Run › Arguments,
 | Argument | Does |
 |---|---|
 | `-tab progress` (`friends`, `settings`) | Opens on that tab |
-| `-todayOpen connections` (`vocab`, `wordGuess`, `exercise`) | Opens that screen from Today |
+| `-todayOpen connections` (`vocab`, `wordGuess`) | Opens that screen from Today |
+| `-todayOpen fillBlank` (`sentenceBuilder`, `definitionMatch`) + `-exerciseDifficulty easy` | Opens that exercise at that difficulty |
 | `-todaySheet level` (`vocab`, `connections`, `wordGuess`, `crossword`, `fillBlank`) | Opens a sheet on Today |
 | `-darkMode YES` | Dark mode |
 | `-screen styleguide` | The design-system screen |

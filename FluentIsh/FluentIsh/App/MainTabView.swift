@@ -35,19 +35,23 @@ struct MainTabView: View {
     @State private var selection: AppTab = MainTabView.initialTab
 
     var body: some View {
-        ZStack {
-            ForEach(AppTab.allCases) { tab in
-                NavigationStack {
-                    page(for: tab)
+        // The bar sits below the pages rather than in a safeAreaInset: an
+        // inset didn't reach screens pushed inside each NavigationStack, so
+        // their bottom buttons ended up under the bar.
+        VStack(spacing: 0) {
+            ZStack {
+                ForEach(AppTab.allCases) { tab in
+                    NavigationStack {
+                        page(for: tab)
+                    }
+                    .opacity(selection == tab ? 1 : 0)
+                    .allowsHitTesting(selection == tab)
+                    .accessibilityHidden(selection != tab)
                 }
-                .opacity(selection == tab ? 1 : 0)
-                .allowsHitTesting(selection == tab)
-                .accessibilityHidden(selection != tab)
             }
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
             TabBar(selection: $selection)
         }
+        .background(Color.canvas)
     }
 
     @ViewBuilder

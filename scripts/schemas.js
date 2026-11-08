@@ -54,7 +54,7 @@ const SCHEMAS = {
   },
   exercises: {
     language: "string", type: "enum:fillBlank|sentenceBuilder|definitionMatch", title: "string", subtitle: "string",
-    difficulty: "enum:easy|medium|hard", items: [{ prompt: "string", answer: "string", choices: "string[]?" }],
+    difficulty: "enum:easy|medium|hard", items: [{ prompt: "string", answer: "string", choices: "string[]?", promptEn: "string?" }],
   },
   quests: {
     language: "string", lengthDays: "int",
