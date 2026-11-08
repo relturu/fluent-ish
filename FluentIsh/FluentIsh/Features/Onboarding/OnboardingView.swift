@@ -25,6 +25,10 @@ import SwiftUI
 
 struct OnboardingView: View {
     @Environment(AppState.self) private var appState
+    
+    // for onboarding replay
+    var isReplay = false
+    var onClose: () -> Void = {}
 
     // Device-only answers (see OnboardingChoices for why they aren't in Firestore).
     @AppStorage("motivation") private var storedMotivation = ""
@@ -59,6 +63,7 @@ struct OnboardingView: View {
         }
         .background(Color.canvas)
         .onAppear {
+            if isReplay { choices.name = appState.firstName }
             #if DEBUG
             let debugStep = UserDefaults.standard.integer(forKey: "onboardingStep")
             if (1...Self.lastStep).contains(debugStep) { step = debugStep }
@@ -158,6 +163,14 @@ struct OnboardingView: View {
     }
 
     private func finish() {
+        // for settings replay button
+        if isReplay {
+            nameFocused = false
+            Haptics.success()
+            onClose()
+            return
+        }
+
         guard choices.canFinish, !saving else { return }
         nameFocused = false
         saving = true
