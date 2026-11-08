@@ -369,12 +369,11 @@ struct TodayDestination: View {
                 try await appState.record(.vocab(score: 1), minutes: 3)
             }
         case .connections:
-            FillerScreen(title: "Connections", owner: "Jessica", mood: .thinking,
-                         summary: "Find the four groups of four. Score with ProgressRules.connectionsScore(mistakes:); save partial progress with record(.game(...)) as status .inProgress.") {
-                try await appState.record(.game(key: "connections", result: GameResult(
-                    status: .completed, score: ProgressRules.connectionsScore(mistakes: 0), mistakes: 0,
-                    solvedGroups: [0, 1, 2, 3], guesses: nil, filledCells: nil, hintsUsed: nil)), minutes: 3)
-            }
+            if let puzzle {
+                    ConnectionsView(puzzle: puzzle.connections)
+                } else {
+                    ProgressView()
+                }
         case .wordGuess:
             FillerScreen(title: "Word Guess", owner: "Sai", mood: .quest,
                          summary: "Six tries at today's word. Colour each guess with GameRules.feedback(guess:answer:); score with ProgressRules.wordGuessScore.") {
