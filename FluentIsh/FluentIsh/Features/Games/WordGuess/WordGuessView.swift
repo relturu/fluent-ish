@@ -53,8 +53,12 @@ struct WordGuessView: View {
     /// The whole game. @State keeps it alive while the screen is shown;
     /// changing it (typing, Submit) redraws the board.
     @State private var game: WordGuessGame
-    /// Bumped on every rejected Submit; the current row shakes when it changes.
-    @State private var shakes = 0
+    /// One shake counter per board row. A rejected Submit bumps only the
+    /// current row's counter, and the shared `.shake(_:)` helper wiggles a
+    /// row whenever its counter changes. Counters never go down, so a row
+    /// can't wiggle by accident later (e.g. when it stops being the
+    /// current row after an accepted guess).
+    @State private var rowShakes = Array(repeating: 0, count: WordGuessGame.maxGuesses)
     /// When the screen opened, for the minutes added to the daily goal.
     @State private var startedAt = Date()
     /// Shown under the clue if saving fails (e.g. offline).
@@ -178,7 +182,6 @@ struct WordGuessView: View {
     private func board(tileSide: CGFloat) -> some View {
         VStack(spacing: Self.tileGap) {
             ForEach(0..<WordGuessGame.maxGuesses, id: \.self) { row in
-                let isCurrentRow = row == game.guesses.count && !game.isOver
                 HStack(spacing: Self.tileGap) {
                     ForEach(0..<puzzle.length, id: \.self) { column in
                         LetterTile(letter: letter(row: row, column: column),
@@ -186,9 +189,10 @@ struct WordGuessView: View {
                                    side: tileSide)
                     }
                 }
-                // Only the row being typed shakes, so its trigger is the
-                // only one that changes.
-                .modifier(ShakeEffect(trigger: isCurrentRow ? shakes : 0))
+                // Each row reads its own counter (see `rowShakes`). Only the
+                // row being typed ever has its counter bumped. The shared
+                // helper skips the wiggle when Reduce Motion is on.
+                .shake(rowShakes[row])
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel(accessibilityLabel(row: row))
             }
@@ -331,7 +335,11 @@ struct WordGuessView: View {
             // shouldn't happen. It's kept as a safety net: if it ever does,
             // the player still gets the shake instead of nothing.
             Haptics.error()
-            shakes += 1
+            // The row that was rejected is the one being typed, whose index
+            // is the number of guesses already made. The bounds check is
+            // just to be safe; a rejected row is always on the board.
+            let row = game.guesses.count
+            if rowShakes.indices.contains(row) { rowShakes[row] += 1 }
         case .accepted:
             if game.isWon {
                 Haptics.success()
@@ -740,30 +748,6 @@ private struct KeyboardKeyStyle: ButtonStyle {
             .offset(y: configuration.isPressed ? depth : 0)
             .padding(.bottom, depth)
             .contentShape(Rectangle())
-    }
-}
-
-/// Wiggles its content left and right whenever `trigger` changes
-/// (the prototype's `animate-tile-shake`, 350ms). Skipped under Reduce Motion.
-private struct ShakeEffect: ViewModifier {
-    let trigger: Int
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    func body(content: Content) -> some View {
-        // Copy the setting into a plain constant: the animation closure may
-        // run off the main actor, where it can't read @Environment directly.
-        let still = reduceMotion
-        return content.keyframeAnimator(initialValue: 0.0, trigger: trigger) { view, x in
-            view.offset(x: still ? 0 : x)
-        } keyframes: { _ in
-            KeyframeTrack {
-                LinearKeyframe(-8, duration: 0.05)
-                LinearKeyframe(8, duration: 0.08)
-                LinearKeyframe(-6, duration: 0.08)
-                LinearKeyframe(6, duration: 0.07)
-                LinearKeyframe(0, duration: 0.07)
-            }
-        }
     }
 }
 
