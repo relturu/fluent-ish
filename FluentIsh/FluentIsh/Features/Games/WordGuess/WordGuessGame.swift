@@ -13,8 +13,10 @@
 //    ignored, Ñ kept).
 //  - Score comes from ProgressRules.wordGuessScore; each hint costs 5 XP,
 //    which ProgressRules.gameXP already subtracts using `hintsUsed`.
-//  - A hint reveals one letter, in order (1st, then 2nd), at most 2, and
-//    never the whole word. No "Solve CHARLA" button.
+//  - A hint reveals one letter in its correct spot: the leftmost position
+//    that isn't green in any guess and isn't revealed yet. There's no fixed
+//    limit (plan.md has none); a hint is refused once it would complete the
+//    word. No "Solve CHARLA" button.
 //  - V1 accepts any guess of the right length (no dictionary check).
 //
 //  It's a struct (a value type): the view keeps one in @State, and every
@@ -29,7 +31,6 @@ import Foundation
 nonisolated struct WordGuessGame: Equatable {
 
     static let maxGuesses = 6
-    static let maxHints = 2
 
     /// Today's answer, normalized (uppercase, no accents) so it can be
     /// compared letter by letter with what the player types.
@@ -42,19 +43,27 @@ nonisolated struct WordGuessGame: Equatable {
     private(set) var guesses: [String] = []
     /// The row being typed right now (0…length letters).
     private(set) var current: String = ""
+    /// Hints taken (each costs 5 XP through ProgressRules.gameXP). Kept as
+    /// its own count, not `revealedPositions.count`: after a restore fewer
+    /// positions may be shown (see restoredHintPositions), but the player
+    /// still paid for every hint.
     private(set) var hintsUsed: Int = 0
+    /// Letter positions (0-based) revealed by hints, in the order taken.
+    private(set) var revealedPositions: [Int] = []
 
     /// Starts a new game, or rebuilds one saved earlier today from
-    /// `dailyLog.games["wordGuess"]`. Because hints always reveal letters
-    /// in the same order, `hintsUsed` alone is enough to restore them.
+    /// `dailyLog.games["wordGuess"]`. Only `hintsUsed` is saved, so the
+    /// revealed positions are recomputed with the same hint rule.
     init(answer: String, length: Int, restoring saved: GameResult? = nil) {
         self.answer = GameRules.normalize(answer)
         self.length = length
         if let saved {
             // Clamp in case the saved data is odd, so the board never has
-            // more than 6 rows or more hints than allowed.
+            // more than 6 rows.
             guesses = Array((saved.guesses ?? []).map(GameRules.normalize).prefix(Self.maxGuesses))
-            hintsUsed = min(max(0, saved.hintsUsed ?? 0), maxHintsForWord)
+            hintsUsed = max(0, saved.hintsUsed ?? 0)
+            revealedPositions = Self.restoredHintPositions(guesses: guesses, hintsUsed: hintsUsed,
+                                                           answer: self.answer, length: length)
         }
     }
 
@@ -117,17 +126,63 @@ nonisolated struct WordGuessGame: Equatable {
 
     // MARK: Hints
 
-    /// At most 2 hints, and never so many that the whole word is shown
-    /// (a 2-letter word only gets 1).
-    private var maxHintsForWord: Int { max(0, min(Self.maxHints, length - 1)) }
+    /// Positions that are green in at least one guess: the player already
+    /// knows those letters, so a hint never spends XP on them.
+    static func greenPositions(guesses: [String], answer: String) -> Set<Int> {
+        var green = Set<Int>()
+        for guess in guesses {
+            for (index, result) in GameRules.feedback(guess: guess, answer: answer).enumerated()
+            where result == .correct {
+                green.insert(index)
+            }
+        }
+        return green
+    }
 
-    var canUseHint: Bool { !isOver && hintsUsed < maxHintsForWord }
+    /// The hint rule. The leftmost position that isn't green in any guess
+    /// and isn't revealed yet, or nil if there is none, or if revealing it
+    /// would leave no unknown letter (that would complete the word).
+    static func nextHintPosition(guesses: [String], revealed: [Int], answer: String, length: Int) -> Int? {
+        let known = greenPositions(guesses: guesses, answer: answer).union(revealed)
+        let unknown = (0..<min(length, answer.count)).filter { !known.contains($0) }
+        // Fewer than 2 unknown letters: revealing one would finish the word.
+        guard unknown.count >= 2 else { return nil }
+        return unknown.first
+    }
 
-    /// Reveals the next letter (1st, then 2nd). Returns false if no hint
-    /// is left. The XP cost is applied later by ProgressRules.gameXP.
+    /// Rebuilds the revealed positions after a restore by applying the hint
+    /// rule `hintsUsed` times to the saved guesses.
+    ///
+    /// Edge case: while playing, a hint only sees the guesses made before
+    /// it. Here every saved guess counts. So if a revealed position later
+    /// turned green (the player typed the hinted letter), the rule skips it
+    /// and reveals the next unknown letter instead: one extra letter for
+    /// free. It can also show fewer letters than `hintsUsed` when the rule
+    /// runs out. XP is unaffected either way: it comes from `hintsUsed`.
+    static func restoredHintPositions(guesses: [String], hintsUsed: Int, answer: String, length: Int) -> [Int] {
+        var revealed: [Int] = []
+        for _ in 0..<max(0, hintsUsed) {
+            guard let next = nextHintPosition(guesses: guesses, revealed: revealed,
+                                              answer: answer, length: length) else { break }
+            revealed.append(next)
+        }
+        return revealed
+    }
+
+    /// Where the next hint would go, or nil if no hint can be used now.
+    var nextHintPosition: Int? {
+        guard !isOver else { return nil }
+        return Self.nextHintPosition(guesses: guesses, revealed: revealedPositions, answer: answer, length: length)
+    }
+
+    var canUseHint: Bool { nextHintPosition != nil }
+
+    /// Reveals one more letter. Returns false if no hint can be used. The
+    /// XP cost is applied later by ProgressRules.gameXP (never below 0).
     @discardableResult
     mutating func useHint() -> Bool {
-        guard canUseHint else { return false }
+        guard let position = nextHintPosition else { return false }
+        revealedPositions.append(position)
         hintsUsed += 1
         return true
     }
@@ -136,7 +191,7 @@ nonisolated struct WordGuessGame: Equatable {
     /// For CHARLA after 1 hint: [C, nil, nil, nil, nil, nil].
     var revealedLetters: [Character?] {
         let letters = Array(answer)
-        return (0..<length).map { $0 < hintsUsed && $0 < letters.count ? letters[$0] : nil }
+        return (0..<length).map { revealedPositions.contains($0) && $0 < letters.count ? letters[$0] : nil }
     }
 
     // MARK: Saving

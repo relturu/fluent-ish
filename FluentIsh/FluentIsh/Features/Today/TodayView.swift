@@ -376,12 +376,18 @@ struct TodayDestination: View {
                     solvedGroups: [0, 1, 2, 3], guesses: nil, filledCells: nil, hintsUsed: nil)), minutes: 3)
             }
         case .wordGuess:
-            FillerScreen(title: "Word Guess", owner: "Sai", mood: .quest,
-                         summary: "Six tries at today's word. Colour each guess with GameRules.feedback(guess:answer:); score with ProgressRules.wordGuessScore.") {
-                let answer = puzzle?.wordGuess.answer ?? "PRECIO"
-                return try await appState.record(.game(key: "wordGuess", result: GameResult(
-                    status: .completed, score: ProgressRules.wordGuessScore(guessesUsed: 1, solved: true),
-                    mistakes: nil, solvedGroups: nil, guesses: [answer], filledCells: nil, hintsUsed: nil)), minutes: 2)
+            // Sai's screen (Features/Games/WordGuess/). The same record call
+            // the filler made, but with the real result: guesses, score from
+            // ProgressRules.wordGuessScore, and hints used.
+            if let puzzle {
+                WordGuessView(puzzle: puzzle.wordGuess) { result, minutes in
+                    try await appState.record(.game(key: "wordGuess", result: result), minutes: minutes)
+                }
+            } else {
+                // Opened before today's puzzle finished loading (e.g. -todayOpen).
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.canvas)
             }
         case .exercise(let id):
             FillerScreen(title: "Skill Exercise", owner: "Arielle", mood: .proud,

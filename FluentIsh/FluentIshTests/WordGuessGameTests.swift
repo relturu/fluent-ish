@@ -113,28 +113,61 @@ struct WordGuessGameTests {
     }
 
     // MARK: Hints
+    // CHARLA is the answer below. CAMINO and CORTAR both get only the C
+    // (position 0) green, which is what the "skips green" tests rely on.
 
-    @Test func hintsRevealLettersInOrderUpToTwo() {
+    @Test func hintRevealsLeftmostUnknownLetterAndCountsIt() {
         var game = WordGuessGame(answer: "CHARLA", length: 6)
         #expect(game.revealedLetters == [nil, nil, nil, nil, nil, nil])
-        let first = game.useHint()
-        #expect(first)
+        let used = game.useHint()
+        #expect(used)
+        #expect(game.revealedPositions == [0])
         #expect(game.revealedLetters == ["C", nil, nil, nil, nil, nil])
-        let second = game.useHint()
-        #expect(second)
-        #expect(game.revealedLetters == ["C", "H", nil, nil, nil, nil])
-        let third = game.useHint()
-        #expect(!third)                     // a third hint is refused
-        #expect(game.result().hintsUsed == 2)
+        #expect(game.hintsUsed == 1)
+        #expect(game.result().hintsUsed == 1)
     }
 
-    @Test func hintsNeverRevealTheWholeWord() {
+    @Test func hintSkipsLettersAlreadyGreen() {
+        var game = WordGuessGame(answer: "CHARLA", length: 6)
+        _ = guess("CAMINO", in: &game)      // C is green, so the hint goes to H
+        game.useHint()
+        #expect(game.revealedPositions == [1])
+        #expect(game.revealedLetters[1] == "H")
+    }
+
+    @Test func hintsNeverRepeatAndStopBeforeTheLastLetter() {
+        var game = WordGuessGame(answer: "CHARLA", length: 6)
+        while game.useHint() {}             // take every hint allowed
+        #expect(game.revealedPositions == [0, 1, 2, 3, 4])
+        #expect(Set(game.revealedPositions).count == game.revealedPositions.count)
+        #expect(game.hintsUsed == 5)
+        #expect(!game.canUseHint)           // the 6th would complete the word
+    }
+
+    @Test func hintRefusedWhenOnlyOneLetterIsUnknown() {
+        var game = WordGuessGame(answer: "CHARLA", length: 6)
+        _ = guess("CHARLO", in: &game)      // 5 greens, only the last A unknown
+        let used = game.useHint()
+        #expect(!used)
+        #expect(game.hintsUsed == 0)
+        #expect(game.nextHintPosition == nil)
+    }
+
+    @Test func twoLetterWordGetsOneHint() {
         var game = WordGuessGame(answer: "YA", length: 2)
         let first = game.useHint()
         let second = game.useHint()
         #expect(first)
-        #expect(!second)                    // only 1 of 2 letters can be shown
+        #expect(!second)
         #expect(game.revealedLetters.compactMap { $0 }.count < game.length)
+    }
+
+    @Test func hintRefusedAfterTheGameEnds() {
+        var game = WordGuessGame(answer: "CHARLA", length: 6)
+        _ = guess("CHARLA", in: &game)
+        let used = game.useHint()
+        #expect(!used)
+        #expect(!game.canUseHint)
     }
 
     @Test func hintsCostFiveXPEachThroughGameXP() {
@@ -145,6 +178,18 @@ struct WordGuessGameTests {
         #expect(ProgressRules.gameXP(score: result.score ?? 0, hintsUsed: result.hintsUsed ?? 0) == 20)
     }
 
+    @Test func manyHintsNeverMakeXPNegative() {
+        // No hint limit, so check the floor: 5 hints and a win on guess 6
+        // → 30 × 1/6 = 5 XP, minus 25. ProgressRules.gameXP stops at 0.
+        var game = WordGuessGame(answer: "CHARLA", length: 6)
+        while game.useHint() {}
+        for _ in 0..<5 { _ = guess("ZZZZZZ", in: &game) }
+        _ = guess("CHARLA", in: &game)
+        let result = game.result()
+        #expect(result.hintsUsed == 5)
+        #expect(ProgressRules.gameXP(score: result.score ?? 0, hintsUsed: result.hintsUsed ?? 0) == 0)
+    }
+
     // MARK: Restoring
 
     @Test func restoresGuessesAndHintsFromSavedResult() {
@@ -152,8 +197,40 @@ struct WordGuessGameTests {
                                guesses: ["CAMINO", "cortar"], filledCells: nil, hintsUsed: 1)
         let game = WordGuessGame(answer: "CHARLA", length: 6, restoring: saved)
         #expect(game.guesses == ["CAMINO", "CORTAR"])
-        #expect(game.revealedLetters.first == "C")
+        #expect(game.hintsUsed == 1)
+        #expect(game.revealedPositions == [1])  // C is green, so the hint is H
         #expect(!game.isOver)
+    }
+
+    @Test func restoreMatchesLivePlayWhenHintedLetterIsNotTyped() {
+        // Guess, take a hint, guess again without the hinted letter.
+        var live = WordGuessGame(answer: "CHARLA", length: 6)
+        _ = guess("CAMINO", in: &live)
+        live.useHint()                      // reveals H (position 1)
+        _ = guess("CORTAR", in: &live)
+        let restored = WordGuessGame(answer: "CHARLA", length: 6, restoring: live.result())
+        #expect(restored.revealedPositions == live.revealedPositions)
+        #expect(restored.hintsUsed == live.hintsUsed)
+    }
+
+    @Test func restoreCanShiftAHintWhenTheHintedLetterTurnedGreen() {
+        // The known edge case (documented in restoredHintPositions): the
+        // hint reveals C, then the player types C and it turns green. The
+        // recompute skips the now-green C and shows H instead. XP is the
+        // same, because it comes from hintsUsed.
+        var live = WordGuessGame(answer: "CHARLA", length: 6)
+        live.useHint()                      // reveals C (position 0)
+        _ = guess("CORTAR", in: &live)      // C now green
+        let restored = WordGuessGame(answer: "CHARLA", length: 6, restoring: live.result())
+        #expect(live.revealedPositions == [0])
+        #expect(restored.revealedPositions == [1])
+        #expect(restored.hintsUsed == 1)
+    }
+
+    @Test func restoredHintPositionsFunction() {
+        #expect(WordGuessGame.restoredHintPositions(guesses: [], hintsUsed: 2, answer: "CHARLA", length: 6) == [0, 1])
+        #expect(WordGuessGame.restoredHintPositions(guesses: ["CAMINO"], hintsUsed: 2, answer: "CHARLA", length: 6) == [1, 2])
+        #expect(WordGuessGame.restoredHintPositions(guesses: ["CAMINO"], hintsUsed: 0, answer: "CHARLA", length: 6) == [])
     }
 
     @Test func restoringAFinishedGameKeepsItFinished() {
@@ -165,10 +242,13 @@ struct WordGuessGameTests {
     }
 
     @Test func restoringClampsBadData() {
+        // 9 guesses → 6 rows. 7 hints paid for, but with only C green the
+        // rule can show at most 4 more letters (H A R L), never the last A.
         let saved = GameResult(status: .inProgress, score: nil, mistakes: nil, solvedGroups: nil,
                                guesses: Array(repeating: "CORTAR", count: 9), filledCells: nil, hintsUsed: 7)
         let game = WordGuessGame(answer: "CHARLA", length: 6, restoring: saved)
         #expect(game.guesses.count == WordGuessGame.maxGuesses)
-        #expect(game.hintsUsed == WordGuessGame.maxHints)
+        #expect(game.revealedPositions == [1, 2, 3, 4])
+        #expect(game.hintsUsed == 7)        // XP still charges every hint taken
     }
 }
