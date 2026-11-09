@@ -70,18 +70,17 @@ struct ConnectionsView: View {
 
     // MARK: - Initialization
 
-    init(puzzle: ConnectionsPuzzle) {
-        _model = State(initialValue: ConnectionsModel(puzzle: puzzle))
+    /// `saved` is today's result from the daily log (nil if not played yet).
+    /// Passing it in means reopening a game picks up where it left off, and
+    /// a finished game opens finished, so it can't be replayed.
+    init(puzzle: ConnectionsPuzzle, saved: GameResult? = nil) {
+        _model = State(initialValue: ConnectionsModel(puzzle: puzzle, restoring: saved))
     }
 
     // MARK: - Colors
 
-    private let groupColors: [Color] = [
-        .sunny,
-        .success,
-        .aqua,
-        .connPurple
-    ]
+    // Group bands are colored by difficulty with ConnectionsPalette
+    // (TodayCards.swift), the same colors the Today card preview uses.
 
     // Darker purple used for the bottom edge of selected tiles and Submit
     private let purpleEdge = Color(red: 0.36, green: 0.25, blue: 0.80)
@@ -110,7 +109,11 @@ struct ConnectionsView: View {
 
                     solvedGroups
 
-                    wordGrid
+                    // After a loss every leftover word is shown in a
+                    // revealed band, so the grid would only repeat them.
+                    if !model.isGameOver {
+                        wordGrid
+                    }
 
                     feedbackMessage
 
@@ -260,37 +263,80 @@ struct ConnectionsView: View {
         }
     }
 
-    // MARK: - Solved Groups
+    // MARK: - Solved Groups (+ revealed answers after a loss)
 
     private var solvedGroups: some View {
         VStack(spacing: 8) {
 
+            // Groups the player found: solid color bands.
             ForEach(model.solvedGroupIndices.sorted(), id: \.self) { index in
 
                 let group = model.puzzle.groups[index]
 
-                VStack(spacing: 4) {
+                groupBandText(group)
+                    .frame(maxWidth: .infinity, minHeight: 56)
+                    .padding(.vertical, 6)
+                    .background(
+                        ConnectionsPalette.color(difficulty: group.difficulty),
+                        in: RoundedRectangle(cornerRadius: 14)
+                    )
+                    .transition(.scale.combined(with: .opacity))
+            }
 
-                    Text(group.category.uppercased())
-                        .font(.jakarta(13, 800))
-                        .tracking(0.8)
-                        .foregroundStyle(Color.ink)
+            // Groups the player missed, shown as the answer. revealedGroups
+            // is empty unless the game was lost. These use a faded fill and a
+            // dashed outline (plus an "ANSWER" tag) so they can't be mistaken
+            // for groups the player actually solved.
+            ForEach(Array(model.revealedGroups.enumerated()), id: \.offset) { order, group in
 
-                    Text(group.words.joined(separator: "  ·  "))
-                        .font(.jakarta(12, 600))
-                        .foregroundStyle(Color.ink)
-                        .multilineTextAlignment(.center)
+                let color = ConnectionsPalette.color(difficulty: group.difficulty)
+
+                VStack(spacing: 2) {
+                    Text("ANSWER")
+                        .font(.jakarta(10, 800))
+                        .tracking(1)
+                        .foregroundStyle(Color.inkMuted)
+
+                    groupBandText(group)
                 }
                 .frame(maxWidth: .infinity, minHeight: 56)
                 .padding(.vertical, 6)
-                .background(
-                    groupColors[index % groupColors.count],
-                    in: RoundedRectangle(cornerRadius: 14)
+                .background(color.opacity(0.25), in: RoundedRectangle(cornerRadius: 14))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 14)
+                        .strokeBorder(color, style: StrokeStyle(lineWidth: 1.5, dash: [5, 4]))
+                }
+                // Each band pops in 0.15s after the one above it. The delay
+                // is attached to this band's own transition, so they stagger.
+                .transition(
+                    .scale.combined(with: .opacity)
+                        .animation(.spring(duration: 0.3).delay(Double(order) * 0.15))
                 )
-                .transition(.scale.combined(with: .opacity))
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Answer: \(group.category). \(group.words.joined(separator: ", "))")
             }
         }
         .animation(.spring(duration: 0.3), value: model.solvedGroupIndices)
+        // Animates the revealed bands in when the game is lost. A restored
+        // lost game starts with isGameOver already true, so nothing changes
+        // and the answers simply appear without animating.
+        .animation(.spring(duration: 0.3), value: model.isGameOver)
+    }
+
+    /// Category name over its four words, shared by solved and revealed bands.
+    private func groupBandText(_ group: ConnectionsGroup) -> some View {
+        VStack(spacing: 4) {
+
+            Text(group.category.uppercased())
+                .font(.jakarta(13, 800))
+                .tracking(0.8)
+                .foregroundStyle(Color.ink)
+
+            Text(group.words.joined(separator: "  ·  "))
+                .font(.jakarta(12, 600))
+                .foregroundStyle(Color.ink)
+                .multilineTextAlignment(.center)
+        }
     }
 
     // MARK: - Word Grid

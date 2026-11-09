@@ -379,7 +379,8 @@ struct TodayDestination: View {
             }
         case .connections:
             if let puzzle {
-                    ConnectionsView(puzzle: puzzle.connections)
+                    ConnectionsView(puzzle: puzzle.connections,
+                                    saved: appState.todayLog?.games["connections"])
                 } else {
                     ProgressView()
                 }
