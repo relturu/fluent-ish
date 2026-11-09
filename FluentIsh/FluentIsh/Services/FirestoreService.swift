@@ -107,6 +107,12 @@ final class FirestoreService {
         try await db.document("dailyPrompts/\(Self.dayDocId(language, day))").getDocument(as: DailyPrompt.self)
     }
 
+    /// The 28-day quest: each day's title, tier (L1/L2/L3) and Churro's line
+    /// (Progress › Quest Path). One document per language: `quests/es_28day`.
+    func quest(language: String) async throws -> Quest {
+        try await db.document("quests/\(language)_28day").getDocument(as: Quest.self)
+    }
+
     // MARK: Friends
 
     func friends(uid: String) async throws -> [Friend] {
