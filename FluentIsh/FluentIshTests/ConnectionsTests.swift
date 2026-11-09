@@ -97,9 +97,13 @@ struct ConnectionsSelectionTests {
 
     @Test func atMostFourWordsCanBeSelected() {
         let model = makeModel()
-        select(["cortado", "sobremesa", "merienda", "terraza", "además"], in: model)
-        #expect(model.selectedWords.count == 4)
-        #expect(!model.selectedWords.contains("además"))
+        let four = model.puzzle.groups[0].words
+        let extra = model.puzzle.groups[1].words[0]
+
+        select(four + [extra], in: model)
+
+        #expect(model.selectedWords == Set(four))
+        #expect(!model.selectedWords.contains(extra))
     }
 
     @Test func deselectAllClearsTheSelection() {
