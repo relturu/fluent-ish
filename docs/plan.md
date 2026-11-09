@@ -90,7 +90,7 @@ The UI is rebuilt in SwiftUI from the Google AI Studio prototype (React/Vite, ke
 | Word Guess | Sai (content) | Colouring is done: `GameRules.feedback` |
 | Mini Crossword | Not in V1 (V2 list) | Today shows the grid with a "Soon" pill. `GameRules.blackSquares` exists; `filledCells` format not decided |
 | Exercises (easy mode) | Arielle (Sprint 2 content) | Done (step 11). Medium/hard content: one doc each exists; more later |
-| Progress tab | Sai | `recentLogs`, `allWordProgress` already exist |
+| Progress tab | Sai | Built (`Features/Progress/`): Player Stats from live `progress`, Quest Path from the last 28 `dailyLog`s (shade = activities finished that day, capped at 3) + `quests/es_28day`, Word Log from `allWordProgress` + `words` with search and category chips. Rules in `ProgressTabRules`, tested |
 | Friends tab | Sean | V1 leaderboard, daily prompt responses, friend feed and likes are implemented; friend discovery/management remains V2. |
 | Settings tab | Jessica | Must not call `createProfile` for "replay onboarding" |
 | Polish (dark mode Churro outline, minutes tracking, date change at midnight) | V2 list | |
