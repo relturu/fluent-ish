@@ -39,7 +39,9 @@ final class ConnectionsModel {
 
     // MARK: - Initialization
 
-    init(puzzle: ConnectionsPuzzle) {
+    /// `saved` restores a game started (or finished) earlier today. It
+    /// defaults to nil, so `ConnectionsModel(puzzle:)` still starts fresh.
+    init(puzzle: ConnectionsPuzzle, restoring saved: GameResult? = nil) {
         self.puzzle = puzzle
 
         // Combine the four groups into one list of 16 words.
@@ -47,6 +49,17 @@ final class ConnectionsModel {
 
         // Randomize the initial order.
         words.shuffle()
+
+        // Copy back the two things the game saves. Everything else
+        // (isWon, isGameOver, revealedGroups…) is computed from these,
+        // so a restored game ends up in the same state it was saved in.
+        // Indices outside the puzzle are dropped so bad data can't crash.
+        if let saved {
+            mistakes = saved.mistakes ?? 0
+            solvedGroupIndices = Set(
+                (saved.solvedGroups ?? []).filter { puzzle.groups.indices.contains($0) }
+            )
+        }
     }
 
     // MARK: - Game State
@@ -73,6 +86,21 @@ final class ConnectionsModel {
 
     var isFinished: Bool {
         isWon || isGameOver
+    }
+
+    /// The groups the player didn't find, shown as the answer after a loss.
+    /// Empty while playing and after a win. Kept apart from
+    /// `solvedGroupIndices` on purpose: that set is what gets saved and
+    /// scored, so a revealed group must never count as a found one.
+    /// Computed (not stored), so a restored lost game reveals the same
+    /// groups with nothing extra to save.
+    var revealedGroups: [ConnectionsGroup] {
+        guard isGameOver else { return [] }
+
+        // Walk the puzzle in its original order and keep the unsolved groups.
+        return puzzle.groups.indices
+            .filter { !solvedGroupIndices.contains($0) }
+            .map { puzzle.groups[$0] }
     }
 
     var minutesElapsed: Int {

@@ -262,6 +262,105 @@ struct ConnectionsEndgameTests {
     }
 }
 
+// MARK: - Revealing the answer after a loss
+
+/// Categories of the revealed groups, so a test can check order and content
+/// in one line (the test puzzle names its groups "Group 0" … "Group 3").
+@MainActor
+private func revealedCategories(_ model: ConnectionsModel) -> [String] {
+    model.revealedGroups.map(\.category)
+}
+
+@MainActor
+struct ConnectionsRevealTests {
+    // makeMistake uses words from groups 0 and 1, so these tests solve
+    // groups 2 and 3 before losing (a solved word can't be selected again).
+
+    @Test func losingWithNothingSolvedRevealsAllFourInOrder() {
+        let model = makeModel()
+        for _ in 0..<4 { makeMistake(in: model) }
+        #expect(revealedCategories(model) == ["Group 0", "Group 1", "Group 2", "Group 3"])
+        #expect(model.revealedGroups.map(\.words) == TestPuzzle.groupWords)
+    }
+
+    @Test func losingWithOneSolvedRevealsTheOtherThree() {
+        let model = makeModel()
+        solve(2, in: model)
+        for _ in 0..<4 { makeMistake(in: model) }
+        #expect(revealedCategories(model) == ["Group 0", "Group 1", "Group 3"])
+        #expect(model.revealedGroups.map(\.words) == [TestPuzzle.groupWords[0],
+                                                      TestPuzzle.groupWords[1],
+                                                      TestPuzzle.groupWords[3]])
+    }
+
+    @Test func losingWithTwoSolvedRevealsTheOtherTwo() {
+        let model = makeModel()
+        solve(3, in: model)
+        solve(2, in: model)
+        for _ in 0..<4 { makeMistake(in: model) }
+        #expect(revealedCategories(model) == ["Group 0", "Group 1"])
+        #expect(model.revealedGroups.map(\.words) == [TestPuzzle.groupWords[0],
+                                                      TestPuzzle.groupWords[1]])
+    }
+
+    @Test func winningRevealsNothing() {
+        let model = makeModel()
+        makeMistake(in: model)
+        for index in 0..<4 { solve(index, in: model) }
+        #expect(model.isWon)
+        #expect(model.revealedGroups.isEmpty)
+    }
+
+    @Test func nothingIsRevealedMidGame() {
+        let model = makeModel()
+        makeMistake(in: model)
+        makeMistake(in: model)
+        #expect(!model.isFinished)
+        #expect(model.revealedGroups.isEmpty)
+    }
+
+    @Test func revealingDoesNotChangeTheResult() {
+        let model = makeModel()
+        solve(2, in: model)
+        for _ in 0..<4 { makeMistake(in: model) }
+        #expect(model.revealedGroups.count == 3)
+        // Same as before this feature: 1 found, 4 mistakes, a loss, score 0.
+        #expect(model.solvedGroupIndices == [2])
+        #expect(model.mistakes == 4)
+        #expect(!model.isWon)
+        #expect(ProgressRules.connectionsScore(mistakes: model.mistakes) == 0)
+    }
+
+    @Test func submittingAfterGameOverDoesNothing() {
+        let model = makeModel()
+        for _ in 0..<4 { makeMistake(in: model) }
+        select(TestPuzzle.groupWords[3], in: model)   // ignored: game is over
+        #expect(model.submitGuess() == .notEnoughSelected)
+        #expect(model.mistakes == 4)
+        #expect(model.solvedGroupIndices.isEmpty)
+    }
+
+    @Test func restoredLostGameRevealsTheSameGroups() {
+        let saved = GameResult(status: .completed, score: 0, mistakes: 4,
+                               solvedGroups: [2], guesses: nil,
+                               filledCells: nil, hintsUsed: nil)
+        let model = ConnectionsModel(puzzle: TestPuzzle.make(), restoring: saved)
+        #expect(model.isGameOver)
+        #expect(model.solvedGroupIndices == [2])
+        #expect(revealedCategories(model) == ["Group 0", "Group 1", "Group 3"])
+    }
+
+    @Test func restoredGameInProgressRevealsNothing() {
+        let saved = GameResult(status: .inProgress, score: nil, mistakes: 2,
+                               solvedGroups: [0], guesses: nil,
+                               filledCells: nil, hintsUsed: nil)
+        let model = ConnectionsModel(puzzle: TestPuzzle.make(), restoring: saved)
+        #expect(!model.isFinished)
+        #expect(model.remainingMistakes == 2)
+        #expect(model.revealedGroups.isEmpty)
+    }
+}
+
 
 // MARK: - Difficulty Tests
 
