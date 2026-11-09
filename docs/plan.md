@@ -10,7 +10,7 @@ _Created Oct 23, 2026. This doc is the source of truth. If a field name changes,
 
 ### Decisions
 - **The repo is PUBLIC** (`github.com/relturu/fluent-ish`). Never commit `firebase/serviceAccount.json`, `GoogleService-Info.plist`, `.env`, `Secrets.xcconfig` or any key. `.gitignore` covers these, but check `git status` before every commit anyway. The playground with the real Azure key is submitted on **Canvas only**.
-- **Ownership:** Firebase/Firestore (build tasks 1–4, 6, 7, 9): **relturu**. Azure Translator / API (build tasks 5, 8): **teammate** (code on `feature/azure-translator`, merged into `feature/firebase-setup`; usage in README.md).
+- **Ownership:** Firebase/Firestore (build tasks 1–4, 6, 7, 9): **relturu**. Azure Translator / API (build tasks 5, 8): **Sean** (code on `feature/azure-translator`, merged into `feature/firebase-setup`; usage in README.md).
 - **Seed data works without Azure.** `definitionEn`, `example`, `exampleEn` and `textEn` are written by hand, so the app has complete data before enrichment. Azure enrichment adds the `azure` field and fills gaps, then `seed.js` is re-run. It's idempotent, so re-running is safe.
 - **Firebase project:** ID `fluent-ish-9d543` (display name `fluent-ish`). Firestore `(default)` database, Standard edition, location `nam7` (US). Anonymous auth is enabled. The iOS app is registered with bundle ID **`edu.cmu.relturu.FluentIsh`**; the Xcode project must use exactly this ID. Teammates: ask relturu to add you under Project settings → Users and permissions, and to send you `serviceAccount.json` and `GoogleService-Info.plist` privately.
 - **Layout:** Xcode creates `FluentIsh/FluentIsh.xcodeproj` with sources in `FluentIsh/FluentIsh/`. Swift files go in `FluentIsh/FluentIsh/Models/` and `FluentIsh/FluentIsh/Services/`. Firebase config lives in lowercase `firebase/`.
@@ -37,7 +37,7 @@ _Created Oct 23, 2026. This doc is the source of truth. If a field name changes,
   - Demo scores follow the scoring defaults exactly, so they differ from the illustrative sample above (e.g. Connections with 1 mistake = 0.75, not 0.96). `likesCount` equals the number of `likes` docs.
   - Demo users are `u_sofia`, `u_maya`, `u_lucas`, `u_elena`. The app's own anonymous uid has no seeded data yet.
 
-### Progress — Azure (teammate)
+### Progress — Azure (Sean)
 - [x] Azure for Students + Translator F0 resource
 - [x] `scripts/enrich-azure.js` written and tested on sample files
 - [x] `FluentIsh/FluentIsh/Services/AzureTranslator.swift` + public `AzureModels.swift` (compiles in the app)
@@ -88,12 +88,39 @@ The UI is rebuilt in SwiftUI from the Google AI Studio prototype (React/Vite, ke
 | Vocab deck + Session Review | Sean | Use `lessonDeck` + `completeVocabLesson`. Celebration sound, Rules modal and Level-up modal not built. |
 | Connections | Jessica (content) | Score with `ProgressRules.connectionsScore`; save partial state with `record(.game(...))` |
 | Word Guess | Sai (content) | Colouring is done: `GameRules.feedback` |
-| Mini Crossword | Not in V1 (V2 list) | Today shows the grid with a "Soon" pill. `GameRules.blackSquares` exists; `filledCells` format not decided |
-| Exercises (easy mode) | Arielle (Sprint 2 content) | Done (step 11). Medium/hard content: one doc each exists; more later |
+| Mini Crossword | Jessica (V2, by Nov 20) | Today shows the grid with a "Soon" pill. `GameRules.blackSquares` exists; `filledCells` format not decided |
+| Exercises (easy mode) | Arielle (Sprint 2 content) | Done (step 11). Medium/hard content: Sai in V2 |
 | Progress tab | Sai | Built (`Features/Progress/`): Player Stats from live `progress`, Quest Path from the last 28 `dailyLog`s (shade = activities finished that day, capped at 3) + `quests/es_28day`, Word Log from `allWordProgress` + `words` with search and category chips. Rules in `ProgressTabRules`, tested |
 | Friends tab | Sean | V1 leaderboard, daily prompt responses, friend feed and likes are implemented; friend discovery/management remains V2. |
 | Settings tab | Jessica | Must not call `createProfile` for "replay onboarding" |
-| Polish (dark mode Churro outline, minutes tracking, date change at midnight) | V2 list | |
+| Polish (dark mode Churro outline, minutes tracking, date change at midnight) | V2 (see below) | |
+
+### V2 (due Dec 4, 2026)
+User testing of V1 is due **Nov 16**. Break: Nov 25–29. Items marked _(added Nov 9)_ came from a review of known gaps in V1.
+
+| Due | Item | Owner | Notes |
+|---|---|---|---|
+| Nov 20 | Mini Crossword | Jessica | Replace the "Soon" pill and add `.crossword` back to `TodayRoute` and `V1Games`. Score with `ProgressRules.crosswordScore`; decide the `filledCells` format |
+| Nov 20 | Medium and hard practice: Sentence Builder and Definition Match | Sai | Add docs to `firebase/seed/exercises.json`, then `check-seed.js` and `seed.js`. The screens already handle every difficulty |
+| Nov 20 | Daily exercise rotation _(added Nov 9)_ | Jessica | Today only one exercise exists per type and difficulty, so it repeats daily. Pick by day, like `ProgressRules.contentDay`, with a unit test |
+| Nov 20 | Daily reminder with a chosen time | Sean | Local notification (device-side, not Firestore). Settings toggle + time picker |
+| Nov 20 | Session Review, Level-up and Rules modals _(added Nov 9)_ | Sean | Confirm what was finished in V1. Replace `ExerciseRecap` and add an end screen to the games |
+| Nov 20 | Design changes from user feedback | Arielle | |
+| Nov 20 | Swipe-back on game and exercise screens _(added Nov 9)_ | Arielle | Hiding the navigation bar for `GameHeaderBar` turns off the swipe-back gesture; only the Back button works |
+| Nov 24 | Progress: recent activity list, word search and filters, quest map colours | Arielle | |
+| Nov 24 | Info buttons and animations | Arielle | |
+| Nov 24 | Minutes tracking and date change at midnight _(added Nov 9)_ | Arielle | Today should reset if the app stays open past midnight. Check minutes are recorded on every screen |
+| Nov 24 | Other languages (French, Italian, Portuguese) + switching between them | Sean | Progress is already per language (`progress/{lang}`). Needs seed content per language and the Settings switch |
+| Nov 24 | Animations: Churro, sounds, confetti on finishing a level | Sai | |
+| Nov 24 | Churro's outline in dark mode _(added Nov 9)_ | Jessica | `Components/MascotView.swift` |
+| Nov 24 | Sound in silent mode _(added Nov 9)_ | Jessica | Set the `AVAudioSession` category to `.playback` so the speaker button and sounds play with the ringer off (`Components/AudioButton.swift`) |
+| Nov 24 | Azure Translator in the app _(added Nov 9)_ | Sean | The unticked "Remaining Azure steps" above: key in `Secrets.xcconfig`, then hints and "translate" on posts |
+| Dec 3 | Stretch: Sign in with Apple (link the anonymous account) _(added Nov 9)_ | Jessica | Anonymous accounts are lost if the app is deleted |
+| Dec 3 | Stretch: adding friends, achievement posts, reporting posts _(added Nov 9)_ | Sean | Adding friends needs a rules change (see "Security rules") |
+| Dec 3 | Stretch: Word Guess real-word check _(added Nov 9)_ | Jessica | Bundle a word list in the app |
+| Dec 3 | Usability tests of the new features, manual testing, submission | Everyone | |
+
+**Ideas, not scheduled:** speech-to-text pronunciation practice (Speech framework + microphone permission); server-side XP checks with Cloud Functions.
 
 ---
 
