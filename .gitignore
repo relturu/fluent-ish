@@ -25,3 +25,6 @@ firestore-debug.log*
 
 # ---- macOS ----
 .DS_Store
+.archiver_shadow/
+.snapshots/
+GoogleService-Info.plist
