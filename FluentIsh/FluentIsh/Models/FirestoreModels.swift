@@ -112,6 +112,7 @@ struct Word: nonisolated Codable, Identifiable {                // words/{wordId
     var language: String
     var term: String
     var lemma: String
+    var phonetic: String? = nil
     var gender: String?               // "m" | "f" | nil
     var partOfSpeech: String
     var definitionEn: String
@@ -129,7 +130,7 @@ struct VocabLesson: nonisolated Codable, Identifiable {         // vocabLessons/
     var title: String
     var wordCount: Int
     var reviewRatio: Double
-    var newWordIds: [String]
+    var newWordIds: [String]             // Today's curated candidate pool (10 words)
 }
 
 struct ConnectionsGroup: nonisolated Codable {

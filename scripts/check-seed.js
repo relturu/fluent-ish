@@ -162,13 +162,18 @@ for (const w of data.words) {
 }
 
 for (const lesson of data.vocabLessons) {
-  for (const wordId of lesson.newWordIds ?? []) {
+  const wordIds = lesson.newWordIds ?? [];
+  for (const wordId of wordIds) {
     const word = words.get(wordId);
     if (check(word, `vocabLessons/${lesson.id}: word ${wordId} does not exist in words`)) {
       check(word.language === lesson.language, `vocabLessons/${lesson.id}: ${wordId} is not ${lesson.language}`);
+      check(Boolean(word.phonetic), `vocabLessons/${lesson.id}: ${wordId} has no phonetic transcription`);
+      check(Boolean(word.example), `vocabLessons/${lesson.id}: ${wordId} has no Spanish example`);
+      check(Boolean(word.exampleEn), `vocabLessons/${lesson.id}: ${wordId} has no example translation`);
     }
   }
-  check(lesson.wordCount >= (lesson.newWordIds ?? []).length, `vocabLessons/${lesson.id}: wordCount is smaller than newWordIds`);
+  check(lesson.wordCount === wordIds.length, `vocabLessons/${lesson.id}: expected ${lesson.wordCount} curated word candidates`);
+  check(new Set(wordIds).size === wordIds.length, `vocabLessons/${lesson.id}: candidate words must be unique`);
 }
 
 function checkCrossword(cw, where) {
@@ -293,7 +298,7 @@ for (const wp of data.wordProgress) {
 for (const log of data.dailyLog) {
   const where = `dailyLog ${log.parent}/${log.id}`;
   const games = log.games ?? {};
-  let xp = log.vocabCompleted ? 20 : 0;
+  let xp = log.vocabCompleted ? 30 : 0;
   let hints = 0;
   for (const [game, result] of Object.entries(games)) {
     const g = `${where} ${game}`;
@@ -310,7 +315,7 @@ for (const log of data.dailyLog) {
     xp += Math.round(30 * (result.score ?? 0));
   }
   xp += 10 * (log.exercisesCompleted ?? []).length - 5 * hints;
-  check(log.xpEarned === xp, `${where}: xpEarned should be ${xp} (vocab 20 + 30×score per game + 10 per exercise − 5 per hint), got ${log.xpEarned}`);
+  check(log.xpEarned === xp, `${where}: xpEarned should be ${xp} (vocab 30 + 30×score per game + 10 per exercise − 5 per hint), got ${log.xpEarned}`);
   for (const exId of log.exercisesCompleted ?? []) check(exercises.has(exId), `${where}: exercise ${exId} does not exist`);
 
   const wg = games.wordGuess;

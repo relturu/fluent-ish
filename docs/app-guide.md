@@ -31,7 +31,7 @@ New files under `FluentIsh/FluentIsh/` are picked up by Xcode automatically (syn
 
 | Your screen | File to edit | Reached from | Design |
 |---|---|---|---|
-| Daily Vocab deck (Sean) | new `Features/VocabDeck/`, then `TodayDestination` in `Features/Today/TodayView.swift` | Today › Start | [session review](design_screenshots/session-review.png) |
+| Daily Vocab deck + Session Review (Sean) | `Features/VocabDeck/VocabLessonView.swift`, wired through `TodayDestination` in `Features/Today/TodayView.swift` | Today › Start | the attached Daily Vocab Lesson reference |
 | Connections (Jessica) | new `Features/Games/Connections/`, then `TodayDestination` | Today › Connections › Play | [1](design_screenshots/connections-1-playing.png), [2](design_screenshots/connections-2-group-solved.png) |
 | Word Guess (Sai) | new `Features/Games/WordGuess/`, then `TodayDestination` | Today › Word Guess › Play | [1](design_screenshots/word-guess-1-playing.png), [hint](design_screenshots/word-guess-2-hint-popup.png) |
 | Exercises (Arielle, done) | `Features/Exercises/` | Today › Skill Exercises row | [info](design_screenshots/exercise-info-sheet.png), [fill in the blank](design_screenshots/fill-blank-playing.png) |
@@ -114,7 +114,8 @@ try await appState.record(.game(key: "connections", result: GameResult(
 // An exercise
 try await appState.record(.exercise(id: exercise.id!), minutes: minutesSpent)
 
-// The vocab lesson: also updates each word's spaced-repetition status
+// The vocab lesson: awards 30 XP once per day and updates each word's
+// spaced-repetition status. The recap's 100 points are derived from vocabScore.
 try await appState.service.completeVocabLesson(answers, minutes: minutesSpent,
     uid: appState.uid!, language: appState.language)
 ```
@@ -133,6 +134,7 @@ try await appState.service.completeVocabLesson(answers, minutes: minutesSpent,
 | Every word seen | `service.allWordProgress(uid:language:)` |
 
 `Features/Today/TodayModel.swift` is a working example of loading all of this.
+Each seeded lesson provides ten curated candidate IDs; `words` records provide the IPA transcription, definitions and example pairs used by the lesson. Re-run `node scripts/seed.js` with the private service account to update Firestore after changing the seed data.
 
 **Rules** (all unit tested, so don't re-implement them):
 - `ProgressRules.connectionsScore(mistakes:)`, `wordGuessScore(guessesUsed:solved:)`, `gameXP(score:hintsUsed:)`
@@ -167,7 +169,7 @@ Add these in Xcode › Product › Scheme › Edit Scheme › Run › Arguments,
 | `-tab progress` (`friends`, `settings`) | Opens on that tab |
 | `-todayOpen connections` (`vocab`, `wordGuess`) | Opens that screen from Today |
 | `-todayOpen fillBlank` (`sentenceBuilder`, `definitionMatch`) + `-exerciseDifficulty easy` | Opens that exercise at that difficulty |
-| `-todaySheet level` (`vocab`, `connections`, `wordGuess`, `crossword`, `fillBlank`) | Opens a sheet on Today |
+| `-todaySheet connections|wordGuess|crossword|fillBlank|level` | Opens a sheet on Today |
 | `-darkMode YES` | Dark mode |
 | `-screen styleguide` | The design-system screen |
 | `-screen onboarding` | Previews onboarding. Don't finish it: that overwrites your progress |

@@ -1,7 +1,7 @@
 [
-  { "id": "es_2026-10-24", "language": "es", "date": "2026-10-24", "title": "La Sobremesa", "wordCount": 10, "reviewRatio": 0.7, "newWordIds": ["w_sobremesa", "w_cortado", "w_merienda"] },
-  { "id": "es_2026-10-25", "language": "es", "date": "2026-10-25", "title": "El Mercado", "wordCount": 10, "reviewRatio": 0.7, "newWordIds": ["w_puesto", "w_regatear", "w_docena"] },
-  { "id": "es_2026-10-26", "language": "es", "date": "2026-10-26", "title": "De Paseo", "wordCount": 10, "reviewRatio": 0.7, "newWordIds": ["w_callejear", "w_vistazo", "w_atardecer"] },
-  { "id": "es_2026-10-27", "language": "es", "date": "2026-10-27", "title": "Los Vecinos", "wordCount": 10, "reviewRatio": 0.7, "newWordIds": ["w_mudarse", "w_echar_una_mano", "w_vecino"] },
-  { "id": "es_2026-10-28", "language": "es", "date": "2026-10-28", "title": "¡A Celebrar!", "wordCount": 10, "reviewRatio": 0.7, "newWordIds": ["w_brindis", "w_enhorabuena", "w_festejar"] }
+  { "id": "es_2026-10-24", "language": "es", "date": "2026-10-24", "title": "La Sobremesa", "wordCount": 10, "reviewRatio": 0.7, "newWordIds": ["w_sobremesa", "w_cortado", "w_merienda", "w_charlar", "w_compartir", "w_invitar", "w_taza", "w_cuenta", "w_propina", "w_brindis"] },
+  { "id": "es_2026-10-25", "language": "es", "date": "2026-10-25", "title": "El Mercado", "wordCount": 10, "reviewRatio": 0.7, "newWordIds": ["w_puesto", "w_regatear", "w_docena", "w_precio", "w_probar", "w_charla", "w_taza", "w_cuenta", "w_propina", "w_cortado"] },
+  { "id": "es_2026-10-26", "language": "es", "date": "2026-10-26", "title": "De Paseo", "wordCount": 10, "reviewRatio": 0.7, "newWordIds": ["w_callejear", "w_vistazo", "w_atardecer", "w_pasear", "w_siesta", "w_madrugada", "w_charla", "w_abrazo", "w_vecino", "w_sobremesa"] },
+  { "id": "es_2026-10-27", "language": "es", "date": "2026-10-27", "title": "Los Vecinos", "wordCount": 10, "reviewRatio": 0.7, "newWordIds": ["w_mudarse", "w_echar_una_mano", "w_vecino", "w_abrazo", "w_por_cierto", "w_de_hecho", "w_aunque", "w_charlar", "w_compartir", "w_invitar"] },
+  { "id": "es_2026-10-28", "language": "es", "date": "2026-10-28", "title": "¡A Celebrar!", "wordCount": 10, "reviewRatio": 0.7, "newWordIds": ["w_brindis", "w_enhorabuena", "w_festejar", "w_ademas", "w_sin_embargo", "w_pues", "w_compartir", "w_invitar", "w_probar", "w_merienda"] }
 ]

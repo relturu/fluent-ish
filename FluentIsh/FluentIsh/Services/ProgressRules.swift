@@ -134,9 +134,14 @@ nonisolated enum ProgressRules {
         max(0, 1 - 0.1 * Double(hintsUsed))
     }
 
+    /// The vocab recap's 100-point scale for a score stored from 0 to 1.
+    static func vocabScorePoints(score: Double) -> Int {
+        Int((min(1, max(0, score)) * 100).rounded())
+    }
+
     // MARK: XP
 
-    static let vocabLessonXP = 20
+    static let vocabLessonXP = 30
     static let exerciseXP = 10
     static let gameMaxXP = 30
     static let hintPenaltyXP = 5
@@ -214,10 +219,9 @@ nonisolated enum ProgressRules {
     // MARK: The 70/30 lesson mix
 
     /// Word IDs for today's deck: up to `wordCount × reviewRatio` due review
-    /// words (7 of 10), then new words to fill the rest. If too few words are
-    /// due, more new words fill in; if too few new words, more reviews do.
-    /// New words the user already has progress on are skipped (the seeded
-    /// days repeat, so the same "new" words come back).
+    /// words (7 of 10), then unseen words to fill the rest. Remaining slots
+    /// use previously seen candidates if the daily lesson has too few unseen
+    /// words, keeping the lesson at its configured size.
     static func lessonWordIds(dueReviewIds: [String], newWordIds: [String], alreadySeen: Set<String>,
                               wordCount: Int = 10, reviewRatio: Double = 0.7) -> [String] {
         let fresh = newWordIds.filter { !alreadySeen.contains($0) }
@@ -226,6 +230,10 @@ nonisolated enum ProgressRules {
         var ids = Array(due.prefix(reviewSlots))
         ids += fresh.prefix(max(0, wordCount - ids.count))
         ids += due.dropFirst(reviewSlots).prefix(max(0, wordCount - ids.count))
+        if ids.count < wordCount {
+            let knownCandidates = newWordIds.filter { alreadySeen.contains($0) && !ids.contains($0) }
+            ids += knownCandidates.prefix(wordCount - ids.count)
+        }
         return ids
     }
 

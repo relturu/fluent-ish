@@ -51,7 +51,7 @@ The prototype is a mockup. Its numbers and some of its logic are placeholders. *
 | Prototype | Do this instead |
 |---|---|
 | Hard-coded words, puzzles, users (`DAILY_SPANISH_VOCAB`, arrays in the page) | Load from Firestore (`app-guide.md` section 5). `TodayModel.swift` is an example |
-| "+25 XP", "+40 XP", "100 Pts", "Level 1 (1495/1,500)" | XP from `ProgressRules` (vocab 20, game up to 30, exercise 10, hint −5); levels are CEFR (`appState.level`); no "points" |
+| "+25 XP", "+40 XP", "100 Pts", "Level 1 (1495/1,500)" | XP from `ProgressRules` (vocab 30, game up to 30, exercise 10, hint −5); levels are CEFR (`appState.level`). The vocab recap may show 100 local score points, derived from accuracy and not stored as a separate currency. |
 | Word Guess board pre-filled, 5 rows | Empty board, **6** rows, colours from `GameRules.feedback` |
 | "Solve CHARLA" in the hint popup (gives away the answer) | A hint reveals a little (e.g. the first letter) and costs 5 XP (`hintsUsed`) |
 | Connections with no game over | 4 mistakes ends the game; shuffle the tiles |

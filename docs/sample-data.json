@@ -68,7 +68,7 @@
     "exercisesCompleted": [
       "ex_fill_001"
     ],
-    "xpEarned": 53,
+    "xpEarned": 63,
     "minutesSpent": 12
   },
   "users/u_sofia/friends/u_maya": {
@@ -80,6 +80,7 @@
     "language": "es",
     "term": "la sobremesa",
     "lemma": "sobremesa",
+    "phonetic": "/la so.βɾeˈme.sa/",
     "gender": "f",
     "partOfSpeech": "noun",
     "definitionEn": "relaxed conversation at the table after a meal",
@@ -97,7 +98,14 @@
     "newWordIds": [
       "w_sobremesa",
       "w_cortado",
-      "w_merienda"
+      "w_merienda",
+      "w_charlar",
+      "w_compartir",
+      "w_invitar",
+      "w_taza",
+      "w_cuenta",
+      "w_propina",
+      "w_brindis"
     ]
   },
   "dailyPuzzles/es_2026-10-24": {

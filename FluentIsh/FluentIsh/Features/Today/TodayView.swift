@@ -7,11 +7,11 @@
 //  TodayModel; progress (solved games, lesson done, 0/3) comes live from
 //  `appState.todayLog`, so finishing a game updates this screen by itself.
 //
-//  Play / Start push filler screens until teammates build the real ones
+//  Play / Start pushes the teammate screen or the Daily Vocab lesson
 //  (TodayDestination below). Skill Exercises open ExerciseView. The Mini Crossword is V2: its card shows the
 //  grid with a "Soon" pill, and the counter is x/2.
 //
-//  DEBUG: `-todaySheet vocab|connections|wordGuess|crossword|fillBlank|level`
+//  DEBUG: `-todaySheet connections|wordGuess|crossword|fillBlank|level`
 //  opens a sheet at launch; `-todayOpen vocab|connections|wordGuess` opens a
 //  filler screen and `-todayOpen fillBlank|sentenceBuilder|definitionMatch`
 //  an exercise at the stored difficulty (for screenshots).
@@ -50,9 +50,13 @@ struct TodayView: View {
                 exercisesSection
             }
         }
-        .navigationDestination(for: TodayRoute.self) { TodayDestination(route: $0, puzzle: model.puzzle, exercises: model.exercises) }
+        .navigationDestination(for: TodayRoute.self) {
+            TodayDestination(route: $0, puzzle: model.puzzle, exercises: model.exercises,
+                             deck: model.deck, lessonTitle: model.lesson?.title ?? "Today's Words")
+        }
         .navigationDestination(item: $pushed) {
-            TodayDestination(route: $0, puzzle: model.puzzle, exercises: model.exercises)
+            TodayDestination(route: $0, puzzle: model.puzzle, exercises: model.exercises,
+                             deck: model.deck, lessonTitle: model.lesson?.title ?? "Today's Words")
         }
         .sheet(item: $info) { content in
             InfoSheet(content: content) { route in pushed = route }
@@ -108,7 +112,6 @@ struct TodayView: View {
                         .font(.jakarta(12, 800))
                         .foregroundStyle(vocabDone ? Color.success : Color.flame)
                     HStack(spacing: 2) {
-                        InfoButton(label: "Daily Vocab") { info = TodayInfo.vocab(model) }
                         NavigationLink(value: TodayRoute.vocab) {
                             PlayPill(kind: vocabDone ? .done : .play, style: .orange)
                         }
@@ -274,13 +277,11 @@ struct TodayView: View {
         case "connections": info = TodayInfo.connections
         case "crossword": info = TodayInfo.crossword
         case "fillBlank": info = TodayInfo.exercise(type: "fillBlank", title: "Fill in the Blank", exercise: nil)
-        case "vocab", "wordGuess":
+        case "wordGuess":
             // Needs loaded content; wait for it.
             Task {
                 while model.phase == .loading { try? await Task.sleep(for: .milliseconds(200)) }
-                if UserDefaults.standard.string(forKey: "todaySheet") == "vocab" {
-                    info = TodayInfo.vocab(model)
-                } else if let puzzle = model.puzzle {
+                if let puzzle = model.puzzle {
                     info = TodayInfo.wordGuess(puzzle, result: log?.games["wordGuess"])
                 }
             }
@@ -367,16 +368,15 @@ struct TodayDestination: View {
     let route: TodayRoute
     let puzzle: DailyPuzzle?
     var exercises: [Exercise] = []
+    var deck: [TodayModel.DeckWord] = []
+    var lessonTitle = "Today's Words"
 
     @Environment(AppState.self) private var appState
 
     var body: some View {
         switch route {
         case .vocab:
-            FillerScreen(title: "Daily Vocab", owner: "Sean", mood: .encouraging,
-                         summary: "Flip cards and list view for today's 70/30 deck, with pronunciation. Finishing calls service.completeVocabLesson(...) with one answer per card.") {
-                try await appState.record(.vocab(score: 1), minutes: 3)
-            }
+            VocabLessonView(words: deck, lessonTitle: lessonTitle)
         case .connections:
             if let puzzle {
                     ConnectionsView(puzzle: puzzle.connections,
@@ -417,16 +417,6 @@ struct TodayDestination: View {
 
 /// From the prototype, with the XP numbers changed to plan.md's rules.
 enum TodayInfo {
-    static func vocab(_ model: TodayModel) -> InfoContent {
-        let reviews = model.deck.filter(\.isReview).count
-        return InfoContent(
-            id: "vocab", badge: "Retention model", title: "Daily Vocab (70/30 Mix)",
-            subtitle: "\(model.lesson?.title ?? "Today") · \(model.deck.count) words · \(reviews) review, \(model.deck.count - reviews) new",
-            description: "Fluent•ish mixes about 70% words you've seen before, due for spaced-repetition review, with 30% new words, so you keep what you learned while steadily adding more.",
-            tip: "Aqua chips are reviews, orange chips are new. Flip through the cards or see the whole list, and tap the speaker to hear each word.",
-            reward: "+\(ProgressRules.vocabLessonXP) XP", actionLabel: "Start Lesson", route: .vocab)
-    }
-
     static let connections = InfoContent(
         id: "connections", badge: "Pattern puzzle", title: "Connections (Conexiones)",
         subtitle: "4 groups · 16 words",
