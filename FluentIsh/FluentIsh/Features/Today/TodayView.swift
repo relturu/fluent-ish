@@ -8,12 +8,13 @@
 //  `appState.todayLog`, so finishing a game updates this screen by itself.
 //
 //  Play / Start push filler screens until teammates build the real ones
-//  (TodayDestination below). The Mini Crossword is V2: its card shows the
+//  (TodayDestination below). Skill Exercises open ExerciseView. The Mini Crossword is V2: its card shows the
 //  grid with a "Soon" pill, and the counter is x/2.
 //
 //  DEBUG: `-todaySheet vocab|connections|wordGuess|crossword|fillBlank|level`
-//  opens a sheet at launch; `-todayOpen vocab|connections|wordGuess|exercise`
-//  opens a filler screen (for screenshots).
+//  opens a sheet at launch; `-todayOpen vocab|connections|wordGuess` opens a
+//  filler screen and `-todayOpen fillBlank|sentenceBuilder|definitionMatch`
+//  an exercise at the stored difficulty (for screenshots).
 //
 
 import SwiftUI
@@ -49,8 +50,10 @@ struct TodayView: View {
                 exercisesSection
             }
         }
-        .navigationDestination(for: TodayRoute.self) { TodayDestination(route: $0, puzzle: model.puzzle) }
-        .navigationDestination(item: $pushed) { TodayDestination(route: $0, puzzle: model.puzzle) }
+        .navigationDestination(for: TodayRoute.self) { TodayDestination(route: $0, puzzle: model.puzzle, exercises: model.exercises) }
+        .navigationDestination(item: $pushed) {
+            TodayDestination(route: $0, puzzle: model.puzzle, exercises: model.exercises)
+        }
         .sheet(item: $info) { content in
             InfoSheet(content: content) { route in pushed = route }
         }
@@ -258,7 +261,12 @@ struct TodayView: View {
         case "vocab": pushed = .vocab
         case "connections": pushed = .connections
         case "wordGuess": pushed = .wordGuess
-        case "exercise": pushed = .exercise(id: "fillBlank")
+        case let type? where Self.exerciseTypes.contains(where: { $0.0 == type }):
+            // -todayOpen fillBlank|sentenceBuilder|definitionMatch, at the stored difficulty.
+            Task {
+                while model.phase == .loading { try? await Task.sleep(for: .milliseconds(200)) }
+                if let id = model.exercise(type: type, difficulty: difficulty)?.id { pushed = .exercise(id: id) }
+            }
         default: break
         }
         switch UserDefaults.standard.string(forKey: "todaySheet") {
@@ -358,6 +366,7 @@ private struct DifficultyPicker: View {
 struct TodayDestination: View {
     let route: TodayRoute
     let puzzle: DailyPuzzle?
+    var exercises: [Exercise] = []
 
     @Environment(AppState.self) private var appState
 
@@ -369,12 +378,11 @@ struct TodayDestination: View {
                 try await appState.record(.vocab(score: 1), minutes: 3)
             }
         case .connections:
-            FillerScreen(title: "Connections", owner: "Jessica", mood: .thinking,
-                         summary: "Find the four groups of four. Score with ProgressRules.connectionsScore(mistakes:); save partial progress with record(.game(...)) as status .inProgress.") {
-                try await appState.record(.game(key: "connections", result: GameResult(
-                    status: .completed, score: ProgressRules.connectionsScore(mistakes: 0), mistakes: 0,
-                    solvedGroups: [0, 1, 2, 3], guesses: nil, filledCells: nil, hintsUsed: nil)), minutes: 3)
-            }
+            if let puzzle {
+                    ConnectionsView(puzzle: puzzle.connections)
+                } else {
+                    ProgressView()
+                }
         case .wordGuess:
             // Sai's screen (Features/Games/WordGuess/). The same record call
             // the filler made, but with the real result: guesses, score from
@@ -392,9 +400,13 @@ struct TodayDestination: View {
                     .background(Color.canvas)
             }
         case .exercise(let id):
-            FillerScreen(title: "Skill Exercise", owner: "Arielle", mood: .proud,
-                         summary: "Fill in the Blank, Sentence Builder and Definition Match, from the exercises collection. Finishing calls record(.exercise(id:)).") {
-                try await appState.record(.exercise(id: id), minutes: 2)
+            if let exercise = exercises.first(where: { $0.id == id }), !exercise.items.isEmpty {
+                ExerciseView(exercise: exercise)
+            } else {
+                FillerScreen(title: "Skill Exercise", owner: "Arielle", mood: .proud,
+                             summary: "Fill in the Blank, Sentence Builder and Definition Match, from the exercises collection. Finishing calls record(.exercise(id:)).") {
+                    try await appState.record(.exercise(id: id), minutes: 2)
+                }
             }
         }
     }

@@ -79,6 +79,7 @@ The UI is rebuilt in SwiftUI from the Google AI Studio prototype (React/Vite, ke
 - [x] 8. Filler screens (`Components/FillerScreen.swift`): Play/Start on Today opens a `FillerScreen` naming the owner (vocab Sean, Connections Jessica, Word Guess Sai, exercises Arielle). Its DEBUG "Finish (test)" button makes the same `appState.record(...)` call the real screen should make, then shows the celebration (+XP, or +0 on a replay). Progress, Friends and Settings tabs show `FillerSection` cards per section; Settings keeps the dark mode switch. Crossword card shows "Soon" and the games counter is x/2 (`V1Games`). The top bar never squeezes its right-hand actions. DEBUG: `-todayOpen vocab|connections|wordGuess|exercise`.
 - [x] 9. Teammate handoff: `docs/app-guide.md` (linked from the README) covers running the app, folders, replacing each filler, styling, `AppState` / `record` / `FirestoreService` / rules, tests and DEBUG launch arguments.
 - [x] 10. Wrap-up: 77 unit tests pass; PR #3 opens `feature/firebase-setup` → `main` (merges cleanly with the Azure PRs).
+- [x] 11. Skill Exercises, easy mode (Sprint 2): `Features/Exercises/` plays Fill in the Blank, Sentence Builder and Definition Match from the `exercises` collection (`ExerciseView` + `ExerciseItemViews`), then saves with `record(.exercise(id:))` and shows a simple recap (Sean's Session Review can replace it). Easy content: `ex_fill_easy_001`, `ex_build_easy_001`, plus the existing `ex_match_001`. New optional `promptEn` on exercise items (English line under a Fill in the Blank sentence). Rules in `Services/ExerciseRules.swift` (unit tested). Shared `ShakeEffect` and `FlowLayout` in `Components/`. The tab bar now sits below the pages instead of in a safe-area inset, so pushed screens' bottom buttons aren't hidden. DEBUG: `-todayOpen fillBlank|sentenceBuilder|definitionMatch` (with `-exerciseDifficulty easy`).
 
 **Handed off to teammates** (from the sprint timeline):
 
@@ -88,9 +89,9 @@ The UI is rebuilt in SwiftUI from the Google AI Studio prototype (React/Vite, ke
 | Connections | Jessica (content) | Score with `ProgressRules.connectionsScore`; save partial state with `record(.game(...))` |
 | Word Guess | Sai (content) | Colouring is done: `GameRules.feedback` |
 | Mini Crossword | Not in V1 (V2 list) | Today shows the grid with a "Soon" pill. `GameRules.blackSquares` exists; `filledCells` format not decided |
-| Exercises (easy mode) | Arielle (Sprint 2 content) | `record(.exercise(id:))` |
+| Exercises (easy mode) | Arielle (Sprint 2 content) | Done (step 11). Medium/hard content: one doc each exists; more later |
 | Progress tab | Sai | `recentLogs`, `allWordProgress` already exist |
-| Friends tab | Sean | Social reads/writes not written yet |
+| Friends tab | Sean | V1 leaderboard, daily prompt responses, friend feed and likes are implemented; friend discovery/management remains V2. |
 | Settings tab | Jessica | Must not call `createProfile` for "replay onboarding" |
 | Polish (dark mode Churro outline, minutes tracking, date change at midnight) | V2 list | |
 
@@ -322,7 +323,8 @@ The design has a `users` collection with 4 subcollections, plus 8 top-level cont
   "subtitle": "Completa la Frase",
   "difficulty": "medium",
   "items": [
-    { "prompt": "Después de cenar, nos gusta ___.", "answer": "charlar", "choices": ["charlar", "correr", "dormir"] }
+    { "prompt": "Después de cenar, nos gusta ___.", "answer": "charlar", "choices": ["charlar", "correr", "dormir"],
+      "promptEn": "After dinner, we like to chat." }   // promptEn optional; prompt has exactly one ___
   ]
 }
 
@@ -546,6 +548,7 @@ struct ExerciseItem: Codable {
     var prompt: String
     var answer: String
     var choices: [String]?
+    var promptEn: String?             // fillBlank: English line under the sentence
 }
 
 struct Exercise: Codable, Identifiable {
@@ -891,6 +894,7 @@ These are reasonable starting values so building isn't blocked. The team can cha
 | Word Guess score | `(7 − guesses used) ÷ 6`, with 6 guesses allowed |
 | Crossword score | `max(0, 1 − 0.1 × hintsUsed)` |
 | Minutes | Time on a game, lesson or exercise screen, rounded up, added to `minutesSpent` |
+| Exercises | Hints are free in V1. A wrong answer can be retried. Accuracy = items right on the first try ÷ items (a hinted item doesn't count). Easy content is A2: short present-tense sentences, 3 choices, no decoy tiles |
 
 ### What the team does first
 Claude Code can't do these steps itself, because they need your accounts or Xcode's interface.
