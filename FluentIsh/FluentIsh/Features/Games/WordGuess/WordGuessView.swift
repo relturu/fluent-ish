@@ -7,7 +7,8 @@
 //  word-guess-1-playing.png.
 //
 //  Layout, top to bottom: GameHeaderBar, the clue line, the board (6 rows ×
-//  word length), and the Spanish QWERTY keyboard (with Ñ, ENTER and ⌫).
+//  word length), the Spanish QWERTY keyboard (with Ñ and ⌫), and a
+//  full-width Submit button.
 //  All the rules live in WordGuessGame; this view only draws its state and
 //  forwards key presses to it.
 //
@@ -24,27 +25,35 @@
 //    screen). Here the end card shows the score and XP in place, with
 //    "Back to Today".
 //  - Every `darkMode ? … : …` is gone: the colour tokens switch by themselves.
+//  - No ENTER key: its label didn't fit in the third row. A full-width
+//    Submit button under the keyboard does the same job, and stays
+//    disabled until the row is full.
 //
-//  Saving: when the game ends (won or lost), `onFinish` is called with the
-//  final GameResult and the minutes spent. TodayDestination passes in the
-//  real `appState.record(...)` call. The view doesn't read AppState itself,
-//  so the previews work without Firebase.
+//  Saving: `onSave` is called with the game's GameResult after every guess
+//  and every hint: `.inProgress` mid-game, `.completed` once it's won or
+//  lost. TodayDestination passes in the real `appState.record(...)` call.
+//  The view doesn't read AppState itself, so the previews work without
+//  Firebase. Mid-game saves are safe: `record` gives 0 XP and doesn't touch
+//  the streak or "games done" until the status is `.completed`.
 //
-//  Not built yet: saving halfway and restoring a game (Step 5).
+//  Restoring: TodayDestination passes today's saved result as `saved`
+//  (from appState.todayLog). WordGuessGame rebuilds the guesses and hints
+//  from it, so leaving and coming back continues the same game, and a
+//  finished game reopens on its end card.
 //
 
 import SwiftUI
 
 struct WordGuessView: View {
     let puzzle: WordGuessPuzzle
-    /// Saves the finished game; returns what `appState.record` returns
-    /// (XP awarded etc., used by the end screen in Step 4). nil in previews.
-    var onFinish: ((GameResult, _ minutes: Int) async throws -> ActivityOutcome)? = nil
+    /// Saves the game (mid-game or finished); returns what `appState.record`
+    /// returns (XP awarded etc., used by the end card). nil in previews.
+    var onSave: ((GameResult, _ minutes: Int) async throws -> ActivityOutcome)? = nil
 
     /// The whole game. @State keeps it alive while the screen is shown;
-    /// changing it (typing, ENTER) redraws the board.
+    /// changing it (typing, Submit) redraws the board.
     @State private var game: WordGuessGame
-    /// Bumped on every rejected ENTER; the current row shakes when it changes.
+    /// Bumped on every rejected Submit; the current row shakes when it changes.
     @State private var shakes = 0
     /// When the screen opened, for the minutes added to the daily goal.
     @State private var startedAt = Date()
@@ -59,7 +68,14 @@ struct WordGuessView: View {
     @State private var saving = false
     /// Guards `save()` so the finished game is recorded exactly once, not on
     /// every redraw. Reset only if saving fails, so "Retry" can try again.
-    @State private var hasSaved = false
+    /// Starts true for a finished game that was restored: it's already saved.
+    @State private var hasSaved: Bool
+    /// Minutes already sent to `record` during this visit. `record` adds up
+    /// whatever it's given, so each save only sends the new minutes.
+    @State private var minutesRecorded = 0
+    /// The latest save. Each save waits for the one before it, so they
+    /// reach Firestore in order and an older result can't overwrite a newer one.
+    @State private var saveTask: Task<Void, Never>?
 
     @Environment(\.dismiss) private var dismiss
     /// Height of the custom tab bar in MainTabView. Update this if the tab bar changes.
@@ -71,14 +87,21 @@ struct WordGuessView: View {
     /// = 56.1pt, rounded up. In previews (no tab bar) this just adds space.
     private let tabBarHeight: CGFloat = 57
 
-    /// `saved` restores a game started earlier today (used from Step 5).
+    /// `saved` restores a game started (or finished) earlier today.
+    ///
+    /// SwiftUI only uses a @State starting value the first time the view
+    /// appears. Every save updates appState.todayLog, which makes
+    /// TodayDestination call this init again with the new `saved`, but the
+    /// game already on screen is kept, so nothing resets mid-play.
     init(puzzle: WordGuessPuzzle, saved: GameResult? = nil,
-         onFinish: ((GameResult, _ minutes: Int) async throws -> ActivityOutcome)? = nil) {
+         onSave: ((GameResult, _ minutes: Int) async throws -> ActivityOutcome)? = nil) {
         self.puzzle = puzzle
-        self.onFinish = onFinish
+        self.onSave = onSave
+        let game = WordGuessGame(answer: puzzle.answer, length: puzzle.length, restoring: saved)
         // A @State property can't be set directly in init, so we set its
         // starting value through the underscore-prefixed storage.
-        _game = State(initialValue: WordGuessGame(answer: puzzle.answer, length: puzzle.length, restoring: saved))
+        _game = State(initialValue: game)
+        _hasSaved = State(initialValue: game.isOver)
     }
 
     var body: some View {
@@ -95,7 +118,8 @@ struct WordGuessView: View {
                 board(tileSide: tileSide(fitting: space.size))
                     .frame(maxWidth: .infinity)         // centred left-right, top-aligned
             }
-            // When the game ends, the result card replaces the keyboard.
+            // When the game ends, the result card replaces the keyboard
+            // and the Submit button.
             if game.isOver {
                 endCard
             } else {
@@ -230,26 +254,45 @@ struct WordGuessView: View {
 
     private enum Key: Hashable {
         case letter(String)
-        case enter
         case delete
     }
 
     /// Spanish QWERTY: Ñ sits where it does on a Spanish keyboard, after L.
+    /// The third row has no ENTER key (the Submit button below replaces it).
+    /// Letter keys use `maxWidth: .infinity`, so Z–M share out the space
+    /// ENTER used to take and ⌫ keeps its own width at the end.
     private static let rows: [[Key]] = [
         "QWERTYUIOP".map { .letter(String($0)) },
         "ASDFGHJKLÑ".map { .letter(String($0)) },
-        [.enter] + "ZXCVBNM".map { .letter(String($0)) } + [.delete],
+        "ZXCVBNM".map { .letter(String($0)) } + [.delete],
     ]
 
+    /// The 3 key rows, then the full-width Submit button.
+    ///
+    /// Height (fixed): 3 rows × 38 + 2 gaps × 6 = 126pt of keys,
+    /// + 10 gap + 46 Submit = 182pt. The board's GeometryReader takes
+    /// whatever height is left, so adding Submit just makes the tiles a bit
+    /// smaller on short screens. Nothing scrolls.
     private var keyboard: some View {
-        VStack(spacing: 6) {                            // space-y-1.5
-            ForEach(Self.rows, id: \.self) { row in
-                HStack(spacing: 4) {                    // gap-1
-                    ForEach(row, id: \.self) { key in
-                        keyButton(key)
+        VStack(spacing: 10) {
+            VStack(spacing: 6) {                        // space-y-1.5
+                ForEach(Self.rows, id: \.self) { row in
+                    HStack(spacing: 4) {                // gap-1
+                        ForEach(row, id: \.self) { key in
+                            keyButton(key)
+                        }
                     }
                 }
             }
+
+            // Disabled until the row has every letter. TactileButtonStyle
+            // reads `isEnabled` and fades the button to 40%, so the player
+            // can see it isn't ready yet.
+            Button("Submit", action: submitGuess)
+                .buttonStyle(.tactile(.primary, fullWidth: true))
+                .disabled(!game.canSubmit)
+                .accessibilityLabel("Submit guess")
+                .accessibilityHint(game.canSubmit ? "" : "Type all \(puzzle.length) letters first")
         }
         .disabled(game.isOver)
     }
@@ -260,10 +303,6 @@ struct WordGuessView: View {
         case .letter(let letter):
             Button(letter) { press(key) }
                 .buttonStyle(KeyboardKeyStyle())
-        case .enter:
-            Button("ENTER") { press(key) }
-                .buttonStyle(.tactile(.yellow, size: .small))   // btn-3d-yellow
-                .accessibilityLabel("Submit guess")
         case .delete:
             Button { press(key) } label: {
                 Image(systemName: "delete.left").font(.system(size: 15, weight: .bold))
@@ -281,53 +320,86 @@ struct WordGuessView: View {
             if game.type(letter) { Haptics.tap() }
         case .delete:
             game.deleteLast()
-        case .enter:
-            switch game.submit() {
-            case .tooShort:
-                Haptics.error()
-                shakes += 1
-            case .accepted:
-                if game.isWon {
-                    Haptics.success()
-                    celebration = "¡Palabra encontrada!"
-                } else if game.isLost {
-                    Haptics.warning()
-                }
-                // Only a guess that ends the game saves; the guard inside
-                // save() makes sure it happens once.
-                if game.isOver { save() }
-            case .gameOver:
-                break
-            }
         }
     }
 
-    /// Records the finished game. A Task is needed because saving is
-    /// async (it waits for Firestore) but a button action isn't.
+    /// The Submit button: exactly what the old ENTER key did.
+    private func submitGuess() {
+        switch game.submit() {
+        case .tooShort:
+            // The button is disabled until the row is full, so this
+            // shouldn't happen. It's kept as a safety net: if it ever does,
+            // the player still gets the shake instead of nothing.
+            Haptics.error()
+            shakes += 1
+        case .accepted:
+            if game.isWon {
+                Haptics.success()
+                celebration = "¡Palabra encontrada!"
+            } else if game.isLost {
+                Haptics.warning()
+            }
+            // Every accepted guess saves: .inProgress mid-game, .completed
+            // when this guess ended it.
+            save()
+        case .gameOver:
+            break
+        }
+    }
+
+    /// Saves the game as it is right now: `.inProgress` mid-game, or
+    /// `.completed` once it's over (only once, see `hasSaved`). A Task is
+    /// needed because saving is async (it waits for Firestore) but a button
+    /// action isn't.
     private func save() {
-        guard !hasSaved, game.isOver, let onFinish else { return }
-        hasSaved = true
-        saving = true
+        guard let onSave else { return }
+        let isFinal = game.isOver
+        if isFinal {
+            guard !hasSaved else { return }
+            hasSaved = true
+            saving = true
+            saveError = nil                         // the end card only reflects this save
+        }
+        // Copy what to save now, before the player changes the game again.
         let result = game.result()
-        // plan.md: time on the screen, rounded up to whole minutes.
-        let minutes = max(1, Int((Date().timeIntervalSince(startedAt) / 60).rounded(.up)))
-        Task {
+        let minutes = WordGuessGame.minutesToRecord(secondsOnScreen: Date().timeIntervalSince(startedAt),
+                                                    alreadyRecorded: minutesRecorded)
+        // Count the minutes as sent straight away, so a save started while
+        // this one is still running doesn't send them again.
+        minutesRecorded += minutes
+        let previous = saveTask
+        saveTask = Task {
+            // Wait for the previous save so the saves arrive in order.
+            await previous?.value
             do {
-                outcome = try await onFinish(result, minutes)
+                let saved = try await onSave(result, minutes)
+                if isFinal { outcome = saved }
                 saveError = nil
             } catch {
-                saveError = "Couldn't save your game: \(error.localizedDescription)"
-                hasSaved = false                    // let "Retry save" try again
-                Haptics.error()
+                minutesRecorded -= minutes          // not saved, so the next save sends them
+                if isFinal {
+                    saveError = "Couldn't save your game: \(error.localizedDescription)"
+                    hasSaved = false                // let "Retry save" try again
+                    Haptics.error()
+                } else if !game.isOver {
+                    // Mid-game: the next guess or hint saves everything
+                    // again. Skipped if the game has ended since, because
+                    // then the end card shows the final save's result instead.
+                    saveError = "Couldn't save your progress: \(error.localizedDescription)"
+                }
             }
-            saving = false
+            if isFinal { saving = false }
         }
     }
 
-    /// The hint popup's button: reveal one letter, then close the popup
-    /// (as the prototype does after applying a hint).
+    /// The hint popup's button: reveal one letter, save (so the hint is
+    /// kept and paid for if the player leaves), then close the popup (as the
+    /// prototype does after applying a hint).
     private func revealLetter() {
-        if game.useHint() { Haptics.tap() }
+        if game.useHint() {
+            Haptics.tap()
+            save()
+        }
         assist = nil
     }
 
@@ -335,15 +407,20 @@ struct WordGuessView: View {
 
     private var endCard: some View {
         EndCard(
-            won: game.isWon,
+            // A score above 0 only comes from solving it, so this also
+            // covers a game saved as completed earlier.
+            won: game.isWon || game.score > 0,
             word: puzzle.answer,
             meaning: puzzle.definitionEn,
             guessesUsed: game.guesses.count,
-            score: ProgressRules.wordGuessScore(guessesUsed: game.guesses.count, solved: game.isWon),
+            score: game.score,
             hintsUsed: game.hintsUsed,
             outcome: outcome,
+            // Reopened after finishing: no record call this visit, so
+            // show the XP worked out from the saved result instead.
+            restoredXP: outcome == nil && hasSaved && !saving ? game.xpEarned : nil,
             saving: saving,
-            canSave: onFinish != nil,
+            canSave: onSave != nil,
             saveFailed: saveError != nil,
             onRetry: save,
             onDone: { dismiss() })
@@ -527,6 +604,9 @@ private struct EndCard: View {
     let hintsUsed: Int
     /// nil until saving finishes (or in previews, where nothing is saved).
     let outcome: ActivityOutcome?
+    /// XP for a finished game reopened later (WordGuessGame.xpEarned).
+    /// Used only when there's no `outcome` from this visit.
+    let restoredXP: Int?
     let saving: Bool
     let canSave: Bool
     let saveFailed: Bool
@@ -591,9 +671,11 @@ private struct EndCard: View {
         .overlay(shape.strokeBorder(Color.hairline))
     }
 
-    /// The real XP from `record`, or a dash when there's nothing saved.
+    /// The real XP from `record`, the worked-out XP for a reopened game,
+    /// or a dash when there's nothing saved.
     private var xpText: Text {
         if let outcome { return Text("+\(outcome.xpAwarded)") }
+        if let restoredXP { return Text("+\(restoredXP)") }
         return Text(canSave && !saveFailed ? "…" : "–")
     }
 

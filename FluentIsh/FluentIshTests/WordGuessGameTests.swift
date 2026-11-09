@@ -14,7 +14,7 @@ import Testing
 
 struct WordGuessGameTests {
 
-    /// Types a whole word and presses ENTER.
+    /// Types a whole word and taps Submit.
     private func guess(_ word: String, in game: inout WordGuessGame) -> WordGuessGame.SubmitOutcome {
         for letter in word { game.type(String(letter)) }
         return game.submit()
@@ -50,6 +50,22 @@ struct WordGuessGameTests {
     }
 
     // MARK: Submitting
+
+    /// The Submit button is enabled only once the row has every letter,
+    /// and goes back to disabled after deleting one or after the game ends.
+    @Test func canSubmitOnlyWithAFullRow() {
+        var game = WordGuessGame(answer: "CHARLA", length: 6)
+        #expect(!game.canSubmit)                // empty row
+        for letter in "CHARL" { game.type(String(letter)) }
+        #expect(!game.canSubmit)                // 5 of 6 letters
+        game.type("O")
+        #expect(game.canSubmit)                 // full row
+        game.deleteLast()
+        #expect(!game.canSubmit)                // back to 5
+        game.type("A")
+        game.submit()                           // CHARLA: won
+        #expect(!game.canSubmit)                // game over
+    }
 
     @Test func shortGuessIsRejected() {
         var game = WordGuessGame(answer: "CHARLA", length: 6)
@@ -250,5 +266,89 @@ struct WordGuessGameTests {
         #expect(game.guesses.count == WordGuessGame.maxGuesses)
         #expect(game.revealedPositions == [1, 2, 3, 4])
         #expect(game.hintsUsed == 7)        // XP still charges every hint taken
+    }
+
+    // MARK: Reopening a finished game
+
+    @Test func xpEarnedIsNilUntilTheGameEnds() {
+        var game = WordGuessGame(answer: "CHARLA", length: 6)
+        #expect(game.xpEarned == nil)
+        _ = guess("CAMINO", in: &game)
+        #expect(game.xpEarned == nil)       // still playing
+    }
+
+    @Test func xpEarnedMatchesWhatRecordAwards() {
+        // Solved on guess 2 with 1 hint: 30 × 5/6 = 25, minus 5 = 20.
+        let saved = GameResult(status: .completed, score: 5.0 / 6, mistakes: nil, solvedGroups: nil,
+                               guesses: ["CAMINO", "CHARLA"], filledCells: nil, hintsUsed: 1)
+        let game = WordGuessGame(answer: "CHARLA", length: 6, restoring: saved)
+        #expect(game.xpEarned == 20)
+        // The same formula record uses the first time (ProgressRules.xp(for:)).
+        let firstTime = ProgressRules.xp(for: .game(key: "wordGuess", result: saved),
+                                         log: ProgressRules.emptyLog(date: "2026-11-09", language: "es"))
+        #expect(game.xpEarned == firstTime)
+    }
+
+    @Test func todaysSavedGameReopensFinishedWithItsXP() {
+        // The game from Firestore: solved on guess 3 with 2 hints.
+        // 30 × 4/6 = 20, minus 2 × 5 = 10 XP.
+        let saved = GameResult(status: .completed, score: 4.0 / 6, mistakes: nil, solvedGroups: nil,
+                               guesses: ["CAMINO", "CORTAR", "CHARLA"], filledCells: nil, hintsUsed: 2)
+        let game = WordGuessGame(answer: "CHARLA", length: 6, restoring: saved)
+        #expect(game.isOver)
+        #expect(game.guesses == ["CAMINO", "CORTAR", "CHARLA"])
+        #expect(game.xpEarned == 10)
+    }
+
+    @Test func completedStatusLocksTheGameEvenIfGuessesLookUnfinished() {
+        // Status says completed, but the guesses don't contain the answer
+        // (e.g. edited in the console). Firestore's status wins: no new board.
+        let saved = GameResult(status: .completed, score: 4.0 / 6, mistakes: nil, solvedGroups: nil,
+                               guesses: ["CAMINO"], filledCells: nil, hintsUsed: 0)
+        var game = WordGuessGame(answer: "CHARLA", length: 6, restoring: saved)
+        #expect(game.isOver)
+        #expect(game.finishedEarlier)
+        let typed = game.type("C")
+        #expect(!typed)
+        #expect(game.submit() == .gameOver)
+        #expect(!game.canUseHint)
+        #expect(game.score == 4.0 / 6)          // the saved score, not recomputed
+        #expect(game.xpEarned == 20)
+        #expect(game.result().status == .completed)
+    }
+
+    @Test func inProgressSaveDoesNotLockTheGame() {
+        let saved = GameResult(status: .inProgress, score: nil, mistakes: nil, solvedGroups: nil,
+                               guesses: ["CAMINO"], filledCells: nil, hintsUsed: 0)
+        let game = WordGuessGame(answer: "CHARLA", length: 6, restoring: saved)
+        #expect(!game.isOver)
+        #expect(!game.finishedEarlier)
+    }
+
+    @Test func lostGameEarnsZeroXP() {
+        let saved = GameResult(status: .completed, score: 0, mistakes: nil, solvedGroups: nil,
+                               guesses: Array(repeating: "CORTAR", count: 6), filledCells: nil, hintsUsed: 0)
+        #expect(WordGuessGame(answer: "CHARLA", length: 6, restoring: saved).xpEarned == 0)
+    }
+
+    // MARK: Minutes sent with each save
+
+    @Test func minutesAreSentOnlyOnce() {
+        // Saves at 0:20, 0:50 and 1:30: 1 minute, then nothing new, then 1 more.
+        var sent = 0
+        let first = WordGuessGame.minutesToRecord(secondsOnScreen: 20, alreadyRecorded: sent)
+        sent += first
+        let second = WordGuessGame.minutesToRecord(secondsOnScreen: 50, alreadyRecorded: sent)
+        sent += second
+        let third = WordGuessGame.minutesToRecord(secondsOnScreen: 90, alreadyRecorded: sent)
+        sent += third
+        #expect([first, second, third] == [1, 0, 1])
+        #expect(sent == 2)                  // 1:30 rounded up, counted once
+    }
+
+    @Test func minutesAreAtLeastOneAndNeverNegative() {
+        #expect(WordGuessGame.minutesToRecord(secondsOnScreen: 0, alreadyRecorded: 0) == 1)
+        #expect(WordGuessGame.minutesToRecord(secondsOnScreen: 120, alreadyRecorded: 0) == 2)
+        #expect(WordGuessGame.minutesToRecord(secondsOnScreen: 30, alreadyRecorded: 3) == 0)
     }
 }

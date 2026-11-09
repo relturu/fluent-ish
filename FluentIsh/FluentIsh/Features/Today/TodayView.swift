@@ -142,7 +142,7 @@ struct TodayView: View {
                 }
                 TodayCard {
                     GameCardHeader(title: "Word Guess", kind: .init(games["wordGuess"]),
-                                   onInfo: { info = TodayInfo.wordGuess(puzzle) }, route: .wordGuess)
+                                   onInfo: { info = TodayInfo.wordGuess(puzzle, result: games["wordGuess"]) }, route: .wordGuess)
                     WordGuessPreview(length: puzzle.wordGuess.length, answer: puzzle.wordGuess.answer,
                                      guesses: games["wordGuess"]?.guesses ?? [])
                 }
@@ -273,7 +273,7 @@ struct TodayView: View {
                 if UserDefaults.standard.string(forKey: "todaySheet") == "vocab" {
                     info = TodayInfo.vocab(model)
                 } else if let puzzle = model.puzzle {
-                    info = TodayInfo.wordGuess(puzzle)
+                    info = TodayInfo.wordGuess(puzzle, result: log?.games["wordGuess"])
                 }
             }
         default: break
@@ -378,9 +378,11 @@ struct TodayDestination: View {
         case .wordGuess:
             // Sai's screen (Features/Games/WordGuess/). The same record call
             // the filler made, but with the real result: guesses, score from
-            // ProgressRules.wordGuessScore, and hints used.
+            // ProgressRules.wordGuessScore, and hints used. `saved` restores
+            // today's game (in progress or finished) from the live daily log.
             if let puzzle {
-                WordGuessView(puzzle: puzzle.wordGuess) { result, minutes in
+                WordGuessView(puzzle: puzzle.wordGuess,
+                              saved: appState.todayLog?.games["wordGuess"]) { result, minutes in
                     try await appState.record(.game(key: "wordGuess", result: result), minutes: minutes)
                 }
             } else {
@@ -419,13 +421,20 @@ enum TodayInfo {
         tip: "Categories range from food and drink to false friends (falsos amigos) and set phrases. Watch for words that seem to fit two groups.",
         reward: "Up to +\(ProgressRules.gameMaxXP) XP, about −7 per mistake", actionLabel: "Play Connections", route: .connections)
 
-    static func wordGuess(_ puzzle: DailyPuzzle) -> InfoContent {
-        InfoContent(
+    /// `result` is today's saved Word Guess, so the button matches the card:
+    /// a finished game offers its results, never a new game.
+    static func wordGuess(_ puzzle: DailyPuzzle, result: GameResult?) -> InfoContent {
+        let action = switch result?.status {
+        case .completed: "See results"
+        case .inProgress: "Continue Word Guess"
+        default: "Play Word Guess"
+        }
+        return InfoContent(
             id: "wordGuess", badge: "Wordle style", title: "Word Guess (Palabra del Día)",
             subtitle: "\(puzzle.wordGuess.length) letters · 6 attempts",
             description: "Guess today's \(puzzle.wordGuess.length)-letter Spanish word. After each guess, green means right letter in the right spot, yellow means it's in the word but somewhere else.",
             tip: "You don't need to type accents: á, é, í, ó and ú count as plain vowels. Ñ is its own letter.",
-            reward: "Up to +\(ProgressRules.gameMaxXP) XP, fewer guesses earn more", actionLabel: "Play Word Guess", route: .wordGuess)
+            reward: "Up to +\(ProgressRules.gameMaxXP) XP, fewer guesses earn more", actionLabel: action, route: .wordGuess)
     }
 
     static let crossword = InfoContent(

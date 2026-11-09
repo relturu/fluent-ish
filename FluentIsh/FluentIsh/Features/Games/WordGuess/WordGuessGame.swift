@@ -50,6 +50,14 @@ nonisolated struct WordGuessGame: Equatable {
     private(set) var hintsUsed: Int = 0
     /// Letter positions (0-based) revealed by hints, in the order taken.
     private(set) var revealedPositions: [Int] = []
+    /// True when the saved result says "completed". Firestore's status is
+    /// what decides whether today's game is done, so a completed game stays
+    /// locked even if its saved guesses look unfinished (e.g. edited in the
+    /// console). It can't be played or scored twice.
+    private(set) var finishedEarlier = false
+    /// The score saved with a completed result, used instead of working it
+    /// out again, so the XP shown matches what `record` used.
+    private var savedScore: Double?
 
     /// Starts a new game, or rebuilds one saved earlier today from
     /// `dailyLog.games["wordGuess"]`. Only `hintsUsed` is saved, so the
@@ -64,6 +72,10 @@ nonisolated struct WordGuessGame: Equatable {
             hintsUsed = max(0, saved.hintsUsed ?? 0)
             revealedPositions = Self.restoredHintPositions(guesses: guesses, hintsUsed: hintsUsed,
                                                            answer: self.answer, length: length)
+            if saved.status == .completed {
+                finishedEarlier = true
+                savedScore = saved.score
+            }
         }
     }
 
@@ -75,8 +87,16 @@ nonisolated struct WordGuessGame: Equatable {
     /// True after 6 guesses without finding the word.
     var isLost: Bool { !isWon && guesses.count >= Self.maxGuesses }
 
-    /// The game is finished either way: no more typing, guesses or hints.
-    var isOver: Bool { isWon || isLost }
+    /// The game is finished (won, lost, or saved as completed earlier):
+    /// no more typing, guesses or hints.
+    var isOver: Bool { isWon || isLost || finishedEarlier }
+
+    /// plan.md score: 1.0 for guess 1 … 1/6 for guess 6, 0 if not solved.
+    /// For a game completed earlier, the score that was saved with it.
+    var score: Double {
+        if finishedEarlier, let savedScore { return savedScore }
+        return ProgressRules.wordGuessScore(guessesUsed: guesses.count, solved: isWon)
+    }
 
     /// Green / yellow / grey for one submitted row.
     func feedback(for guess: String) -> [GameRules.LetterResult] {
@@ -113,8 +133,13 @@ nonisolated struct WordGuessGame: Equatable {
         case gameOver   // the game already ended: ignored
     }
 
-    /// ENTER: turns the current row into a guess if it has exactly
-    /// `length` letters. V1 doesn't check that it's a real word.
+    /// True when the Submit button should be enabled: the row being typed
+    /// has every letter and the game is still going. Same check as the
+    /// guards in `submit()`, so an enabled Submit is always `.accepted`.
+    var canSubmit: Bool { !isOver && current.count == length }
+
+    /// The Submit button: turns the current row into a guess if it has
+    /// exactly `length` letters. V1 doesn't check that it's a real word.
     @discardableResult
     mutating func submit() -> SubmitOutcome {
         guard !isOver else { return .gameOver }
@@ -202,10 +227,30 @@ nonisolated struct WordGuessGame: Equatable {
     func result() -> GameResult {
         GameResult(
             status: isOver ? .completed : .inProgress,
-            score: isOver ? ProgressRules.wordGuessScore(guessesUsed: guesses.count, solved: isWon) : nil,
+            score: isOver ? score : nil,
             mistakes: nil, solvedGroups: nil,
             guesses: guesses,
             filledCells: nil,
             hintsUsed: hintsUsed)
+    }
+
+    /// The XP this finished game earned, or nil while it's still going.
+    /// Used when a finished game is reopened: DailyLog doesn't store XP per
+    /// game, but `record` awards exactly this the one time a game is
+    /// completed (ProgressRules.xp(for:)), and a completed result is never
+    /// overwritten, so working it out again gives the same number.
+    var xpEarned: Int? {
+        guard isOver else { return nil }
+        return ProgressRules.gameXP(score: score, hintsUsed: hintsUsed)
+    }
+
+    /// Minutes to send with the next save. `record` *adds* the minutes it's
+    /// given to today's log on every call, so each save sends only what
+    /// hasn't been sent yet. plan.md counts time on the screen rounded up
+    /// to whole minutes, with at least 1. Example: saves at 0:20, 0:50 and
+    /// 1:30 send 1, 0 and 1 (2 minutes in total).
+    static func minutesToRecord(secondsOnScreen: TimeInterval, alreadyRecorded: Int) -> Int {
+        let total = max(1, Int((secondsOnScreen / 60).rounded(.up)))
+        return max(0, total - alreadyRecorded)
     }
 }
