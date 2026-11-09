@@ -46,11 +46,14 @@ struct VocabAnswer: Equatable {
 enum FirestoreServiceError: LocalizedError {
     case noProgress
     case missingPost
+    case insufficientLessonWords(required: Int, available: Int)
 
     var errorDescription: String? {
         switch self {
         case .noProgress: "You don't have progress for this language yet. Finish onboarding first."
         case .missingPost: "This post is no longer available."
+        case .insufficientLessonWords(let required, let available):
+            "Today's lesson needs \(required) words, but only \(available) are available. Update and re-seed the vocabulary content."
         }
     }
 }
@@ -236,19 +239,41 @@ final class FirestoreService {
             .documents.map { try $0.data(as: WordProgress.self) }
     }
 
-    /// Today's deck: the 70/30 mix from ProgressRules, plus which of those
-    /// words are reviews (aqua chips on Today) and which are new (orange).
+    /// Today's ten-word deck: prioritize up to 70% due reviews, then unseen
+    /// words. Previously seen lesson candidates fill any remaining slots.
     func lessonDeck(uid: String, language: String, today: String, lesson: VocabLesson) async throws -> LessonDeck {
+        var candidates = lesson.newWordIds
+        if candidates.count < lesson.wordCount {
+            let snapshot = try await db.collection("vocabLessons")
+                .whereField("language", isEqualTo: language)
+                .getDocuments()
+            let otherCandidates = snapshot.documents
+                .filter { $0.documentID != (lesson.id ?? "") }
+                .sorted { ($0.get("date") as? String ?? "") < ($1.get("date") as? String ?? "") }
+                .flatMap { $0.get("newWordIds") as? [String] ?? [] }
+            var candidateSet = Set(candidates)
+            for id in otherCandidates where candidateSet.insert(id).inserted {
+                candidates.append(id)
+            }
+        }
+
         // Ask for a few extra due words so they can fill in when new words run out.
         let due = try await dueReviews(uid: uid, language: language, today: today, limit: lesson.wordCount)
         var seen: Set<String> = []
-        for id in lesson.newWordIds {
-            if try await db.document("users/\(uid)/wordProgress/\(id)").getDocument().exists { seen.insert(id) }
+        let progressRef = db.collection("users/\(uid)/wordProgress")
+        for chunk in candidates.chunked(into: 30) {
+            let snapshot = try await progressRef
+                .whereField(FieldPath.documentID(), in: chunk)
+                .getDocuments()
+            seen.formUnion(snapshot.documents.map(\.documentID))
         }
-        let ids = ProgressRules.lessonWordIds(dueReviewIds: due.map(\.wordId), newWordIds: lesson.newWordIds,
+        let ids = ProgressRules.lessonWordIds(dueReviewIds: due.map(\.wordId), newWordIds: candidates,
                                               alreadySeen: seen, wordCount: lesson.wordCount,
                                               reviewRatio: lesson.reviewRatio)
-        return LessonDeck(wordIds: ids, reviewIds: Set(due.map(\.wordId)).intersection(ids))
+        guard ids.count == lesson.wordCount else {
+            throw FirestoreServiceError.insufficientLessonWords(required: lesson.wordCount, available: ids.count)
+        }
+        return LessonDeck(wordIds: ids, reviewIds: (Set(due.map(\.wordId)).union(seen)).intersection(ids))
     }
 
     // MARK: Day logs

@@ -74,18 +74,19 @@ The UI is rebuilt in SwiftUI from the Google AI Studio prototype (React/Vite, ke
 - [x] 4. App shell: `App/AppState.swift` (anonymous sign-in + live listeners on `users/{uid}` and `progress/es`), `RootView`, `MainTabView` with custom tab bar, `PageTopBar` / `StreakIndicator` / `LevelPill`, `TabPage` layout, stub tabs. `Services/ProgressRules.swift` has day keys, CEFR level from XP, and displayed streak (shows 0 once a day is missed). DEBUG launch args: `-tab progress|friends|settings`, `-screen styleguide`, `-darkMode YES`.
 - [x] 5. Data layer: `Services/FirestoreService.swift` (content-day lookup, lesson/puzzle/prompt/exercise/word reads, due reviews, 70/30 deck IDs, recent logs; `record(...)` and `completeVocabLesson(...)` write progress + dailyLog (+ wordProgress) in one transaction). `ProgressRules` adds ISO week ID, streak update, game scores, XP (replays earn 0; minutes still count), word status + review intervals, lesson mix, content-day rotation. `AppState` now also listens to today's dailyLog. Recall % counts only words seen before. DEBUG `-smokeWrite YES` records a test exercise `smoke_test` twice (+10 XP, then +0).
 - [x] 6. Onboarding (`Features/Onboarding/`): 7 steps from the prototype (welcome, language, why, pace, games, level, plan ready) with a name field on the last step. Writes `users/{uid}`, `progress/es` (starting XP = the chosen CEFR floor: A1 0, A2 300, B1 800, B2 1500) and `friends/{u_maya,u_lucas,u_elena}` in one batch. Motivation, weekly frequency and favourite games stay on the device (`@AppStorage`). `RootView`: splash → onboarding (no profile) → tabs. DEBUG: `-freshStart YES` (new anonymous user), `-screen onboarding` (preview), `-onboardingStep N`, `-onboardingName X`, `-onboardingAutoFinish YES`.
-- [x] 7. Today (`Features/Today/`): greeting with a daily Churro line, Daily Vocab card (deck from `lessonDeck`: aqua review / orange new chips), Today's Games with live previews from `todayLog` (solved Connections rows in group colours, last Word Guess colours with letters hidden, real crossword grid), Skill Exercises with Easy/Medium/Hard (`@AppStorage("exerciseDifficulty")`, falls back to the one seeded exercise per type). (i)/About open `InfoSheet` (XP from plan.md rules); the level pill opens `LevelProgressSheet`. `Services/GameRules.swift`: Word Guess colouring (repeated letters, accents ignored, Ñ kept) + crossword black squares. Play buttons push placeholders until steps 8, 10–13. DEBUG: `-todaySheet …`, `-scrollBottom YES`.
+- [x] 7. Today (`Features/Today/`): greeting with a daily Churro line, Daily Vocab card (deck from `lessonDeck`: aqua review / orange new chips), Today's Games with live previews from `todayLog` (solved Connections rows in group colours, last Word Guess colours with letters hidden, real crossword grid), Skill Exercises with Easy/Medium/Hard (`@AppStorage("exerciseDifficulty")`, falls back to the one seeded exercise per type). Game and exercise (i)/About buttons open `InfoSheet`; the vocab card starts the lesson directly. The level pill opens `LevelProgressSheet`. `Services/GameRules.swift`: Word Guess colouring (repeated letters, accents ignored, Ñ kept) + crossword black squares. Play buttons push placeholders until steps 8, 10–13. DEBUG: `-todaySheet …`, `-scrollBottom YES`.
 **Scope change (Nov 4):** Arielle's part is the styling integration (AI Studio → Xcode) and Firebase. The remaining screens belong to teammates (see the sprint timeline), so steps 8–10 only leave styled filler and a handoff for them.
 - [x] 8. Filler screens (`Components/FillerScreen.swift`): Play/Start on Today opens a `FillerScreen` naming the owner (vocab Sean, Connections Jessica, Word Guess Sai, exercises Arielle). Its DEBUG "Finish (test)" button makes the same `appState.record(...)` call the real screen should make, then shows the celebration (+XP, or +0 on a replay). Progress, Friends and Settings tabs show `FillerSection` cards per section; Settings keeps the dark mode switch. Crossword card shows "Soon" and the games counter is x/2 (`V1Games`). The top bar never squeezes its right-hand actions. DEBUG: `-todayOpen vocab|connections|wordGuess|exercise`.
 - [x] 9. Teammate handoff: `docs/app-guide.md` (linked from the README) covers running the app, folders, replacing each filler, styling, `AppState` / `record` / `FirestoreService` / rules, tests and DEBUG launch arguments.
 - [x] 10. Wrap-up: 77 unit tests pass; PR #3 opens `feature/firebase-setup` → `main` (merges cleanly with the Azure PRs).
 - [x] 11. Skill Exercises, easy mode (Sprint 2): `Features/Exercises/` plays Fill in the Blank, Sentence Builder and Definition Match from the `exercises` collection (`ExerciseView` + `ExerciseItemViews`), then saves with `record(.exercise(id:))` and shows a simple recap (Sean's Session Review can replace it). Easy content: `ex_fill_easy_001`, `ex_build_easy_001`, plus the existing `ex_match_001`. New optional `promptEn` on exercise items (English line under a Fill in the Blank sentence). Rules in `Services/ExerciseRules.swift` (unit tested). Shared `ShakeEffect` and `FlowLayout` in `Components/`. The tab bar now sits below the pages instead of in a safe-area inset, so pushed screens' bottom buttons aren't hidden. DEBUG: `-todayOpen fillBlank|sentenceBuilder|definitionMatch` (with `-exerciseDifficulty easy`).
+- [x] 12. Daily Vocab Lesson (Sean): `Features/VocabDeck/VocabLessonView.swift` presents ten curated words in Card and List modes, with IPA, part of speech, definitions, examples and native audio. Completion saves every word through `completeVocabLesson`, awards 30 XP and 100 recap points, and shows Session Review plus a level-up sheet when the CEFR level changes. The Today vocab card starts the lesson directly and has no info button.
 
 **Handed off to teammates** (from the sprint timeline):
 
 | Screen | Owner | Notes from steps 1–7 |
 |---|---|---|
-| Vocab deck + Session Review | Sean | Use `lessonDeck` + `completeVocabLesson`. Celebration sound, Rules modal and Level-up modal not built. |
+| Vocab deck + Session Review | Sean | Built in `Features/VocabDeck/`; uses `lessonDeck` + `completeVocabLesson`, with pronunciation, Card/List modes and a level-up sheet. |
 | Connections | Jessica (content) | Score with `ProgressRules.connectionsScore`; save partial state with `record(.game(...))` |
 | Word Guess | Sai (content) | Colouring is done: `GameRules.feedback` |
 | Mini Crossword | Jessica (V2, by Nov 20) | Today shows the grid with a "Soon" pill. `GameRules.blackSquares` exists; `filledCells` format not decided |
@@ -277,7 +278,7 @@ The design has a `users` collection with 4 subcollections, plus 8 top-level cont
     "crossword":   { "status": "notStarted", "filledCells": [], "score": null }
   },
   "exercisesCompleted": ["ex_fill_001"],
-  "xpEarned": 85,
+  "xpEarned": 95,
   "minutesSpent": 12
 }
 
@@ -293,6 +294,7 @@ The design has a `users` collection with 4 subcollections, plus 8 top-level cont
   "language": "es",
   "term": "la sobremesa",
   "lemma": "sobremesa",
+  "phonetic": "/la so.βɾeˈme.sa/",
   "gender": "f",
   "partOfSpeech": "noun",
   "definitionEn": "relaxed conversation at the table after a meal",
@@ -310,7 +312,7 @@ The design has a `users` collection with 4 subcollections, plus 8 top-level cont
   "title": "La Sobremesa",
   "wordCount": 10,
   "reviewRatio": 0.7,
-  "newWordIds": ["w_sobremesa", "w_cortado", "w_merienda"]
+  "newWordIds": ["w_sobremesa", "w_cortado", "w_merienda", "w_charlar", "w_compartir", "w_invitar", "w_taza", "w_cuenta", "w_propina", "w_brindis"]
 }
 
 // dailyPuzzles/es_2026-10-24
@@ -513,6 +515,7 @@ struct Word: Codable, Identifiable {
     var language: String
     var term: String
     var lemma: String
+    var phonetic: String?             // IPA transcription, e.g. "/la so.βɾeˈme.sa/"
     var gender: String?               // "m" | "f" | nil
     var partOfSpeech: String
     var definitionEn: String
@@ -530,7 +533,7 @@ struct VocabLesson: Codable, Identifiable {
     var title: String
     var wordCount: Int
     var reviewRatio: Double
-    var newWordIds: [String]
+    var newWordIds: [String]             // Today's curated candidate pool (10 words)
 }
 
 struct ConnectionsGroup: Codable {
@@ -898,7 +901,7 @@ This section tells Claude Code what to build for the Sprint 3 data deliverables 
 - **Auth:** Firebase Anonymous auth in V1, with no login screen. Sign-in and cross-device sync come in V2 by linking the anonymous account.
 - **Device-only state:** dark mode, audio toggle and reminder settings use `@AppStorage`. Tabs, search and filters are view state.
 - **Pronunciation:** `AVSpeechSynthesizer` on the device. No stored audio.
-- **Scoring currency:** XP only. `xp` is lifetime XP and `weeklyXP` drives the leaderboard.
+- **Scoring currency:** XP is persistent (`xp` is lifetime XP and `weeklyXP` drives the leaderboard). The vocab session review also displays a local 100-point score derived from its 0–1 recall score; it is not stored separately.
 - **Daily goal:** minutes only (`settings.dailyGoalMinutes` vs. `dailyLog.minutesSpent`).
 - **Language codes:** es, fr, it, pt. Seed Spanish only for V1.
 - **Content writes:** only the seed scripts (Admin SDK) write content collections. The app reads them.
@@ -915,8 +918,8 @@ These are reasonable starting values so building isn't blocked. The team can cha
 | Word status | Seen once → learning; 3 correct → familiar; 6 correct → mastered; a wrong answer drops one status |
 | Review interval | learning 1 day · familiar 3 days · mastered 7 days |
 | Words learned | Count of words that are familiar or mastered |
-| 70/30 lesson | Up to 7 due review words plus 3 new words from `newWordIds`; fill with new words if fewer are due |
-| XP | Vocab lesson 20 · each game 30 × score · each exercise 10 · each hint −5 |
+| 70/30 lesson | Up to 7 due reviews plus unseen words from the day's 10 curated `newWordIds`; previously seen candidates fill any remaining slots |
+| XP | Vocab lesson 30 · each game 30 × score · each exercise 10 · each hint −5 |
 | Connections score | `max(0, 1 − mistakes ÷ 4)` |
 | Word Guess score | `(7 − guesses used) ÷ 6`, with 6 guesses allowed |
 | Crossword score | `max(0, 1 − 0.1 × hintsUsed)` |

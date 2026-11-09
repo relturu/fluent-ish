@@ -39,7 +39,7 @@ const SCHEMAS = {
   },
   friends: { friendId: "string", status: "enum:pending|accepted", since: "timestamp" },
   words: {
-    language: "string", term: "string", lemma: "string", gender: "enum?:m|f", partOfSpeech: "string",
+    language: "string", term: "string", lemma: "string", phonetic: "string", gender: "enum?:m|f", partOfSpeech: "string",
     definitionEn: "string", category: `enum:${CATEGORIES.join("|")}`, level: "string", example: "string?",
     exampleEn: "string?", azure: { optional: true, translations: "string[]", fetchedAt: "timestamp" },
   },

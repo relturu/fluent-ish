@@ -138,11 +138,18 @@ struct ScoreTests {
         #expect(ProgressRules.crosswordScore(hintsUsed: 12) == 0)
     }
 
+    @Test func vocabScoreUsesOneHundredPointScale() {
+        #expect(ProgressRules.vocabScorePoints(score: 1) == 100)
+        #expect(ProgressRules.vocabScorePoints(score: 0.75) == 75)
+        #expect(ProgressRules.vocabScorePoints(score: -1) == 0)
+        #expect(ProgressRules.vocabScorePoints(score: 2) == 100)
+    }
+
     @Test func gameXPMatchesSeededLog() {
-        // Sofía, Oct 22: vocab 20 + connections 0.75 + word guess 0.83 + crossword 1.0 = 98 XP.
+        // Sofía, Oct 22: vocab 30 + connections 0.75 + word guess 0.83 + crossword 1.0 = 108 XP.
         let total = ProgressRules.vocabLessonXP
             + ProgressRules.gameXP(score: 0.75) + ProgressRules.gameXP(score: 0.83) + ProgressRules.gameXP(score: 1)
-        #expect(total == 98)
+        #expect(total == 108)
     }
 
     @Test func hintsCostXPButNeverBelowZero() {
@@ -216,6 +223,15 @@ struct LessonMixTests {
         let ids = ProgressRules.lessonWordIds(dueReviewIds: ["n1", "r1"], newWordIds: new, alreadySeen: [])
         #expect(Set(ids).count == ids.count)
     }
+
+    @Test func fillsTenWordsFromKnownLessonWordsWhenNeeded() {
+        let candidates = (1...10).map { "w\($0)" }
+        let seen = Set(candidates.dropFirst(3))
+        let ids = ProgressRules.lessonWordIds(dueReviewIds: ["r1", "r2", "r3", "r4"],
+                                              newWordIds: candidates, alreadySeen: seen)
+        #expect(ids.count == 10)
+        #expect(ids == ["r1", "r2", "r3", "r4", "w1", "w2", "w3", "w4", "w5", "w6"])
+    }
 }
 
 struct ContentDayTests {
@@ -288,8 +304,25 @@ struct ActivityTests {
         #expect(ProgressRules.xp(for: .exercise(id: "e1"), log: once) == 0)
         #expect(ProgressRules.xp(for: .exercise(id: "e2"), log: once) == 10)
 
-        let vocab = ProgressRules.applying(.vocab(score: 0.9), xp: 20, minutes: 3, to: emptyLog)
+        #expect(ProgressRules.xp(for: .vocab(score: 1), log: emptyLog) == 30)
+        let vocab = ProgressRules.applying(.vocab(score: 1), xp: 30, minutes: 3, to: emptyLog)
+        #expect(vocab.vocabCompleted)
+        #expect(vocab.vocabScore == 1)
+        #expect(vocab.xpEarned == 30)
         #expect(ProgressRules.xp(for: .vocab(score: 1), log: vocab) == 0)
+    }
+
+    @Test func vocabCompletionActivatesStreakAndCanLevelUp() {
+        var starting = progress
+        starting.xp = 1470
+        starting.weekId = "2026-W45"
+        let xp = ProgressRules.xp(for: .vocab(score: 1), log: emptyLog)
+        let updated = ProgressRules.applying(xp: xp, to: starting, today: today, weekId: "2026-W45")
+
+        #expect(updated.xp == 1500)
+        #expect(updated.level == "B2")
+        #expect(updated.currentStreak == starting.currentStreak + 1)
+        #expect(updated.lastActiveDate == today)
     }
 
     @Test func gamesEarnXPOnlyWhenCompleted() {
