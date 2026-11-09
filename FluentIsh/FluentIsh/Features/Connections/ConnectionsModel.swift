@@ -107,6 +107,49 @@ final class ConnectionsModel {
         words.shuffle()
         Haptics.tap()
     }
+    
+    // MARK: - Hint State
+    private(set) var hintedGroups: Set<Int> = []
+
+    var hintsUsed: Int { hintedGroups.count }
+    
+    // MARK: - Hints
+
+    /// The group a hint points at: one already hinted and still unsolved,
+    /// otherwise the first unsolved group.
+    var nextHintGroupIndex: Int? {
+        guard !isFinished else { return nil }
+        let unsolved = puzzle.groups.indices.filter { !solvedGroupIndices.contains($0) }
+        return unsolved.first(where: { hintedGroups.contains($0) }) ?? unsolved.first
+    }
+
+    /// A hint is refused when only one group is left (it would be free anyway),
+    /// unless that group was already hinted.
+    var canUseHint: Bool {
+        guard let index = nextHintGroupIndex else { return false }
+        let unsolvedCount = puzzle.groups.count - solvedGroupIndices.count
+        return hintedGroups.contains(index) || unsolvedCount >= 2
+    }
+
+    /// Opens a hint. Re-opening the same group doesn't cost another hint.
+    @discardableResult
+    func revealHint() -> Bool {
+        guard canUseHint, let index = nextHintGroupIndex else { return false }
+        hintedGroups.insert(index)
+        return true
+    }
+
+    /// "Auto-Solve Group" button: solves the hinted group. Not a mistake.
+    func autoSolveHintGroup() -> SubmissionResult? {
+        guard let index = nextHintGroupIndex, hintedGroups.contains(index) else { return nil }
+
+        solvedGroupIndices.insert(index)
+        selectedWords.removeAll()
+        lastGuessWasOneAway = false
+        Haptics.success()
+
+        return isWon ? .won : .correct
+    }
 
     // MARK: - Check Answer
 

@@ -68,6 +68,7 @@ struct ConnectionsView: View {
     @State private var toastTask: Task<Void, Never>?
     @State private var showCelebration = false
 
+    @State private var showHint = false
     // MARK: - Initialization
 
     init(puzzle: ConnectionsPuzzle) {
@@ -142,6 +143,9 @@ struct ConnectionsView: View {
         .sheet(isPresented: $showInstructions) {
             instructionsSheet
         }
+        .sheet(isPresented: $showHint) {
+            hintSheet
+        }
         .overlay(alignment: .bottom) {
             if let toast {
                 MascotToast(message: toast, onTap: hideToast)
@@ -156,6 +160,67 @@ struct ConnectionsView: View {
         }
     }
 
+    // MARK: - Hint Sheet
+
+    @State private var hintSheetHeight: CGFloat = 260
+
+    private var hintSheet: some View {
+        VStack(alignment: .leading, spacing: 16) {
+
+            HStack(spacing: 8) {
+                Text("!")
+                    .font(.jakarta(13, 800))
+                    .foregroundStyle(Color.white)
+                    .frame(width: 28, height: 28)
+                    .background(Color.flame, in: Circle())
+                Text("Hint · Connections")
+                    .font(.jakarta(16, 700))
+                    .foregroundStyle(Color.ink)
+            }
+            .accessibilityElement(children: .combine)
+
+            Divider().overlay(Color.hairline)
+
+            if let index = model.nextHintGroupIndex {
+                let group = model.puzzle.groups[index]
+
+                Text("\(group.category) group: \(group.words.map { $0.uppercased() }.joined(separator: ", ")).")
+                    .font(.jakarta(14, 500))
+                    .foregroundStyle(Color.ink.opacity(0.9))
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Button("Auto-Solve Group") {
+                    autoSolveHint()
+                }
+                .buttonStyle(.tactile(.primary, size: .small, fullWidth: true))
+            }
+
+            Button("Close") { showHint = false }
+                .buttonStyle(.tactile(.outline, size: .small, fullWidth: true))
+        }
+        .padding(20)
+        .fixedSize(horizontal: false, vertical: true)
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { hintSheetHeight = $0 }
+        .presentationDetents([.height(hintSheetHeight)])
+        .presentationBackground(Color.modal)
+    }
+    
+    private func autoSolveHint() {
+        guard let result = model.autoSolveHintGroup() else { return }
+        showHint = false
+
+        if result == .won {
+            message = "¡Excelente! You found all four groups!"
+            showCelebration = true
+        } else {
+            message = "¡Correcto! Group solved with a hint."
+        }
+        saveGameInBackground()
+    }
+
+    private func saveGameInBackground() {
+        Task { await saveGame() }
+    }
     // MARK: - Header
 
     private var header: some View {
@@ -203,7 +268,10 @@ struct ConnectionsView: View {
                     .accessibilityLabel("How to play")
 
                     Button {
-                        // TODO: decide what this button should do (hint? report?)
+                        if model.revealHint() {
+                            showHint = true
+                            saveGameInBackground()   // keep the hint count saved even if they leave
+                        }
                     } label: {
                         Text("!")
                             .font(.jakarta(14, 800))
@@ -218,6 +286,8 @@ struct ConnectionsView: View {
                                     .strokeBorder(Color.flame.opacity(0.3), lineWidth: 1)
                             }
                     }
+                    .disabled(!model.canUseHint)
+                    .opacity(model.canUseHint ? 1 : 0.4)
                     .accessibilityLabel("Hint")
                 }
             }
@@ -444,7 +514,7 @@ struct ConnectionsView: View {
 
         // Save the current game progress to Firebase.
         Task {
-            await saveGame()
+            saveGameInBackground()
         }
     }
 
@@ -465,7 +535,7 @@ struct ConnectionsView: View {
             solvedGroups: model.solvedGroupIndices.sorted(),
             guesses: nil,
             filledCells: nil,
-            hintsUsed: nil
+            hintsUsed: model.hintsUsed
         )
 
         do {
@@ -501,11 +571,18 @@ struct ConnectionsView: View {
                 .foregroundStyle(Color.ink)
 
             if model.isWon {
-                Text(
-                    "+\(ProgressRules.gameXP(score: ProgressRules.connectionsScore(mistakes: model.mistakes))) XP"
-                )
-                .font(.jakarta(16, 800))
-                .foregroundStyle(Color.flame)
+                let score = ProgressRules.connectionsScore(mistakes: model.mistakes)
+                let xp = ProgressRules.gameXP(score: score, hintsUsed: model.hintsUsed)
+
+                Text("+\(xp) XP")
+                    .font(.jakarta(16, 800))
+                    .foregroundStyle(Color.flame)
+
+                if model.hintsUsed > 0 {
+                    Text("Includes −\(ProgressRules.hintPenaltyXP * model.hintsUsed) XP for \(model.hintsUsed) hint\(model.hintsUsed == 1 ? "" : "s").")
+                        .font(.jakarta(12, 600))
+                        .foregroundStyle(Color.inkMuted)
+                }
             }
 
             Button("Done") {
