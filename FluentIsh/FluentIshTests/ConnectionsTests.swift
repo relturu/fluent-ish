@@ -424,3 +424,232 @@ struct ConnectionsDifficultyTests {
     }
 }
 
+ // MARK: Hint functionality tests
+
+@MainActor
+struct ConnectionsHintTests {
+
+    // MARK: Starting state
+
+    @Test func startsWithNoHintsUsed() {
+        let model = makeModel()
+        #expect(model.hintsUsed == 0)
+        #expect(model.hintedGroups.isEmpty)
+        #expect(model.canUseHint)
+        #expect(model.nextHintGroupIndex == 0)
+    }
+
+    // MARK: Revealing a hint
+
+    @Test func revealingAHintCostsOneHint() {
+        let model = makeModel()
+        #expect(model.revealHint())
+        #expect(model.hintsUsed == 1)
+        #expect(model.hintedGroups == [0])
+    }
+
+    @Test func reopeningTheSameHintIsFree() {
+        let model = makeModel()
+        model.revealHint()
+        #expect(model.revealHint())
+        #expect(model.revealHint())
+        #expect(model.hintsUsed == 1)
+    }
+
+    @Test func hintStaysOnTheSameGroupUntilItIsSolved() {
+        let model = makeModel()
+        model.revealHint()
+        makeMistake(in: model)
+        #expect(model.nextHintGroupIndex == 0)
+    }
+
+    @Test func hintDoesNotCostAMistakeOrChangeTheBoard() {
+        let model = makeModel()
+        select(["cortado", "sobremesa"], in: model)
+        let wordsBefore = model.words
+
+        model.revealHint()
+
+        #expect(model.mistakes == 0)
+        #expect(model.remainingMistakes == 4)
+        #expect(model.solvedGroupIndices.isEmpty)
+        #expect(model.remainingWords.count == 16)
+        #expect(model.words == wordsBefore)
+        #expect(model.selectedWords == ["cortado", "sobremesa"])   // selection untouched
+    }
+
+    @Test func hintSkipsGroupsAlreadySolved() {
+        let model = makeModel()
+        solve(0, in: model)
+        #expect(model.nextHintGroupIndex == 1)
+        model.revealHint()
+        #expect(model.hintedGroups == [1])
+    }
+
+    @Test func eachNewGroupHintedCostsOneMoreHint() {
+        let model = makeModel()
+        model.revealHint()
+        model.autoSolveHintGroup()
+        model.revealHint()
+        #expect(model.hintedGroups == [0, 1])
+        #expect(model.hintsUsed == 2)
+    }
+
+    @Test func solvingAHintedGroupByGuessingStillKeepsTheHintCost() {
+        let model = makeModel()
+        model.revealHint()
+        solve(0, in: model)
+        #expect(model.hintsUsed == 1)
+        #expect(model.nextHintGroupIndex == 1)    // next hint targets a fresh group
+        #expect(!model.hintedGroups.contains(1))
+    }
+
+    // MARK: When hints are unavailable
+
+    @Test func noHintWhenOnlyOneGroupIsLeft() {
+        let model = makeModel()
+        solve(0, in: model)
+        solve(1, in: model)
+        solve(2, in: model)
+
+        #expect(model.nextHintGroupIndex == 3)
+        #expect(!model.canUseHint)
+        #expect(!model.revealHint())
+        #expect(model.hintsUsed == 0)
+    }
+
+    @Test func lastGroupCanStillBeReopenedIfItWasHintedEarlier() {
+        let model = makeModel()
+        solve(0, in: model)
+        solve(1, in: model)
+        model.revealHint()                  // hints group 2 (two groups left)
+        solve(3, in: model)                 // now only group 2 is left
+
+        #expect(model.nextHintGroupIndex == 2)
+        #expect(model.canUseHint)
+        #expect(model.revealHint())
+        #expect(model.hintsUsed == 1)       // still one hint, not two
+    }
+
+    @Test func noHintAfterGameOver() {
+        let model = makeModel()
+        for _ in 0..<4 { makeMistake(in: model) }
+
+        #expect(model.isGameOver)
+        #expect(model.nextHintGroupIndex == nil)
+        #expect(!model.canUseHint)
+        #expect(!model.revealHint())
+        #expect(model.hintsUsed == 0)
+    }
+
+    @Test func noHintAfterWinning() {
+        let model = makeModel()
+        for index in 0..<4 { solve(index, in: model) }
+
+        #expect(model.isWon)
+        #expect(model.nextHintGroupIndex == nil)
+        #expect(!model.canUseHint)
+        #expect(!model.revealHint())
+    }
+
+    // MARK: Auto-Solve Group
+
+    @Test func autoSolveNeedsAHintFirst() {
+        let model = makeModel()
+        #expect(model.autoSolveHintGroup() == nil)
+        #expect(model.solvedGroupIndices.isEmpty)
+        #expect(model.remainingWords.count == 16)
+    }
+
+    @Test func autoSolveSolvesTheHintedGroup() {
+        let model = makeModel()
+        model.revealHint()
+
+        #expect(model.autoSolveHintGroup() == .correct)
+        #expect(model.solvedGroupIndices == [0])
+        #expect(model.remainingWords.count == 12)
+        for word in TestPuzzle.groupWords[0] {
+            #expect(!model.remainingWords.contains(word))
+        }
+    }
+
+    @Test func autoSolveIsNotAMistake() {
+        let model = makeModel()
+        model.revealHint()
+        model.autoSolveHintGroup()
+        #expect(model.mistakes == 0)
+        #expect(model.remainingMistakes == 4)
+    }
+
+    @Test func autoSolveDoesNotAddAnotherHint() {
+        let model = makeModel()
+        model.revealHint()
+        model.autoSolveHintGroup()
+        #expect(model.hintsUsed == 1)
+    }
+
+    @Test func autoSolveClearsTheSelection() {
+        let model = makeModel()
+        select(["merienda", "siesta"], in: model)
+        model.revealHint()
+        model.autoSolveHintGroup()
+        #expect(model.selectedWords.isEmpty)
+    }
+
+    @Test func autoSolveClearsTheOneAwayFlag() {
+        let model = makeModel()
+        let g0 = TestPuzzle.groupWords[0]
+        select([g0[0], g0[1], g0[2], TestPuzzle.groupWords[1][0]], in: model)
+        model.submitGuess()
+        #expect(model.lastGuessWasOneAway)
+
+        model.revealHint()
+        model.autoSolveHintGroup()
+        #expect(!model.lastGuessWasOneAway)
+    }
+
+    @Test func autoSolveCantBeRepeatedWithoutANewHint() {
+        let model = makeModel()
+        model.revealHint()
+        #expect(model.autoSolveHintGroup() == .correct)
+        // The next group hasn't been hinted yet.
+        #expect(model.autoSolveHintGroup() == nil)
+        #expect(model.solvedGroupIndices == [0])
+    }
+
+    @Test func autoSolvingTheFinalGroupWins() {
+        let model = makeModel()
+        solve(0, in: model)
+        solve(1, in: model)
+        model.revealHint()                  // hints group 2
+        solve(3, in: model)                 // group 2 is the last one left
+
+        #expect(model.autoSolveHintGroup() == .won)
+        #expect(model.isWon)
+        #expect(model.isFinished)
+        #expect(model.remainingWords.isEmpty)
+    }
+
+    @Test func canSolveThreeGroupsWithHintsAndThenHintsRunOut() {
+        let model = makeModel()
+        for _ in 0..<3 {
+            #expect(model.revealHint())
+            #expect(model.autoSolveHintGroup() == .correct)
+        }
+
+        #expect(model.solvedGroupIndices == [0, 1, 2])
+        #expect(model.hintsUsed == 3)
+        #expect(!model.canUseHint)          // one group left
+        #expect(!model.revealHint())
+    }
+
+    @Test func hintsKeepTheMistakeCountOfEarlierGuesses() {
+        let model = makeModel()
+        makeMistake(in: model)
+        model.revealHint()
+        model.autoSolveHintGroup()
+        #expect(model.mistakes == 1)
+        #expect(model.solvedGroupIndices == [0])
+    }
+}
+
