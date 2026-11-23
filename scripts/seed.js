@@ -7,6 +7,7 @@
 //   can decode them as Date.
 // - Compares with what's already in Firestore and only writes changed docs.
 // - Never deletes anything; docs that aren't in the seed are reported and left alone.
+// - Keeps fields the app manages (APP_MANAGED, e.g. posts' likesCount) on docs that exist.
 //
 // Usage: node scripts/seed.js [--dry-run]
 // Needs firebase/serviceAccount.json (gitignored) and `npm install` in scripts/.
@@ -26,6 +27,10 @@ const ORDER = [
   "progress", "wordProgress", "dailyLog", "friends", "likes",
 ];
 const DRY_RUN = process.argv.includes("--dry-run");
+// Fields the app writes after seeding. For a doc that already exists, the
+// live value is kept, so re-seeding never undoes real activity (e.g. likes
+// from real users on demo posts). New docs still get the seed's value.
+const APP_MANAGED = { posts: ["likesCount"] };
 
 // Turns ISO strings in timestamp fields into Firestore Timestamps, recursively.
 function toFirestore(value, key) {
@@ -86,6 +91,11 @@ async function main() {
   const toWrite = [];
   docs.forEach((doc, i) => {
     const snap = existing[i];
+    if (snap.exists) {
+      for (const field of APP_MANAGED[doc.collection] ?? []) {
+        if (snap.get(field) !== undefined) doc.data[field] = snap.get(field);
+      }
+    }
     if (!snap.exists) summary[doc.collection].created++;
     else if (sameValue(snap.data(), doc.data)) { summary[doc.collection].unchanged++; return; }
     else summary[doc.collection].updated++;
