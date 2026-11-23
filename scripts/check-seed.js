@@ -176,6 +176,24 @@ for (const lesson of data.vocabLessons) {
   check(new Set(wordIds).size === wordIds.length, `vocabLessons/${lesson.id}: candidate words must be unique`);
 }
 
+// Word bank restructure: each word belongs to one daily deck only, so a deck
+// is all new words the first time a user plays that day.
+const deckOf = new Map();
+for (const lesson of data.vocabLessons) {
+  for (const wordId of lesson.newWordIds ?? []) {
+    const other = deckOf.get(wordId);
+    check(!other, `vocabLessons/${lesson.id}: ${wordId} is already in ${other}'s deck`);
+    if (!other) deckOf.set(wordId, lesson.id);
+  }
+}
+// Starter words stand in for a new user's all-time bank, so they must not
+// also be new words in a daily deck.
+for (const w of data.words.filter((w) => w.starter)) {
+  check(!deckOf.has(w.id), `words/${w.id}: starter words can't be in a daily deck (found in ${deckOf.get(w.id)})`);
+  check(w.level === "A1", `words/${w.id}: starter words should be level A1`);
+}
+check(data.words.filter((w) => w.starter).length >= 12, `words: need at least 12 starter words for new users' games`);
+
 function checkCrossword(cw, where) {
   const grid = cw.solution ?? [];
   const n = cw.size;
@@ -229,6 +247,9 @@ for (const p of data.dailyPuzzles) {
   check(wg.answer === wg.answer?.toUpperCase() && /^[A-ZÑ]+$/.test(wg.answer ?? ""), `${where}: Word Guess answer must be uppercase letters`);
   check(wg.length === wg.answer?.length, `${where}: wordGuess.length (${wg.length}) != answer length (${wg.answer?.length})`);
   check(data.words.some((w) => normalize(w.lemma) === wg.answer), `${where}: Word Guess answer ${wg.answer} has no matching word in words`);
+  const deckIds = data.vocabLessons.find((l) => l.id === p.id)?.newWordIds ?? [];
+  check(deckIds.some((id) => normalize(words.get(id)?.lemma ?? "") === wg.answer),
+    `${where}: Word Guess answer ${wg.answer} should be a word from that day's deck`);
 
   if (p.crossword) checkCrossword(p.crossword, `${where} crossword`);
 }

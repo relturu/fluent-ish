@@ -102,8 +102,11 @@ nonisolated enum ProgressTabRules {
 
     static let allCategory = "All"
 
-    /// The categories in seed/words.json, in the mockup's chip order.
-    static let knownCategories = ["Connector", "Café & Dining", "Daily Verb", "Culture & Idioms"]
+    /// The categories in seed/words.json: the mockup's chip order, then the
+    /// daily themes' topics in weekday order (Sun–Fri), then starter words.
+    static let knownCategories = ["Connector", "Café & Dining", "Daily Verb", "Culture & Idioms",
+                                  "Shopping", "Around Town", "Home", "Celebrations", "Work", "Free Time",
+                                  "Basics"]
 
     /// "All", then only the categories the user actually has words in, so a
     /// chip never leads to an empty list. Unknown categories go at the end.

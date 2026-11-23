@@ -37,7 +37,8 @@ struct LessonDeck: Equatable {
     func isReview(_ wordId: String) -> Bool { reviewIds.contains(wordId) }
 }
 
-/// One card in a finished vocab lesson.
+/// One answer about one word: a vocab lesson card, a game tile or answer,
+/// or an exercise item. Updates that word's wordProgress (all-time bank).
 struct VocabAnswer: Equatable {
     let wordId: String
     let correct: Bool
@@ -219,9 +220,20 @@ final class FirestoreService {
         return ids.compactMap { byId[$0] }
     }
 
+    /// Words almost everyone knows (hola, gracias…), marked `starter: true`.
+    /// They stand in for the all-time bank until a new user has one.
+    func starterWords(language: String) async throws -> [Word] {
+        try await db.collection("words")
+            .whereField("language", isEqualTo: language)
+            .whereField("starter", isEqualTo: true)
+            .getDocuments()
+            .documents.map { try $0.data(as: Word.self) }
+    }
+
     // MARK: Word progress
 
-    /// Review words due today (needs the language + nextReview index).
+    /// Review words due today (needs the language + nextReview index). No
+    /// longer used by the vocab deck; Skill Exercises review instead (Phase 3).
     func dueReviews(uid: String, language: String, today: String, limit: Int = 7) async throws -> [WordProgress] {
         try await db.collection("users/\(uid)/wordProgress")
             .whereField("language", isEqualTo: language)
@@ -239,41 +251,23 @@ final class FirestoreService {
             .documents.map { try $0.data(as: WordProgress.self) }
     }
 
-    /// Today's ten-word deck: prioritize up to 70% due reviews, then unseen
-    /// words. Previously seen lesson candidates fill any remaining slots.
-    func lessonDeck(uid: String, language: String, today: String, lesson: VocabLesson) async throws -> LessonDeck {
-        var candidates = lesson.newWordIds
-        if candidates.count < lesson.wordCount {
-            let snapshot = try await db.collection("vocabLessons")
-                .whereField("language", isEqualTo: language)
-                .getDocuments()
-            let otherCandidates = snapshot.documents
-                .filter { $0.documentID != (lesson.id ?? "") }
-                .sorted { ($0.get("date") as? String ?? "") < ($1.get("date") as? String ?? "") }
-                .flatMap { $0.get("newWordIds") as? [String] ?? [] }
-            var candidateSet = Set(candidates)
-            for id in otherCandidates where candidateSet.insert(id).inserted {
-                candidates.append(id)
-            }
-        }
-
-        // Ask for a few extra due words so they can fill in when new words run out.
-        let due = try await dueReviews(uid: uid, language: language, today: today, limit: lesson.wordCount)
+    /// Today's deck: the day's 10 themed words (ProgressRules.dailyDeck).
+    /// Only reads which of them are already in the user's word bank, so
+    /// those can show as review.
+    func lessonDeck(uid: String, language: String, lesson: VocabLesson) async throws -> LessonDeck {
         var seen: Set<String> = []
         let progressRef = db.collection("users/\(uid)/wordProgress")
-        for chunk in candidates.chunked(into: 30) {
+        for chunk in lesson.newWordIds.chunked(into: 30) {
             let snapshot = try await progressRef
                 .whereField(FieldPath.documentID(), in: chunk)
                 .getDocuments()
             seen.formUnion(snapshot.documents.map(\.documentID))
         }
-        let ids = ProgressRules.lessonWordIds(dueReviewIds: due.map(\.wordId), newWordIds: candidates,
-                                              alreadySeen: seen, wordCount: lesson.wordCount,
-                                              reviewRatio: lesson.reviewRatio)
-        guard ids.count == lesson.wordCount else {
-            throw FirestoreServiceError.insufficientLessonWords(required: lesson.wordCount, available: ids.count)
+        let deck = ProgressRules.dailyDeck(newWordIds: lesson.newWordIds, alreadySeen: seen)
+        guard deck.wordIds.count == lesson.wordCount else {
+            throw FirestoreServiceError.insufficientLessonWords(required: lesson.wordCount, available: deck.wordIds.count)
         }
-        return LessonDeck(wordIds: ids, reviewIds: (Set(due.map(\.wordId)).union(seen)).intersection(ids))
+        return deck
     }
 
     // MARK: Day logs
@@ -312,11 +306,15 @@ final class FirestoreService {
     /// Finish (or save part of) an activity: one transaction that updates
     /// today's log and, if XP was earned, progress (XP, weekly XP, streak,
     /// level). Saving an in-progress game earns 0 XP and only updates the log.
+    /// `words` are the right/wrong results for each word the activity used;
+    /// they update wordProgress in the same transaction. Only send results
+    /// once per finished activity, or they'd count twice.
     @discardableResult
     func record(_ activity: ProgressRules.Activity, minutes: Int, uid: String, language: String,
-                today: String = ProgressRules.dayKey()) async throws -> ActivityOutcome {
+                today: String = ProgressRules.dayKey(), words: [VocabAnswer] = []) async throws -> ActivityOutcome {
         try await Self.runTransaction(db: db, uid: uid, language: language, today: today,
-                                      activity: activity, minutes: minutes, answers: [])
+                                      activity: activity, minutes: minutes,
+                                      answers: ProgressRules.mergedAnswers(words))
     }
 
     /// Finish today's vocab lesson: the same transaction as `record`, plus a
@@ -326,7 +324,8 @@ final class FirestoreService {
                              today: String = ProgressRules.dayKey()) async throws -> ActivityOutcome {
         let score = answers.isEmpty ? 0 : Double(answers.filter(\.correct).count) / Double(answers.count)
         return try await Self.runTransaction(db: db, uid: uid, language: language, today: today,
-                                             activity: .vocab(score: score), minutes: minutes, answers: answers)
+                                             activity: .vocab(score: score), minutes: minutes,
+                                             answers: ProgressRules.mergedAnswers(answers))
     }
 
     /// Firestore calls the transaction block on a background thread, so this

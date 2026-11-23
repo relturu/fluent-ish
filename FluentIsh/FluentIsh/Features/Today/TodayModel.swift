@@ -38,7 +38,7 @@ final class TodayModel {
             async let puzzleDoc = service.dailyPuzzle(language: language, day: day)
             async let exerciseDocs = service.exercises(language: language)
             let lesson = try await lessonDoc
-            let deck = try await service.lessonDeck(uid: uid, language: language, today: today, lesson: lesson)
+            let deck = try await service.lessonDeck(uid: uid, language: language, lesson: lesson)
             let words = try await service.words(ids: deck.wordIds)
 
             self.lesson = lesson

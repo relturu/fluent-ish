@@ -11,7 +11,8 @@
 const TOP_LEVEL = ["users", "words", "vocabLessons", "dailyPuzzles", "exercises", "quests", "dailyPrompts", "posts", "leaderboardPeriods"];
 const SUBCOLLECTIONS = { progress: "users", wordProgress: "users", dailyLog: "users", friends: "users", likes: "posts" };
 
-const CATEGORIES = ["Connector", "Café & Dining", "Daily Verb", "Culture & Idioms"];
+const CATEGORIES = ["Connector", "Café & Dining", "Daily Verb", "Culture & Idioms",
+  "Shopping", "Around Town", "Home", "Celebrations", "Work", "Free Time", "Basics"];
 
 const GAME_RESULT = {
   status: "enum:notStarted|inProgress|completed", score: "number?", mistakes: "int?",
@@ -41,10 +42,10 @@ const SCHEMAS = {
   words: {
     language: "string", term: "string", lemma: "string", phonetic: "string", gender: "enum?:m|f", partOfSpeech: "string",
     definitionEn: "string", category: `enum:${CATEGORIES.join("|")}`, level: "string", example: "string?",
-    exampleEn: "string?", azure: { optional: true, translations: "string[]", fetchedAt: "timestamp" },
+    exampleEn: "string?", azure: { optional: true, translations: "string[]", fetchedAt: "timestamp" }, starter: "bool?",
   },
   vocabLessons: {
-    language: "string", date: "day", title: "string", wordCount: "int", reviewRatio: "number", newWordIds: "string[]",
+    language: "string", date: "day", title: "string", wordCount: "int", newWordIds: "string[]",
   },
   dailyPuzzles: {
     language: "string", date: "day",

@@ -138,5 +138,61 @@
         { "number": 3, "row": 0, "col": 4, "clue": "Ir de fiesta: ___ de noche", "answer": "SALIR" }
       ]
     }
+  },
+  {
+    "id": "es_2026-10-29",
+    "language": "es",
+    "date": "2026-10-29",
+    "connections": {
+      "groups": [
+        { "category": "En la oficina", "words": ["impresora", "escritorio", "carpeta", "bolígrafo"], "difficulty": 1 },
+        { "category": "En tu contrato", "words": ["sueldo", "horario", "jornada", "vacaciones"], "difficulty": 2 },
+        { "category": "Verbos del trabajo", "words": ["contratar", "despedir", "entregar", "renunciar"], "difficulty": 3 },
+        { "category": "Tener ___", "words": ["prisa", "éxito", "suerte", "razón"], "difficulty": 4 }
+      ]
+    },
+    "wordGuess": { "answer": "SUELDO", "length": 6, "definitionEn": "salary, pay" },
+    "crossword": {
+      "size": 5,
+      "solution": ["PLAZO", "A#V#C", "PRISA", "E#O#S", "LENTO"],
+      "cluesAcross": [
+          { "number": 1, "row": 0, "col": 0, "clue": "Fecha límite para entregar un trabajo", "answer": "PLAZO" },
+          { "number": 4, "row": 2, "col": 0, "clue": "La tienes cuando llegas tarde a una reunión", "answer": "PRISA" },
+          { "number": 5, "row": 4, "col": 0, "clue": "Lo contrario de rápido", "answer": "LENTO" }
+      ],
+      "cluesDown": [
+          { "number": 1, "row": 0, "col": 0, "clue": "Lo usa la impresora de la oficina", "answer": "PAPEL" },
+          { "number": 2, "row": 0, "col": 2, "clue": "Lo tomas para un viaje de negocios", "answer": "AVION" },
+          { "number": 3, "row": 0, "col": 4, "clue": "Cuando se pone el sol (sinónimo de atardecer)", "answer": "OCASO" }
+      ]
+    }
+  },
+  {
+    "id": "es_2026-10-30",
+    "language": "es",
+    "date": "2026-10-30",
+    "connections": {
+      "groups": [
+        { "category": "Planes de fin de semana", "words": ["cine", "playa", "museo", "concierto"], "difficulty": 1 },
+        { "category": "Cómo te sientes", "words": ["cansado", "relajado", "aburrido", "contento"], "difficulty": 2 },
+        { "category": "Verbos con -se", "words": ["relajarse", "quedarse", "acostarse", "levantarse"], "difficulty": 3 },
+        { "category": "Hacer ___", "words": ["deporte", "planes", "ejercicio", "una escapada"], "difficulty": 4 }
+      ]
+    },
+    "wordGuess": { "answer": "SIESTA", "length": 6, "definitionEn": "afternoon nap" },
+    "crossword": {
+      "size": 5,
+      "solution": ["NOCHE", "O#A#N", "TARDE", "A#N#R", "SUEÑO"],
+      "cluesAcross": [
+          { "number": 1, "row": 0, "col": 0, "clue": "El viernes por la ___ salimos a cenar", "answer": "NOCHE" },
+          { "number": 4, "row": 2, "col": 0, "clue": "Entre el mediodía y la noche", "answer": "TARDE" },
+          { "number": 5, "row": 4, "col": 0, "clue": "Tener ___: querer dormir", "answer": "SUEÑO" }
+      ],
+      "cluesDown": [
+          { "number": 1, "row": 0, "col": 0, "clue": "Las apuntas en una libreta para no olvidar nada", "answer": "NOTAS" },
+          { "number": 2, "row": 0, "col": 2, "clue": "Se pone en la parrilla en una barbacoa", "answer": "CARNE" },
+          { "number": 3, "row": 0, "col": 4, "clue": "El mes de los propósitos de Año Nuevo", "answer": "ENERO" }
+      ]
+    }
   }
 ]
