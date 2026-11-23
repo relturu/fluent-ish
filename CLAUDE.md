@@ -6,6 +6,13 @@ Fluent·ish is an iOS language-learning app with NYT-style games (SwiftUI + Fire
 
 If you're working on Azure Translator / API, see "Remaining Azure steps" in `docs/plan.md` and the Azure sections of `README.md`.
 
+If you're touching how words are picked (vocab deck, games, exercises, `wordProgress`), read "Word bank restructure" in `docs/plan.md` first. In short:
+- the daily theme is the same for everyone, and 7 seeded days loop by weekday
+- each daily deck has 10 words that appear in no other deck
+- games use ⅔ daily words and ⅓ words from the user's own bank (starter words for new users)
+- exercises are built from the least familiar words
+- every finished activity should send per-word results with `record(..., words:)`
+
 ## Ground rules
 - **This repo is PUBLIC.** Never commit `serviceAccount.json`, `GoogleService-Info.plist`, `.env`, `Secrets.xcconfig` or any API key. Run `git status` before committing. A playground containing a real Azure key goes on Canvas, not GitHub.
 - Don't rename fields or collections without updating `docs/plan.md` and the Swift models in the same change.

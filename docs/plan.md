@@ -143,7 +143,16 @@ How words are picked across the app. There are two word banks:
   - Tests are in `WordBankTests`. DEBUG `-smokeWrite YES` also records a right answer for `w_hola` and checks that it reaches the word bank.
   - **Not wired into screens yet:** each game and exercise starts sending `words:` when it's reworked in Phases 3–4.
 - [x] 2. Daily deck = the day's 10 themed words, the same for everyone (`ProgressRules.dailyDeck`, tests in `DailyDeckTests`). There's no review mix any more; reviewing moves to exercises (Phase 3). Deck words the user has seen before (the same weekday last week) still show the aqua "Review" chip. `lessonDeck(uid:language:lesson:)` no longer takes `today`. `reviewRatio` is removed from `VocabLesson`, `schemas.js` and the seed. `dueReviews` stays for Phase 3. **Seed only after this branch is merged:** the app on `main` still expects `reviewRatio`, so Today would fail to load for teammates.
-- [ ] 3. Exercises generated from the least familiar words (Definition Match from `term`/`definitionEn`, Fill in the Blank from `example`, Sentence Builder from `example`). The `exercises` collection stays as a backup.
+- [x] 3. Exercises built from the least familiar words: `Services/ExerciseBuilder.swift`, with tests in `ExerciseBuilderTests.swift`.
+  - **Where the words come from:** `TodayModel` ranks the user's `wordProgress` with `leastFamiliarFirst`, then adds starter words, and builds all 9 exercises (3 types × easy/medium/hard).
+  - **Definition Match:** `term` ↔ `definitionEn`.
+  - **Fill in the Blank:** the word is blanked out of its `example`, with `exampleEn` as the English line. Words that only appear conjugated in their example are skipped. Wrong choices use the same part of speech, and the same gender for nouns.
+  - **Sentence Builder:** build `example` from shuffled tiles. Hard adds 2 decoy tiles.
+  - **Size by difficulty:** easy/medium/hard have 3/4/5 items (Definition Match: 4/5/6 pairs). Fill in the Blank has 3 choices on easy and 4 otherwise. Sentence Builder sentences are at most 6/8/any words.
+  - **Same all day:** shuffles are seeded by day, type and difficulty.
+  - **IDs:** `gen_{type}_{difficulty}` (e.g. `gen_fillBlank_easy`); these go into `dailyLog.exercisesCompleted`.
+  - **Word bank:** `ExerciseView` sends each item's first-try result through `record(..., words:)`. Hinted items count as wrong. Definition Match now reports per pair.
+  - **Fallback:** if building fails or too few words fit, Today shows the seeded `exercises`.
 - [ ] 4. Games mix ⅔ daily / ⅓ all-time: Word Guess answer picked from the mix; Connections uses 2–3 themed groups plus groups from a library matched to the user's bank (every tile needs a `words` doc); Crossword stays handwritten.
 
 Touches teammates' screens (vocab lesson: Sean, Connections: Jessica, Word Guess: Sai). Tell them before merging.

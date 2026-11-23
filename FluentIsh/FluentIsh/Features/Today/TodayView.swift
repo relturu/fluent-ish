@@ -51,11 +51,13 @@ struct TodayView: View {
             }
         }
         .navigationDestination(for: TodayRoute.self) {
-            TodayDestination(route: $0, puzzle: model.puzzle, exercises: model.exercises,
+            TodayDestination(route: $0, puzzle: model.puzzle, exercises: model.allExercises,
+                             exerciseWordIds: model.wordIds(forExercise:),
                              deck: model.deck, lessonTitle: model.lesson?.title ?? "Today's Words")
         }
         .navigationDestination(item: $pushed) {
-            TodayDestination(route: $0, puzzle: model.puzzle, exercises: model.exercises,
+            TodayDestination(route: $0, puzzle: model.puzzle, exercises: model.allExercises,
+                             exerciseWordIds: model.wordIds(forExercise:),
                              deck: model.deck, lessonTitle: model.lesson?.title ?? "Today's Words")
         }
         .sheet(item: $info) { content in
@@ -368,6 +370,8 @@ struct TodayDestination: View {
     let route: TodayRoute
     let puzzle: DailyPuzzle?
     var exercises: [Exercise] = []
+    /// The word behind each item of a built exercise, to update the word bank.
+    var exerciseWordIds: (String) -> [String] = { _ in [] }
     var deck: [TodayModel.DeckWord] = []
     var lessonTitle = "Today's Words"
 
@@ -402,7 +406,7 @@ struct TodayDestination: View {
             }
         case .exercise(let id):
             if let exercise = exercises.first(where: { $0.id == id }), !exercise.items.isEmpty {
-                ExerciseView(exercise: exercise)
+                ExerciseView(exercise: exercise, wordIds: exerciseWordIds(id))
             } else {
                 FillerScreen(title: "Skill Exercise", owner: "Arielle", mood: .proud,
                              summary: "Fill in the Blank, Sentence Builder and Definition Match, from the exercises collection. Finishing calls record(.exercise(id:)).") {

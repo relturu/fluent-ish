@@ -2,9 +2,10 @@
 //  ExerciseView.swift
 //  FluentIsh
 //
-//  One Skill Exercise from the `exercises` collection, opened from Today's
-//  Skill Exercises rows. It plays the items one by one, then saves with
-//  `appState.record(.exercise(id:))` and shows the recap.
+//  One Skill Exercise, opened from Today's Skill Exercises rows: built from
+//  the user's least familiar words (ExerciseBuilder), or a seeded one from
+//  the `exercises` collection. It plays the items one by one, then saves
+//  with `appState.record(.exercise(id:), words:)` and shows the recap.
 //
 //  Design: design/ai-studio/src/pages/GamesAndExercises.tsx lines 1107–1553,
 //  docs/design_screenshots/fill-blank-playing.png. plan.md overrides the
@@ -19,11 +20,16 @@ import SwiftUI
 
 struct ExerciseView: View {
     let exercise: Exercise
+    /// The word behind each item (built exercises only). Each item's
+    /// first-try result updates that word in the user's word bank.
+    var wordIds: [String] = []
 
     @Environment(AppState.self) private var appState
 
     @State private var index = 0
-    @State private var firstTryCorrect = 0
+    /// First-try result per item, in item order (a hinted item is false).
+    @State private var results: [Bool] = []
+    private var firstTryCorrect: Int { results.filter { $0 }.count }
     @State private var hintsUsed = 0
     /// Bumped by the header's "?" button; the item view reacts to it.
     @State private var hintRequest = 0
@@ -100,15 +106,15 @@ struct ExerciseView: View {
                                     isLast: isLastScreen, hintRequest: hintRequest, onDone: advance)
                 .id(index)
         default:
-            DefinitionMatchView(items: exercise.items, hintRequest: hintRequest) { firstTryPairs in
-                firstTryCorrect = firstTryPairs
+            DefinitionMatchView(items: exercise.items, hintRequest: hintRequest) { firstTries in
+                results = firstTries
                 finish()
             }
         }
     }
 
     private func advance(firstTry: Bool) {
-        if firstTry { firstTryCorrect += 1 }
+        results.append(firstTry)
         if isLastScreen {
             finish()
         } else {
@@ -125,9 +131,10 @@ struct ExerciseView: View {
         }
         phase = .saving
         let minutes = ExerciseRules.minutes(from: startedAt, to: Date())
+        let words = ExerciseRules.wordAnswers(wordIds: wordIds, results: results)
         Task {
             do {
-                let outcome = try await appState.record(.exercise(id: id), minutes: minutes)
+                let outcome = try await appState.record(.exercise(id: id), minutes: minutes, words: words)
                 Haptics.success()
                 celebration = outcome.xpAwarded > 0 ? "+\(outcome.xpAwarded) XP!" : "¡Bien hecho!"
                 phase = .done(outcome)
@@ -156,15 +163,15 @@ struct ExerciseView: View {
         case "fillBlank":
             ["Read the sentence and its English meaning.",
              "Tap the Spanish word that fills the blank.",
-             "Wrong? Try again. Stuck? Tap ! to see the answer (free)."]
+             "Wrong? Try again. Stuck? Tap ? to see the answer (free)."]
         case "sentenceBuilder":
             ["Read the English sentence.",
              "Tap the Spanish words in order. Tap a placed word to send it back.",
-             "Tap Check. Stuck? Tap ! to place the next word (free)."]
+             "Tap Check. Stuck? Tap ? to place the next word (free)."]
         default:
             ["Tap a Spanish word on the left, then its English meaning on the right.",
              "Matched pairs fade out. Match them all to finish.",
-             "Stuck? Tap ! to match the next pair (free)."]
+             "Stuck? Tap ? to match the next pair (free)."]
         }
     }
 }
