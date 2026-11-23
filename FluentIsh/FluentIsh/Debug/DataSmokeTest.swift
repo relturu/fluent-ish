@@ -151,9 +151,9 @@ enum DataSmokeTest {
             return contentDay == today ? "today's own content" : "using seeded day \(contentDay)"
         }
         if let contentDay {
-            await check("Today's lesson + 70/30 deck") {
+            await check("Today's lesson + daily deck") {
                 let lesson = try await service.vocabLesson(language: "es", day: contentDay)
-                let deck = try await service.lessonDeck(uid: uid, language: "es", today: today, lesson: lesson)
+                let deck = try await service.lessonDeck(uid: uid, language: "es", lesson: lesson)
                 let words = try await service.words(ids: deck.wordIds)
                 return "\(lesson.title): \(words.count) cards: " + words.map(\.term).joined(separator: ", ")
             }
@@ -168,12 +168,29 @@ enum DataSmokeTest {
             return "\(logs.count) days, newest \(logs.first?.date ?? "-")"
         }
 
+        await check("Starter words") {
+            let starters = try await service.starterWords(language: "es")
+            guard !starters.isEmpty else { throw smokeError("no words with starter: true (re-run seed.js)") }
+            return "\(starters.count) words, e.g. \(starters.prefix(3).map(\.term).joined(separator: ", "))"
+        }
+
         // MARK: Write check, opt-in: launch with `-smokeWrite YES`
         // Records a fake exercise "smoke_test" twice. The first earns 10 XP
         // and starts today's streak; the second must earn 0 (no farming).
+        // The first also sends a right answer for "hola", which must show up
+        // in the user's word bank (wordProgress) with one more timesSeen.
         if UserDefaults.standard.bool(forKey: "smokeWrite") {
             await check("Record activity (transaction)") {
-                let first = try await service.record(.exercise(id: "smoke_test"), minutes: 1, uid: uid, language: "es")
+                let before = try await service.allWordProgress(uid: uid, language: "es")
+                    .first { $0.wordId == "w_hola" }?.timesSeen ?? 0
+                let first = try await service.record(.exercise(id: "smoke_test"), minutes: 1, uid: uid, language: "es",
+                                                     words: [VocabAnswer(wordId: "w_hola", correct: true)])
+                let after = try await service.allWordProgress(uid: uid, language: "es")
+                    .first { $0.wordId == "w_hola" }
+                guard let after, after.timesSeen == before + 1 else {
+                    throw smokeError("w_hola timesSeen should be \(before + 1), got \(after?.timesSeen ?? 0)")
+                }
+                print("🧪   word bank: w_hola seen \(after.timesSeen)×, \(after.timesCorrect) correct, \(after.status.rawValue)")
                 let second = try await service.record(.exercise(id: "smoke_test"), minutes: 0, uid: uid, language: "es")
                 guard second.xpAwarded == 0 else { throw smokeError("replay earned \(second.xpAwarded) XP") }
                 return "+\(first.xpAwarded) XP then +0 on replay; streak \(second.progress.currentStreak), "

@@ -57,7 +57,7 @@ The UI is rebuilt in SwiftUI from the Google AI Studio prototype (React/Vite, ke
 - **Same Firestore schema as above.** The AI Studio handoff proposed `users/{uid}/stats/current`, `game_sessions` and `user_vocab`. We are **not** adopting those. The UI maps onto `progress/{lang}`, `dailyLog`, `wordProgress` and the content collections.
 - **Levels are CEFR**, using the floors in "Defaults to implement". Where the mockup says "Lv.1" or "1,470 / 1,500", the app shows e.g. "B1" and "1,245 / 1,500 XP → B2".
 - **XP, scoring and streak follow "Defaults to implement"**, not the prototype's numbers (it used +30/+40 XP and a level every 1,500 XP).
-- **Content date fallback.** If `{lang}_{today}` doesn't exist, the app rotates through the seeded days by day number, so Today always has content. This is a code-only change; seeding more days is optional.
+- **Content date fallback.** If `{lang}_{today}` doesn't exist, the app uses the seeded day with the same weekday, so a 7-day seed loops weekly (changed Nov 22, see "Word bank restructure"). If no seeded day has today's weekday, it rotates through the seeded days by day number, so Today always has content.
 - **Today game cards match the mockup**, including the (i) info buttons and mini preview grids. The grids show real progress.
 - **Onboarding** writes `users/{uid}`, `progress/es`, and `friends/{u_maya,u_lucas,u_elena}`, so a new anonymous user has a leaderboard and a feed.
 - **The mascot is "Churro el Ajolote"** (the prototype also calls it "Lumi" in places).
@@ -120,6 +120,33 @@ User testing of V1 is due **Nov 16**. Break: Nov 25–29. Items marked _(added N
 | Dec 3 | Stretch: adding friends, achievement posts, reporting posts _(added Nov 9)_ | Sean | Adding friends needs a rules change (see "Security rules") |
 | Dec 3 | Stretch: Word Guess real-word check _(added Nov 9)_ | Jessica | Bundle a word list in the app |
 | Dec 3 | Usability tests of the new features, manual testing, submission | Everyone | |
+
+### Word bank restructure (started Nov 22, 2026, Arielle)
+How words are picked across the app. There are two word banks:
+- **All-time bank:** every word the user has come across, i.e. their `wordProgress` docs. Every activity (lesson, games, exercises) updates it with right/wrong results, which drives a familiarity ranking.
+- **Daily bank:** the day's `vocabLessons` doc: 10 words on one theme (`title`, e.g. "¡A Celebrar!").
+
+**Decisions (Nov 22):**
+- **The daily theme is the same for everyone**, by date. Games can differ slightly between users, because part of each game comes from the user's own all-time bank.
+- **7 seeded days that loop weekly.** Today uses the seeded day with the same weekday (Monday Nov 23 = Monday Oct 26). Seeded days are Sat Oct 24 to Wed Oct 28; Thu Oct 29 and Fri Oct 30 still need content (lesson, puzzle, prompt). A word appears in only one daily deck.
+- Because of the loop, a deck is all new words only in a user's first week. After that it acts as review. That's fine for the demo.
+- **Today's Games:** about ⅔ of the words from the daily deck and ⅓ from the user's all-time bank. New users get **starter words** instead (hola, gracias, amigo…; `starter: true` on `words`).
+- **Skill Exercises:** built from the all-time bank, least familiar words first.
+
+**Phases** (each one is tested before the next):
+- [x] 0. Weekly loop: `ProgressRules.contentDay` matches by weekday (tests in `ContentDayTests`).
+- [x] 0b. All 7 decks rebuilt with 10 words each that appear in no other deck (70 deck words, 83 words in total). Added Thu Oct 29 "En el Trabajo" and Fri Oct 30 "¡Por Fin Viernes!" (lesson, puzzle, prompt). Each Word Guess answer is a word from that day's deck. New word categories, one per theme: Shopping, Around Town, Home, Celebrations, Work, Free Time (in `schemas.js` and `ProgressTabRules.knownCategories`). Verbs stay "Daily Verb" and expressions stay "Culture & Idioms". `check-seed.js` now fails if a word is in two decks or a Word Guess answer isn't from that day's deck. Old words that left the decks (taza, además…) are kept, because demo progress and exercises still use them.
+- [x] 1. Word tracking plumbing:
+  - `record(_:minutes:words:)` (FirestoreService and AppState) takes per-word results (`[VocabAnswer]`) and updates `wordProgress` in the same transaction as XP. `ProgressRules.mergedAnswers` keeps one answer per word: a word is correct only if every answer about it was. Send results once, when an activity finishes.
+  - `ProgressRules.leastFamiliarFirst` orders the bank: due words first, then lower status, lower accuracy, seen fewer times, longest since last review, then word ID.
+  - 24 starter words (`starter: true`, category "Basics", A1) and `FirestoreService.starterWords`. `check-seed.js` keeps starter words out of the daily decks.
+  - Tests are in `WordBankTests`. DEBUG `-smokeWrite YES` also records a right answer for `w_hola` and checks that it reaches the word bank.
+  - **Not wired into screens yet:** each game and exercise starts sending `words:` when it's reworked in Phases 3–4.
+- [x] 2. Daily deck = the day's 10 themed words, the same for everyone (`ProgressRules.dailyDeck`, tests in `DailyDeckTests`). There's no review mix any more; reviewing moves to exercises (Phase 3). Deck words the user has seen before (the same weekday last week) still show the aqua "Review" chip. `lessonDeck(uid:language:lesson:)` no longer takes `today`. `reviewRatio` is removed from `VocabLesson`, `schemas.js` and the seed. `dueReviews` stays for Phase 3. **Seed only after this branch is merged:** the app on `main` still expects `reviewRatio`, so Today would fail to load for teammates.
+- [ ] 3. Exercises generated from the least familiar words (Definition Match from `term`/`definitionEn`, Fill in the Blank from `example`, Sentence Builder from `example`). The `exercises` collection stays as a backup.
+- [ ] 4. Games mix ⅔ daily / ⅓ all-time: Word Guess answer picked from the mix; Connections uses 2–3 themed groups plus groups from a library matched to the user's bank (every tile needs a `words` doc); Crossword stays handwritten.
+
+Touches teammates' screens (vocab lesson: Sean, Connections: Jessica, Word Guess: Sai). Tell them before merging.
 
 **Ideas, not scheduled:** speech-to-text pronunciation practice (Speech framework + microphone permission); server-side XP checks with Cloud Functions.
 
@@ -209,7 +236,7 @@ The design has a `users` collection with 4 subcollections, plus 8 top-level cont
 |---|---|---|
 | `users` | auth uid | Greeting, Settings profile, Preferences, Daily Goal target |
 | `users/{uid}/progress` | language code (`es`) | Level, total XP, weekly XP, streak, Player Stats, leaderboard rank |
-| `users/{uid}/wordProgress` | word ID | 70/30 split, words learned, recall %, Word Log mastery |
+| `users/{uid}/wordProgress` | word ID | All-time word bank: review chips, words learned, recall %, Word Log mastery, least-familiar exercises |
 | `users/{uid}/dailyLog` | `es_2026-10-24` | Daily Goal minutes ring, Today's Games 0/3 status, Recent Activity, Quest Path days |
 | `users/{uid}/friends` | friend's uid | Friends leaderboard, Friend Highlights feed |
 | `words` | slug, e.g. `w_sobremesa` | Word Log, vocab lesson cards, Definition Match |
@@ -311,7 +338,6 @@ The design has a `users` collection with 4 subcollections, plus 8 top-level cont
   "date": "2026-10-24",
   "title": "La Sobremesa",
   "wordCount": 10,
-  "reviewRatio": 0.7,
   "newWordIds": ["w_sobremesa", "w_cortado", "w_merienda", "w_charlar", "w_compartir", "w_invitar", "w_taza", "w_cuenta", "w_propina", "w_brindis"]
 }
 
@@ -406,7 +432,7 @@ For the rubric's JSON document, remove the `//` comments, since real JSON doesn'
 ## Key queries
 
 - **Today screen:** read `vocabLessons/es_{today}`, `dailyPuzzles/es_{today}`, `users/{uid}/dailyLog/es_{today}`, and `users/{uid}/progress/es`.
-- **Review words for the 70/30 split:** query `wordProgress` where `language == "es"` and `nextReview <= today`, limited to 7. This needs a composite index on language + nextReview.
+- **Due review words:** query `wordProgress` where `language == "es"` and `nextReview <= today`. This needs a composite index on language + nextReview. Since Nov 22 the vocab deck no longer uses it; Skill Exercises will (word bank restructure, Phase 3).
 - **Global leaderboard:** run a collection-group query on `progress` where `language == "es"` and `weekId == "2026-W43"`, ordered by `weeklyXP` descending. This needs a composite index. When a user earns XP and their `weekId` isn't the current week, the app first resets `weeklyXP` to 0 and updates `weekId`.
 - **Friends leaderboard:** read the uids in `users/{uid}/friends`, then fetch `users/{friendId}/progress/es` for each friend.
 - **Friend Highlights:** query `posts` where `authorId in [friend uids]`, ordered by `createdAt` descending. An `in` filter accepts up to 30 values, so split larger friend lists into batches.
@@ -524,6 +550,7 @@ struct Word: Codable, Identifiable {
     var example: String?
     var exampleEn: String?
     var azure: AzureCache?
+    var starter: Bool? = nil          // true = a word almost everyone knows (hola, gracias), for new users
 }
 
 struct VocabLesson: Codable, Identifiable {
@@ -532,8 +559,7 @@ struct VocabLesson: Codable, Identifiable {
     var date: String
     var title: String
     var wordCount: Int
-    var reviewRatio: Double
-    var newWordIds: [String]             // Today's curated candidate pool (10 words)
+    var newWordIds: [String]             // The day's 10 themed words; each word is in one deck only
 }
 
 struct ConnectionsGroup: Codable {
@@ -669,7 +695,7 @@ Defaults for streaks, levels, review intervals and scoring are set in the Claude
 - **Puzzle content itself.** Someone has to write a Connections set, a Word Guess answer and a crossword grid with clues for every day and every language. Seed about 5 days per game for the demo.
 - **Word Guess validation.** Checking whether a guess is a real word needs a word list per language. Bundle it in the app rather than storing it in Firestore.
 - **Skill exercise content.** The boxes map the exercise title and difficulty, but not the actual questions, answers and choices inside each exercise.
-- **Word categories.** The filter chips (Connector, Café & Dining, Daily Verb, Culture & Idioms) need a `category` field on each word and a fixed list of categories.
+- **Word categories.** The filter chips (Connector, Café & Dining, Daily Verb, Culture & Idioms, plus one topic per daily theme since Nov 22: Shopping, Around Town, Home, Celebrations, Work, Free Time) need a `category` field on each word and a fixed list of categories.
 - **Quest Path state.** Map where each day's tier color (L1/L2/L3/Mastered) comes from. This plan derives it from `dailyLog`, plus quest definitions in `quests`.
 - **Mascot speech bubbles.** "¡Un cafecito y a jugar!" and Churro's quest message aren't mapped. Store them in content documents or hardcode a rotating list.
 - **Adding friends.** There's no screen for finding or adding friends, accepting requests, or showing usernames (@maya). Add it to V2 if it's out of scope for V1.
@@ -918,7 +944,7 @@ These are reasonable starting values so building isn't blocked. The team can cha
 | Word status | Seen once → learning; 3 correct → familiar; 6 correct → mastered; a wrong answer drops one status |
 | Review interval | learning 1 day · familiar 3 days · mastered 7 days |
 | Words learned | Count of words that are familiar or mastered |
-| 70/30 lesson | Up to 7 due reviews plus unseen words from the day's 10 curated `newWordIds`; previously seen candidates fill any remaining slots |
+| Daily deck | The day's 10 themed `newWordIds`, the same for everyone; no review mix (changed Nov 22, was 70/30). Words seen before show as review |
 | XP | Vocab lesson 30 · each game 30 × score · each exercise 10 · each hint −5 |
 | Connections score | `max(0, 1 − mistakes ÷ 4)` |
 | Word Guess score | `(7 − guesses used) ÷ 6`, with 6 guesses allowed |

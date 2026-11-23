@@ -199,38 +199,109 @@ struct WordStatusTests {
     }
 }
 
-struct LessonMixTests {
-    let new = ["n1", "n2", "n3"]
-    let due = (1...10).map { "r\($0)" }
+struct DailyDeckTests {
+    let themed = (1...10).map { "w\($0)" }
 
-    @Test func sevenReviewsPlusThreeNew() {
-        let ids = ProgressRules.lessonWordIds(dueReviewIds: due, newWordIds: new, alreadySeen: [])
-        #expect(ids == Array(due.prefix(7)) + new)
+    @Test func deckIsExactlyTheDaysTenWordsInOrder() {
+        let deck = ProgressRules.dailyDeck(newWordIds: themed, alreadySeen: [])
+        #expect(deck.wordIds == themed)
+        #expect(deck.reviewIds.isEmpty)
     }
 
-    @Test func fewDueAreFilledWithNew() {
-        let ids = ProgressRules.lessonWordIds(dueReviewIds: ["r1", "r2"], newWordIds: new, alreadySeen: [])
-        #expect(ids == ["r1", "r2", "n1", "n2", "n3"])
+    @Test func otherKnownWordsAreNotMixedIn() {
+        // Words from other days in the user's bank stay out of today's deck.
+        let deck = ProgressRules.dailyDeck(newWordIds: themed, alreadySeen: ["r1", "r2", "r3"])
+        #expect(deck.wordIds == themed)
+        #expect(deck.reviewIds.isEmpty)
     }
 
-    @Test func seenNewWordsAreSkippedAndReviewsFillIn() {
-        // The seeded days repeat, so "new" words come back already known.
-        let ids = ProgressRules.lessonWordIds(dueReviewIds: due, newWordIds: new, alreadySeen: ["n1", "n2"])
-        #expect(ids == Array(due.prefix(7)) + ["n3", "r8", "r9"])
+    @Test func wordsSeenLastWeekShowAsReview() {
+        // The 7 seeded days loop weekly, so a deck can come back already known.
+        let deck = ProgressRules.dailyDeck(newWordIds: themed, alreadySeen: ["w2", "w5", "other"])
+        #expect(deck.wordIds == themed)
+        #expect(deck.reviewIds == ["w2", "w5"])
+        #expect(deck.isReview("w2") && !deck.isReview("w1"))
     }
 
-    @Test func noDuplicates() {
-        let ids = ProgressRules.lessonWordIds(dueReviewIds: ["n1", "r1"], newWordIds: new, alreadySeen: [])
-        #expect(Set(ids).count == ids.count)
+    @Test func duplicateIdsAppearOnce() {
+        let deck = ProgressRules.dailyDeck(newWordIds: ["a", "b", "a"], alreadySeen: [])
+        #expect(deck.wordIds == ["a", "b"])
+    }
+}
+
+struct WordBankTests {
+    let today = "2026-11-22"
+
+    func word(_ id: String, _ status: WordStatus = .learning, seen: Int = 2, correct: Int = 1,
+              next: String = "2026-11-25", last: Date? = Date(timeIntervalSince1970: 1_000)) -> WordProgress {
+        WordProgress(wordId: id, language: "es", status: status, timesSeen: seen, timesCorrect: correct,
+                     lastReviewed: last, nextReview: next)
     }
 
-    @Test func fillsTenWordsFromKnownLessonWordsWhenNeeded() {
-        let candidates = (1...10).map { "w\($0)" }
-        let seen = Set(candidates.dropFirst(3))
-        let ids = ProgressRules.lessonWordIds(dueReviewIds: ["r1", "r2", "r3", "r4"],
-                                              newWordIds: candidates, alreadySeen: seen)
-        #expect(ids.count == 10)
-        #expect(ids == ["r1", "r2", "r3", "r4", "w1", "w2", "w3", "w4", "w5", "w6"])
+    // MARK: Merging answers
+
+    @Test func oneAnswerPerWordInFirstOrder() {
+        let merged = ProgressRules.mergedAnswers([
+            VocabAnswer(wordId: "a", correct: true), VocabAnswer(wordId: "b", correct: true),
+            VocabAnswer(wordId: "a", correct: true),
+        ])
+        #expect(merged == [VocabAnswer(wordId: "a", correct: true), VocabAnswer(wordId: "b", correct: true)])
+    }
+
+    @Test func anyWrongAnswerMakesTheWordWrong() {
+        let merged = ProgressRules.mergedAnswers([
+            VocabAnswer(wordId: "a", correct: false), VocabAnswer(wordId: "a", correct: true),
+        ])
+        #expect(merged == [VocabAnswer(wordId: "a", correct: false)])
+    }
+
+    @Test func aGameAnswerAddsAWordToTheBank() {
+        // A starter word the user has never seen gets its first wordProgress.
+        let added = ProgressRules.reviewed(nil, wordId: "w_hola", language: "es", correct: true, today: today)
+        #expect(added.timesSeen == 1 && added.timesCorrect == 1 && added.status == .learning)
+        #expect(added.nextReview == "2026-11-23")
+    }
+
+    // MARK: Least familiar first
+
+    @Test func dueWordsComeFirst() {
+        let due = word("due", .mastered, seen: 9, correct: 9, next: today)
+        let notDue = word("notDue", .learning, seen: 1, correct: 0)
+        #expect(ProgressRules.leastFamiliarFirst([notDue, due], today: today).map(\.wordId) == ["due", "notDue"])
+    }
+
+    @Test func lowerStatusComesFirst() {
+        let ranked = ProgressRules.leastFamiliarFirst(
+            [word("m", .mastered, seen: 6, correct: 6), word("l", .learning), word("f", .familiar, seen: 4, correct: 3)],
+            today: today)
+        #expect(ranked.map(\.wordId) == ["l", "f", "m"])
+    }
+
+    @Test func lowerAccuracyComesFirst() {
+        let ranked = ProgressRules.leastFamiliarFirst(
+            [word("good", seen: 4, correct: 2), word("bad", seen: 4, correct: 0)], today: today)
+        #expect(ranked.map(\.wordId) == ["bad", "good"])
+    }
+
+    @Test func seenLessComesFirstAtTheSameAccuracy() {
+        let ranked = ProgressRules.leastFamiliarFirst(
+            [word("often", seen: 4, correct: 2), word("rarely", seen: 2, correct: 1)], today: today)
+        #expect(ranked.map(\.wordId) == ["rarely", "often"])
+    }
+
+    @Test func longestSinceReviewedComesFirst() {
+        let ranked = ProgressRules.leastFamiliarFirst(
+            [word("recent", last: Date(timeIntervalSince1970: 5_000)),
+             word("old", last: Date(timeIntervalSince1970: 10)),
+             word("never", last: nil)], today: today)
+        #expect(ranked.map(\.wordId) == ["never", "old", "recent"])
+    }
+
+    @Test func sameOrderWhateverTheInputOrder() {
+        let words = [word("b"), word("a"), word("c")]
+        let one = ProgressRules.leastFamiliarFirst(words, today: today).map(\.wordId)
+        let two = ProgressRules.leastFamiliarFirst(words.reversed(), today: today).map(\.wordId)
+        #expect(one == ["a", "b", "c"] && one == two)
     }
 }
 
@@ -246,6 +317,25 @@ struct ContentDayTests {
         let days = ["2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08"]
             .compactMap { ProgressRules.contentDay(today: $0, available: seeded, calendar: ny) }
         #expect(Set(days) == Set(seeded))
+    }
+
+    @Test func loopsWeeklyBySameWeekday() {
+        // Oct 24, 2026 is a Saturday, so the seed covers Sat–Wed.
+        #expect(ProgressRules.contentDay(today: "2026-11-23", available: seeded, calendar: ny) == "2026-10-26")  // Mon
+        #expect(ProgressRules.contentDay(today: "2026-11-22", available: seeded, calendar: ny) == "2026-10-25")  // Sun
+        #expect(ProgressRules.contentDay(today: "2026-11-30", available: seeded, calendar: ny) == "2026-10-26")  // next Mon
+    }
+
+    @Test func fullWeekAlwaysMatchesWeekday() {
+        let week = seeded + ["2026-10-29", "2026-10-30"]                                 // + Thu, Fri
+        #expect(ProgressRules.contentDay(today: "2026-11-26", available: week, calendar: ny) == "2026-10-29")    // Thu
+        #expect(ProgressRules.contentDay(today: "2026-11-27", available: week, calendar: ny) == "2026-10-30")    // Fri
+    }
+
+    @Test func missingWeekdayStillGetsContent() {
+        // Thursday has no seeded day yet: fall back to a seeded day, not nil.
+        let day = ProgressRules.contentDay(today: "2026-11-26", available: seeded, calendar: ny)
+        #expect(day.map(seeded.contains) == true)
     }
 
     @Test func sameDaySameContent() {

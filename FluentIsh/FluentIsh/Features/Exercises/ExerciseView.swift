@@ -25,7 +25,7 @@ struct ExerciseView: View {
     @State private var index = 0
     @State private var firstTryCorrect = 0
     @State private var hintsUsed = 0
-    /// Bumped by the header's "!" button; the item view reacts to it.
+    /// Bumped by the header's "?" button; the item view reacts to it.
     @State private var hintRequest = 0
     @State private var showHowTo = false
     @State private var startedAt = Date()

@@ -128,13 +128,13 @@ try await appState.service.completeVocabLesson(answers, minutes: minutesSpent,
 |---|---|
 | Which seeded day to show today | `service.contentDay(language:today:)`. It rotates through the seeded days, so add a week of puzzles in `firebase/seed/` and they're used automatically |
 | Today's puzzles / lesson / prompt | `service.dailyPuzzle(language:day:)`, `vocabLesson`, `dailyPrompt` |
-| The 70/30 deck | `service.lessonDeck(uid:language:today:lesson:)`, then `service.words(ids:)` |
+| Today's deck (the day's 10 themed words) | `service.lessonDeck(uid:language:lesson:)`, then `service.words(ids:)` |
 | Exercises | `service.exercises(language:)` |
 | Last 28 days of logs | `service.recentLogs(uid:language:today:)` |
 | Every word seen | `service.allWordProgress(uid:language:)` |
 
 `Features/Today/TodayModel.swift` is a working example of loading all of this.
-Each seeded lesson provides ten curated candidate IDs; `words` records provide the IPA transcription, definitions and example pairs used by the lesson. Re-run `node scripts/seed.js` with the private service account to update Firestore after changing the seed data.
+Each seeded lesson provides the day's ten themed word IDs (each word is in one deck only); `words` records provide the IPA transcription, definitions and example pairs used by the lesson. Re-run `node scripts/seed.js` with the private service account to update Firestore after changing the seed data.
 
 **Rules** (all unit tested, so don't re-implement them):
 - `ProgressRules.connectionsScore(mistakes:)`, `wordGuessScore(guessesUsed:solved:)`, `gameXP(score:hintsUsed:)`

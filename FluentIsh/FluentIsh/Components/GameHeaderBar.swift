@@ -7,8 +7,8 @@
 //  docs/porting-guide.md: compare the two side by side.
 //
 //  The sticky header on every game and exercise screen: "← Back" on the
-//  left, title (+ subtitle) in the middle, and optional "?" (how to play)
-//  and "!" (hint) buttons on the right.
+//  left, title (+ subtitle) in the middle, and optional "i" (how to play)
+//  and "?" (hint) buttons on the right.
 //
 //  Usage, on a screen pushed from Today:
 //
@@ -66,16 +66,16 @@ struct GameHeaderBar<Badge: View>: View {
             }
             .frame(maxWidth: .infinity)
 
-            // Right slot: badge, ?, !
+            // Right slot: badge, i, ?
             HStack(spacing: 6) {
                 badge
                 if let onHowToPlay {
-                    SquareIconButton(symbol: "?", tint: .ink, fill: Color(light: 0xFFFFFF, dark: 0x252156),
+                    SquareIconButton(systemImage: "info", tint: .ink, fill: Color(light: 0xFFFFFF, dark: 0x252156),
                                      border: Color.ink.opacity(0.15), label: "How this game works",
                                      action: onHowToPlay)
                 }
                 if let onHint {
-                    SquareIconButton(symbol: "!", tint: .flame, fill: Color.flame.opacity(0.12),
+                    SquareIconButton(systemImage: "questionmark", tint: .flame, fill: Color.flame.opacity(0.12),
                                      border: Color.flame.opacity(0.35), label: "Get a hint",
                                      action: onHint)
                 }
@@ -103,9 +103,10 @@ extension GameHeaderBar where Badge == EmptyView {
     }
 }
 
-/// The 36pt rounded "?" and "!" buttons (w-9 h-9 rounded-xl).
+/// The 36pt rounded "i" and "?" buttons (w-9 h-9 rounded-xl).
 private struct SquareIconButton: View {
-    let symbol: String
+    /// SF Symbol name, drawn inside the rounded box.
+    let systemImage: String
     let tint: Color
     let fill: Color
     let border: Color
@@ -117,8 +118,8 @@ private struct SquareIconButton: View {
             Haptics.tap()
             action()
         } label: {
-            Text(symbol)
-                .font(.jakarta(13, 800))
+            Image(systemName: systemImage)
+                .font(.system(size: 14, weight: .heavy))
                 .foregroundStyle(tint)
                 .frame(width: 36, height: 36)
                 .background(fill, in: RoundedRectangle(cornerRadius: 12, style: .continuous))

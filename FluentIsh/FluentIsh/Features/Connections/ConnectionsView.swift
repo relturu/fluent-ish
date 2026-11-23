@@ -171,8 +171,8 @@ struct ConnectionsView: View {
         VStack(alignment: .leading, spacing: 16) {
 
             HStack(spacing: 8) {
-                Text("!")
-                    .font(.jakarta(13, 800))
+                Image(systemName: "questionmark")
+                    .font(.system(size: 13, weight: .heavy))
                     .foregroundStyle(Color.white)
                     .frame(width: 28, height: 28)
                     .background(Color.flame, in: Circle())
@@ -258,8 +258,8 @@ struct ConnectionsView: View {
                     Button {
                         showInstructions = true
                     } label: {
-                        Text("?")
-                            .font(.jakarta(14, 800))
+                        Image(systemName: "info")
+                            .font(.system(size: 14, weight: .heavy))
                             .foregroundStyle(Color.ink)
                             .frame(width: 32, height: 32)
                             .background(Color.card, in: RoundedRectangle(cornerRadius: 10))
@@ -276,8 +276,8 @@ struct ConnectionsView: View {
                             saveGameInBackground()   // keep the hint count saved even if they leave
                         }
                     } label: {
-                        Text("!")
-                            .font(.jakarta(14, 800))
+                        Image(systemName: "questionmark")
+                            .font(.system(size: 14, weight: .heavy))
                             .foregroundStyle(Color.flame)
                             .frame(width: 32, height: 32)
                             .background(

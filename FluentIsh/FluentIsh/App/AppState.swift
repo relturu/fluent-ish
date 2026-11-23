@@ -132,11 +132,15 @@ final class AppState {
     }
 
     /// Finish (or save part of) an activity as the signed-in user. The
-    /// listeners above pick up the new XP and streak by themselves.
+    /// listeners above pick up the new XP and streak by themselves. Pass
+    /// `words` (right/wrong per word) when finishing, to update the user's
+    /// word bank; see FirestoreService.record.
     @discardableResult
-    func record(_ activity: ProgressRules.Activity, minutes: Int) async throws -> ActivityOutcome {
+    func record(_ activity: ProgressRules.Activity, minutes: Int,
+                words: [VocabAnswer] = []) async throws -> ActivityOutcome {
         guard let uid else { throw FirestoreServiceError.noProgress }
-        return try await service.record(activity, minutes: minutes, uid: uid, language: language, today: today)
+        return try await service.record(activity, minutes: minutes, uid: uid, language: language,
+                                        today: today, words: words)
     }
 
     /// Decodes a listener update. A missing document isn't an error: a brand

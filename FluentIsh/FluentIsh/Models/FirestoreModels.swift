@@ -121,6 +121,7 @@ struct Word: nonisolated Codable, Identifiable {                // words/{wordId
     var example: String?
     var exampleEn: String?
     var azure: AzureCache?
+    var starter: Bool? = nil          // true = a word almost everyone knows (hola, gracias), for new users
 }
 
 struct VocabLesson: nonisolated Codable, Identifiable {         // vocabLessons/{lang_date}
@@ -129,8 +130,7 @@ struct VocabLesson: nonisolated Codable, Identifiable {         // vocabLessons/
     var date: String
     var title: String
     var wordCount: Int
-    var reviewRatio: Double
-    var newWordIds: [String]             // Today's curated candidate pool (10 words)
+    var newWordIds: [String]             // The day's 10 themed words; each word is in one deck only
 }
 
 struct ConnectionsGroup: nonisolated Codable {

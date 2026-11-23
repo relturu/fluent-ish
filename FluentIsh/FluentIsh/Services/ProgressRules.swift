@@ -185,7 +185,7 @@ nonisolated enum ProgressRules {
         status == .familiar || status == .mastered
     }
 
-    /// A word's progress after one answer in a vocab lesson. Pass `nil` for
+    /// A word's progress after one answer (lesson card, game or exercise). Pass `nil` for
     /// a word the user has never seen.
     static func reviewed(_ word: WordProgress?, wordId: String, language: String,
                          correct: Bool, today: String, now: Date = Date()) -> WordProgress {
@@ -205,6 +205,52 @@ nonisolated enum ProgressRules {
         return next
     }
 
+    /// One answer per word, so a transaction never writes the same
+    /// wordProgress doc twice. A word counts as correct only if every answer
+    /// about it was correct (e.g. a Connections tile in a wrong guess, then
+    /// in the right one, counts as a miss). Keeps first-appearance order.
+    static func mergedAnswers(_ answers: [VocabAnswer]) -> [VocabAnswer] {
+        var order: [String] = []
+        var correct: [String: Bool] = [:]
+        for answer in answers {
+            if let previous = correct[answer.wordId] {
+                correct[answer.wordId] = previous && answer.correct
+            } else {
+                order.append(answer.wordId)
+                correct[answer.wordId] = answer.correct
+            }
+        }
+        return order.map { VocabAnswer(wordId: $0, correct: correct[$0] ?? false) }
+    }
+
+    // MARK: Familiarity (word bank restructure)
+
+    /// The all-time bank sorted least familiar first, for exercises:
+    /// 1. words due for review (nextReview today or earlier),
+    /// 2. lower status (learning before familiar before mastered),
+    /// 3. lower accuracy (timesCorrect ÷ timesSeen),
+    /// 4. seen fewer times,
+    /// 5. not reviewed for longer (never reviewed comes first),
+    /// then word ID, so the order is the same on every launch.
+    static func leastFamiliarFirst(_ words: [WordProgress], today: String) -> [WordProgress] {
+        words.sorted { a, b in
+            let aDue = a.nextReview <= today, bDue = b.nextReview <= today
+            if aDue != bDue { return aDue }
+            if rank(a.status) != rank(b.status) { return rank(a.status) < rank(b.status) }
+            let aAccuracy = accuracy(a), bAccuracy = accuracy(b)
+            if aAccuracy != bAccuracy { return aAccuracy < bAccuracy }
+            if a.timesSeen != b.timesSeen { return a.timesSeen < b.timesSeen }
+            let aLast = a.lastReviewed ?? .distantPast, bLast = b.lastReviewed ?? .distantPast
+            if aLast != bLast { return aLast < bLast }
+            return a.wordId < b.wordId
+        }
+    }
+
+    /// Share of answers that were right; 0 for a word never answered.
+    static func accuracy(_ word: WordProgress) -> Double {
+        word.timesSeen == 0 ? 0 : Double(word.timesCorrect) / Double(word.timesSeen)
+    }
+
     private static func rank(_ s: WordStatus) -> Int {
         switch s { case .new: 0; case .learning: 1; case .familiar: 2; case .mastered: 3 }
     }
@@ -216,36 +262,35 @@ nonisolated enum ProgressRules {
         return dayKey(for: moved, calendar: calendar)
     }
 
-    // MARK: The 70/30 lesson mix
+    // MARK: The daily deck
 
-    /// Word IDs for today's deck: up to `wordCount × reviewRatio` due review
-    /// words (7 of 10), then unseen words to fill the rest. Remaining slots
-    /// use previously seen candidates if the daily lesson has too few unseen
-    /// words, keeping the lesson at its configured size.
-    static func lessonWordIds(dueReviewIds: [String], newWordIds: [String], alreadySeen: Set<String>,
-                              wordCount: Int = 10, reviewRatio: Double = 0.7) -> [String] {
-        let fresh = newWordIds.filter { !alreadySeen.contains($0) }
-        let due = dueReviewIds.filter { !fresh.contains($0) }
-        let reviewSlots = Int((Double(wordCount) * reviewRatio).rounded())
-        var ids = Array(due.prefix(reviewSlots))
-        ids += fresh.prefix(max(0, wordCount - ids.count))
-        ids += due.dropFirst(reviewSlots).prefix(max(0, wordCount - ids.count))
-        if ids.count < wordCount {
-            let knownCandidates = newWordIds.filter { alreadySeen.contains($0) && !ids.contains($0) }
-            ids += knownCandidates.prefix(wordCount - ids.count)
-        }
-        return ids
+    /// Today's deck: the day's themed words, in their seeded order, the same
+    /// for everyone. Reviewing moved to Skill Exercises (word bank
+    /// restructure), so no review words are mixed in. A deck word the user
+    /// has seen before (e.g. the same weekday last week) is marked as review.
+    static func dailyDeck(newWordIds: [String], alreadySeen: Set<String>) -> LessonDeck {
+        var unique: [String] = []
+        for id in newWordIds where !unique.contains(id) { unique.append(id) }
+        return LessonDeck(wordIds: unique, reviewIds: alreadySeen.intersection(unique))
     }
 
     // MARK: Content date fallback
 
     /// Which seeded day's content to show. Today's own content if it exists;
-    /// otherwise rotate through the seeded days by day number, so everyone
-    /// gets the same puzzle on the same day and it changes at midnight.
+    /// otherwise the seeded day with the same weekday, so a 7-day seed loops
+    /// weekly (Monday Nov 23 replays Monday Oct 26). Everyone gets the same
+    /// theme on the same day and it changes at midnight. If no seeded day has
+    /// today's weekday, rotate through the seeded days by day number instead.
     static func contentDay(today: String, available: [String], calendar: Calendar = .current) -> String? {
         let days = available.sorted()
         if days.contains(today) { return today }
         guard !days.isEmpty, let date = date(fromKey: today, calendar: calendar) else { return days.first }
+        let weekday = calendar.component(.weekday, from: date)
+        if let sameWeekday = days.first(where: { key in
+            self.date(fromKey: key, calendar: calendar).map { calendar.component(.weekday, from: $0) } == weekday
+        }) {
+            return sameWeekday
+        }
         let dayNumber = Int((date.timeIntervalSince1970 + Double(calendar.timeZone.secondsFromGMT(for: date))) / 86_400)
         return days[((dayNumber % days.count) + days.count) % days.count]
     }
