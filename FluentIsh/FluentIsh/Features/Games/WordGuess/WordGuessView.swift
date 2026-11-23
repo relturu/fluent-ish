@@ -63,7 +63,7 @@ struct WordGuessView: View {
     @State private var startedAt = Date()
     /// Shown under the clue if saving fails (e.g. offline).
     @State private var saveError: String?
-    /// Which "?" / "!" popup is open, if any.
+    /// Which "i" / "?" popup is open, if any.
     @State private var assist: AssistMode?
     /// Confetti message after a win; nil hides the overlay.
     @State private var celebration: String?
@@ -136,7 +136,7 @@ struct WordGuessView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.canvas)
         .safeAreaInset(edge: .top, spacing: 0) {
-            // GameHeaderBar's own slots: "?" = how to play, "!" = hint
+            // GameHeaderBar's own slots: "i" = how to play, "?" = hint
             // (hidden once the game is over, when hints no longer apply).
             GameHeaderBar(title: "Word Guess",
                           onHowToPlay: { assist = .howToPlay },
@@ -437,14 +437,14 @@ struct WordGuessView: View {
 
 // MARK: - Hint and how-to-play popup
 
-/// Which popup "?" or "!" opened. Identifiable so `.sheet(item:)` can use it.
+/// Which popup "i" or "?" opened. Identifiable so `.sheet(item:)` can use it.
 private enum AssistMode: String, Identifiable {
     case howToPlay, hint
     var id: String { rawValue }
 }
 
-/// Ported from GameAssistModal (HiFiElements.tsx ~line 920): a round "?" or
-/// "!" badge with a title, the content, an orange action and an outlined
+/// Ported from GameAssistModal (HiFiElements.tsx ~line 920): a round "i" or
+/// "?" badge with a title, the content, an orange action and an outlined
 /// Close. Shown as a native sheet sized to its content, like InfoSheet.
 /// Unlike the prototype there's no "Solve" button: a hint reveals one letter.
 private struct AssistSheet: View {
@@ -476,8 +476,8 @@ private struct AssistSheet: View {
 
     private var header: some View {
         HStack(spacing: 8) {
-            Text(mode == .hint ? "!" : "?")
-                .font(.jakarta(13, 800))
+            Image(systemName: mode == .hint ? "questionmark" : "info")
+                .font(.system(size: 13, weight: .heavy))
                 .foregroundStyle(mode == .hint ? Color.white : Color.offWhite)
                 .frame(width: 28, height: 28)
                 .background(mode == .hint ? Color.flame : Color.indigo, in: Circle())
@@ -493,7 +493,7 @@ private struct AssistSheet: View {
             "Guess the \(game.length)-letter Spanish word in \(WordGuessGame.maxGuesses) tries.",
             "Green = right letter, right spot. Yellow = in the word, wrong spot. Grey = not in the word.",
             "You don't need accents: á counts as a. Ñ is its own letter.",
-            "Stuck? \"!\" reveals one letter in its spot for \(ProgressRules.hintPenaltyXP) XP.",
+            "Stuck? \"?\" reveals one letter in its spot for \(ProgressRules.hintPenaltyXP) XP.",
         ]
         return VStack(alignment: .leading, spacing: 10) {
             ForEach(Array(lines.enumerated()), id: \.offset) { index, line in
