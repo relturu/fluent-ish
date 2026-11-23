@@ -25,7 +25,16 @@ final class TodayModel {
     private(set) var lesson: VocabLesson?
     private(set) var deck: [DeckWord] = []
     private(set) var puzzle: DailyPuzzle?
+    /// Seeded exercises from the `exercises` collection (the fallback).
     private(set) var exercises: [Exercise] = []
+    /// Exercises built from the user's least familiar words, by ID.
+    private(set) var built: [String: BuiltExercise] = [:]
+
+    /// Built exercises first, then the seeded ones, for TodayDestination.
+    var allExercises: [Exercise] { built.values.map(\.exercise) + exercises }
+
+    /// The word behind each item of a built exercise (empty for seeded ones).
+    func wordIds(forExercise id: String) -> [String] { built[id]?.wordIds ?? [] }
 
     func load(uid: String, language: String, today: String, service: FirestoreService) async {
         if phase != .loaded { phase = .loading }
@@ -45,16 +54,47 @@ final class TodayModel {
             self.deck = words.map { DeckWord(word: $0, isReview: deck.isReview($0.id ?? "")) }
             self.puzzle = try await puzzleDoc
             self.exercises = try await exerciseDocs
+            self.built = await buildExercises(uid: uid, language: language, today: today,
+                                              deckWords: words, service: service)
             phase = .loaded
         } catch {
             phase = .failed("Couldn't load today's content: \(error.localizedDescription)")
         }
     }
 
-    /// The exercise of `type` at the chosen difficulty, or any of that type
-    /// if none matches (V1 seeds one per type).
+    /// The 9 exercises (3 types × 3 difficulties) from the user's word bank,
+    /// least familiar first, then starter words (a new user's bank is empty).
+    /// Today's deck words only supply wrong choices. If anything fails, Today
+    /// falls back to the seeded exercises instead of showing an error.
+    private func buildExercises(uid: String, language: String, today: String, deckWords: [Word],
+                                service: FirestoreService) async -> [String: BuiltExercise] {
+        do {
+            async let bankDocs = service.allWordProgress(uid: uid, language: language)
+            async let starterDocs = service.starterWords(language: language)
+            let ranked = ProgressRules.leastFamiliarFirst(try await bankDocs, today: today).map(\.wordId)
+            let bankWords = try await service.words(ids: ranked)
+            let starters = try await starterDocs.filter { !ranked.contains($0.id ?? "") }
+            let ordered = bankWords + starters
+            var result: [String: BuiltExercise] = [:]
+            for type in ExerciseBuilder.types {
+                for difficulty in ExerciseBuilder.difficulties {
+                    let id = ExerciseBuilder.id(type: type, difficulty: difficulty)
+                    result[id] = ExerciseBuilder.build(type: type, difficulty: difficulty, words: ordered,
+                                                       pool: ordered + deckWords, seed: "\(today)_\(id)")
+                }
+            }
+            return result
+        } catch {
+            return [:]
+        }
+    }
+
+    /// The exercise of `type` at the chosen difficulty: built from the word
+    /// bank if possible, otherwise the seeded one (or any seeded one of
+    /// that type).
     func exercise(type: String, difficulty: String) -> Exercise? {
-        exercises.first { $0.type == type && $0.difficulty == difficulty }
+        built[ExerciseBuilder.id(type: type, difficulty: difficulty)]?.exercise
+            ?? exercises.first { $0.type == type && $0.difficulty == difficulty }
             ?? exercises.first { $0.type == type }
     }
 }

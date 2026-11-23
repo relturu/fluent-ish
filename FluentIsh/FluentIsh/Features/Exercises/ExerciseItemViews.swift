@@ -233,7 +233,8 @@ struct SentenceBuilderItemView: View {
 struct DefinitionMatchView: View {
     let items: [ExerciseItem]
     let hintRequest: Int
-    let onDone: (_ firstTryPairs: Int) -> Void
+    /// First-try result for each pair, in item order.
+    let onDone: (_ firstTries: [Bool]) -> Void
 
     /// The English column, shuffled once.
     @State private var englishOrder: [Int] = []
@@ -248,7 +249,7 @@ struct DefinitionMatchView: View {
 
     var body: some View {
         ExerciseLayout(isLast: true, canContinue: allMatched, continueLabel: nil) {
-            onDone(items.count - notFirstTry.count)
+            onDone(items.indices.map { !notFirstTry.contains($0) })
         } content: {
             Text("Match each Spanish word with its meaning.")
                 .font(.jakarta(14, 600)).foregroundStyle(Color.ink.opacity(0.7))

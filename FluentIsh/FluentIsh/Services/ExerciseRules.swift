@@ -73,6 +73,14 @@ nonisolated enum ExerciseRules {
         return Int((Double(min(firstTry, total)) / Double(total) * 100).rounded())
     }
 
+    /// Word bank results for a finished exercise: each item's word, right if
+    /// it was right on the first try. Empty unless there's one word per
+    /// item (seeded exercises have no words attached).
+    static func wordAnswers(wordIds: [String], results: [Bool]) -> [VocabAnswer] {
+        guard !wordIds.isEmpty, wordIds.count == results.count else { return [] }
+        return zip(wordIds, results).map { VocabAnswer(wordId: $0, correct: $1) }
+    }
+
     /// Time on the screen, rounded up to whole minutes (at least 1), as
     /// plan.md's "Minutes" rule says.
     static func minutes(from start: Date, to end: Date) -> Int {

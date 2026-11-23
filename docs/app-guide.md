@@ -74,7 +74,7 @@ Every colour has a light and dark version already, so dark mode works if you use
 | Piece | Use it for |
 |---|---|
 | `MascotView(mood: .celebrating, size: .lg)` | Churro. Moods: waving, celebrating, quest, thinking, proud, encouraging |
-| `GameHeaderBar(title:onHowToPlay:onHint:)` | The Back / title / ? / ! header on game and exercise screens |
+| `GameHeaderBar(title:onHowToPlay:onHint:)` | The Back / title / i (how to play) / ? (hint) header on game and exercise screens |
 | `.shake(count)`, `FlowLayout`, `HowToPlaySheet` | Wrong-answer wobble, wrapping tiles, the "?" sheet (see `Features/Exercises/`) |
 | `AudioButton(text:)`, `Speech.speak(_:)` | Spanish pronunciation (on-device) |
 | `SpeechBubble(text:style:pointer:)` | Churro's lines |
@@ -113,6 +113,9 @@ try await appState.record(.game(key: "connections", result: GameResult(
 
 // An exercise
 try await appState.record(.exercise(id: exercise.id!), minutes: minutesSpent)
+// Any activity can also update the word bank: one right/wrong result per word, once, when it finishes
+try await appState.record(.exercise(id: exercise.id!), minutes: minutesSpent,
+                          words: [VocabAnswer(wordId: "w_acera", correct: true)])
 
 // The vocab lesson: awards 30 XP once per day and updates each word's
 // spaced-repetition status. The recap's 100 points are derived from vocabScore.
@@ -129,7 +132,7 @@ try await appState.service.completeVocabLesson(answers, minutes: minutesSpent,
 | Which seeded day to show today | `service.contentDay(language:today:)`. It rotates through the seeded days, so add a week of puzzles in `firebase/seed/` and they're used automatically |
 | Today's puzzles / lesson / prompt | `service.dailyPuzzle(language:day:)`, `vocabLesson`, `dailyPrompt` |
 | Today's deck (the day's 10 themed words) | `service.lessonDeck(uid:language:lesson:)`, then `service.words(ids:)` |
-| Exercises | `service.exercises(language:)` |
+| Exercises | Built from the word bank by `ExerciseBuilder` in `TodayModel`; seeded fallback: `service.exercises(language:)` |
 | Last 28 days of logs | `service.recentLogs(uid:language:today:)` |
 | Every word seen | `service.allWordProgress(uid:language:)` |
 
