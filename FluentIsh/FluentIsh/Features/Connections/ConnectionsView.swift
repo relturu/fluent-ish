@@ -69,13 +69,26 @@ struct ConnectionsView: View {
     @State private var showCelebration = false
 
     @State private var showHint = false
+
+    /// The group from the user's word bank (GameMix), saved with the game so
+    /// it stays the same if they leave and come back. nil = seeded puzzle.
+    private let personalGroup: ConnectionsGroup?
+    /// Tile → word ID for tiles that update the word bank when the game ends.
+    private let tileWordIds: [String: String]
+    /// Word results are sent once, on the save that finishes the game.
+    @State private var wordsSent: Bool
+
     // MARK: - Initialization
 
     /// `saved` is today's result from the daily log (nil if not played yet).
     /// Passing it in means reopening a game picks up where it left off, and
     /// a finished game opens finished, so it can't be replayed.
-    init(puzzle: ConnectionsPuzzle, saved: GameResult? = nil) {
+    init(puzzle: ConnectionsPuzzle, saved: GameResult? = nil,
+         personalGroup: ConnectionsGroup? = nil, tileWordIds: [String: String] = [:]) {
         _model = State(initialValue: ConnectionsModel(puzzle: puzzle, restoring: saved))
+        self.personalGroup = personalGroup
+        self.tileWordIds = tileWordIds
+        _wordsSent = State(initialValue: saved?.status == .completed)
     }
 
     // MARK: - Colors
@@ -581,14 +594,25 @@ struct ConnectionsView: View {
             solvedGroups: model.solvedGroupIndices.sorted(),
             guesses: nil,
             filledCells: nil,
-            hintsUsed: model.hintsUsed
+            hintsUsed: model.hintsUsed,
+            personalGroup: personalGroup
         )
+
+        // When the game ends, tell the word bank which tracked words the
+        // player found (their group solved without a hint).
+        let sendWords = status == .completed && !wordsSent
+        let words = sendWords
+            ? GameMix.connectionsAnswers(puzzle: model.puzzle, solved: model.solvedGroupIndices,
+                                         hinted: model.hintedGroups, tileWordIds: tileWordIds)
+            : []
 
         do {
             try await appState.record(
                 .game(key: "connections", result: result),
-                minutes: model.minutesElapsed
+                minutes: model.minutesElapsed,
+                words: words
             )
+            if sendWords { wordsSent = true }
         } catch {
             saveError = "Couldn't save your progress. Please try again."
         }

@@ -153,7 +153,13 @@ How words are picked across the app. There are two word banks:
   - **IDs:** `gen_{type}_{difficulty}` (e.g. `gen_fillBlank_easy`); these go into `dailyLog.exercisesCompleted`.
   - **Word bank:** `ExerciseView` sends each item's first-try result through `record(..., words:)`. Hinted items count as wrong. Definition Match now reports per pair.
   - **Fallback:** if building fails or too few words fit, Today shows the seeded `exercises`.
-- [ ] 4. Games mix ⅔ daily / ⅓ all-time: Word Guess answer picked from the mix; Connections uses 2–3 themed groups plus groups from a library matched to the user's bank (every tile needs a `words` doc); Crossword stays handwritten.
+- [x] 4. Games mix the daily theme with the user's words: `Services/GameMix.swift`, with tests in `GameMixTests.swift`.
+  - **Connections:** keeps the day's 3 themed groups and swaps the easiest (yellow) group for a **personal group**: 4 words from one category of the user's bank, with a Spanish label such as "En casa" or "De compras". New users get starter words ("Palabras básicas"). 12 daily + 4 known tiles is the closest whole-group split to ⅔ / ⅓.
+  - **What the personal group avoids:** today's deck words, categories in today's deck, and tiles already in the other groups. It's seeded by day.
+  - **Saved with the game:** `GameResult.personalGroup`, so a game in progress never changes. Games saved before this keep the seeded puzzle.
+  - **Word Guess:** keeps the shared daily answer (a deck word) so friends play the same word.
+  - **Word bank:** both games send results when they first finish. In Connections, a tile counts as right if its group was found without a hint; only tiles with a word doc are tracked. In Word Guess, the answer counts as right if it was solved.
+  - **Not changed:** Crossword stays handwritten. It's Jessica's V2 game.
 
 Touches teammates' screens (vocab lesson: Sean, Connections: Jessica, Word Guess: Sai). Tell them before merging.
 
@@ -515,6 +521,7 @@ struct GameResult: Codable {
     var guesses: [String]?            // Word Guess
     var filledCells: [String]?        // Crossword
     var hintsUsed: Int?
+    var personalGroup: ConnectionsGroup? = nil   // Connections: the group from the user's word bank (GameMix)
 }
 
 struct DailyLog: Codable, Identifiable {            // users/{uid}/dailyLog/{lang_date}

@@ -52,12 +52,12 @@ struct TodayView: View {
         }
         .navigationDestination(for: TodayRoute.self) {
             TodayDestination(route: $0, puzzle: model.puzzle, exercises: model.allExercises,
-                             exerciseWordIds: model.wordIds(forExercise:),
+                             exerciseWordIds: model.wordIds(forExercise:), connections: model.connections(saved:),
                              deck: model.deck, lessonTitle: model.lesson?.title ?? "Today's Words")
         }
         .navigationDestination(item: $pushed) {
             TodayDestination(route: $0, puzzle: model.puzzle, exercises: model.allExercises,
-                             exerciseWordIds: model.wordIds(forExercise:),
+                             exerciseWordIds: model.wordIds(forExercise:), connections: model.connections(saved:),
                              deck: model.deck, lessonTitle: model.lesson?.title ?? "Today's Words")
         }
         .sheet(item: $info) { content in
@@ -372,6 +372,8 @@ struct TodayDestination: View {
     var exercises: [Exercise] = []
     /// The word behind each item of a built exercise, to update the word bank.
     var exerciseWordIds: (String) -> [String] = { _ in [] }
+    /// This user's Connections (personal group mixed in), given today's save.
+    var connections: (GameResult?) -> ConnectionsSetup? = { _ in nil }
     var deck: [TodayModel.DeckWord] = []
     var lessonTitle = "Today's Words"
 
@@ -382,12 +384,15 @@ struct TodayDestination: View {
         case .vocab:
             VocabLessonView(words: deck, lessonTitle: lessonTitle)
         case .connections:
-            if let puzzle {
-                    ConnectionsView(puzzle: puzzle.connections,
-                                    saved: appState.todayLog?.games["connections"])
-                } else {
-                    ProgressView()
-                }
+            let saved = appState.todayLog?.games["connections"]
+            if let setup = connections(saved) {
+                ConnectionsView(puzzle: setup.puzzle, saved: saved, personalGroup: setup.personalGroup,
+                                tileWordIds: setup.tileWordIds)
+            } else if let puzzle {
+                ConnectionsView(puzzle: puzzle.connections, saved: saved)
+            } else {
+                ProgressView()
+            }
         case .wordGuess:
             // Sai's screen (Features/Games/WordGuess/). The same record call
             // the filler made, but with the real result: guesses, score from
@@ -396,7 +401,16 @@ struct TodayDestination: View {
             if let puzzle {
                 WordGuessView(puzzle: puzzle.wordGuess,
                               saved: appState.todayLog?.games["wordGuess"]) { result, minutes in
-                    try await appState.record(.game(key: "wordGuess", result: result), minutes: minutes)
+                    // The answer is a deck word: update it in the word bank, once,
+                    // when the game first finishes.
+                    let firstFinish = result.status == .completed
+                        && appState.todayLog?.games["wordGuess"]?.status != .completed
+                    let words = firstFinish
+                        ? GameMix.wordGuessAnswers(answer: puzzle.wordGuess.answer, guesses: result.guesses ?? [],
+                                                   deck: deck.map(\.word))
+                        : []
+                    return try await appState.record(.game(key: "wordGuess", result: result), minutes: minutes,
+                                                     words: words)
                 }
             } else {
                 // Opened before today's puzzle finished loading (e.g. -todayOpen).

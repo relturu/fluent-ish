@@ -9,7 +9,7 @@ If you're working on Azure Translator / API, see "Remaining Azure steps" in `doc
 If you're touching how words are picked (vocab deck, games, exercises, `wordProgress`), read "Word bank restructure" in `docs/plan.md` first. In short:
 - the daily theme is the same for everyone, and 7 seeded days loop by weekday
 - each daily deck has 10 words that appear in no other deck
-- games use ⅔ daily words and ⅓ words from the user's own bank (starter words for new users)
+- in Connections, 3 groups are themed and 1 is a personal group from the user's bank (starter words for new users), saved in `GameResult.personalGroup`; Word Guess keeps the shared daily answer
 - exercises are built from the least familiar words
 - every finished activity should send per-word results with `record(..., words:)`
 
