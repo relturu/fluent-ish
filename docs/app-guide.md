@@ -133,6 +133,7 @@ try await appState.service.completeVocabLesson(answers, minutes: minutesSpent,
 | Today's puzzles / lesson / prompt | `service.dailyPuzzle(language:day:)`, `vocabLesson`, `dailyPrompt` |
 | Today's deck (the day's 10 themed words) | `service.lessonDeck(uid:language:lesson:)`, then `service.words(ids:)` |
 | Exercises | Built from the word bank by `ExerciseBuilder` in `TodayModel`; seeded fallback: `service.exercises(language:)` |
+| This user's Connections (personal group mixed in) | `model.connections(saved:)` → `ConnectionsView(puzzle:saved:personalGroup:tileWordIds:)` |
 | Last 28 days of logs | `service.recentLogs(uid:language:today:)` |
 | Every word seen | `service.allWordProgress(uid:language:)` |
 

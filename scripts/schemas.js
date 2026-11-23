@@ -17,6 +17,7 @@ const CATEGORIES = ["Connector", "Café & Dining", "Daily Verb", "Culture & Idio
 const GAME_RESULT = {
   status: "enum:notStarted|inProgress|completed", score: "number?", mistakes: "int?",
   solvedGroups: "int[]?", guesses: "string[]?", filledCells: "string[]?", hintsUsed: "int?",
+  personalGroup: { optional: true, category: "string", words: "string[]", difficulty: "int" },
 };
 const CLUE = { number: "int", row: "int", col: "int", clue: "string", answer: "string" };
 

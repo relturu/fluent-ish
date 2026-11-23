@@ -77,6 +77,7 @@ struct GameResult: nonisolated Codable {
     var guesses: [String]?            // Word Guess
     var filledCells: [String]?        // Crossword
     var hintsUsed: Int?
+    var personalGroup: ConnectionsGroup? = nil   // Connections: the group from the user's word bank (GameMix)
 }
 
 struct DailyLog: nonisolated Codable, Identifiable {            // users/{uid}/dailyLog/{lang_date}
