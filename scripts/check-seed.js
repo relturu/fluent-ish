@@ -72,7 +72,7 @@ function checkType(value, type, where) {
   else if (base === "map:gameResult") {
     if (!check(value && typeof value === "object" && !Array.isArray(value), `${where}: expected an object`)) return;
     for (const [key, result] of Object.entries(value)) {
-      check(["connections", "wordGuess", "crossword"].includes(key), `${where}.${key}: unknown game`);
+      check(["connections", "wordGuess", "crossword", "wordCookies"].includes(key), `${where}.${key}: unknown game`);
       checkObject(result, GAME_RESULT, `${where}.${key}`);
     }
   } else throw new Error(`Unknown schema type ${type}`);
@@ -234,6 +234,52 @@ function checkCrossword(cw, where) {
   compare(cw.cluesDown, expectedDown, "down");
 }
 
+// Word Cookies tiles: uppercase, every accent dropped (á→A, è→E, ç→C) except
+// letters that are their own letter, i.e. Ñ. Same rule as the app, and not
+// tied to Spanish, so other languages' puzzles work too. Kept apart from
+// `normalize` above, which turns Ñ into N.
+const tileLetters = (s) => s.toUpperCase().normalize("NFD")
+  .replace(/(?<!N)\u0303/g, "").replace(/[\u0300-\u0302\u0304-\u036f]/g, "").normalize("NFC");
+const letterCounts = (s) => [...s].reduce((m, c) => m.set(c, (m.get(c) ?? 0) + 1), new Map());
+
+// docs/plan.md "Word Cookies": the base word is one word (no phrases) of 6–9
+// letters from that day's deck; 5–8 answers of 3+ letters, base included,
+// each spelled from the base word's tiles (a tile is used once per word).
+function checkWordCookies(wc, deckIds, where) {
+  const base = words.get(wc.baseWordId);
+  if (!check(base, `${where}: baseWordId ${wc.baseWordId} does not exist in words`)) return;
+  check(deckIds.includes(wc.baseWordId), `${where}: base word ${wc.baseWordId} must be in that day's deck`);
+  check(!/\s/.test(base.lemma), `${where}: base word "${base.lemma}" must be one word, not a phrase`);
+  const letters = tileLetters(base.lemma);
+  check(letters.length >= 6 && letters.length <= 9, `${where}: base word "${base.lemma}" has ${letters.length} letters (needs 6–9)`);
+  check(wc.letters === letters, `${where}: letters should be "${letters}" (the base word's tiles), got "${wc.letters}"`);
+
+  const list = wc.words ?? [];
+  check(list.length >= 5 && list.length <= 8, `${where}: needs 5–8 words, has ${list.length}`);
+  const available = letterCounts(letters);
+  const seen = new Set();
+  for (const entry of list) {
+    const w = `${where} "${entry.word}"`;
+    const tiles = tileLetters(entry.word ?? "");
+    check(/^\p{L}+$/u.test(entry.word ?? ""), `${w}: must be one word with letters only`);
+    check(tiles.length >= 3, `${w}: needs 3+ letters`);
+    check(!seen.has(tiles), `${w}: appears twice`);
+    seen.add(tiles);
+    const fits = [...letterCounts(tiles)].every(([c, n]) => (available.get(c) ?? 0) >= n);
+    check(fits, `${w}: can't be spelled from ${letters} (each tile is used once)`);
+    check(Boolean(entry.en?.trim()), `${w}: needs an English translation (en)`);
+    if (entry.wordId != null) {
+      const doc = words.get(entry.wordId);
+      if (check(doc, `${w}: wordId ${entry.wordId} does not exist in words`)) {
+        check(tileLetters(doc.lemma) === tiles, `${w}: wordId ${entry.wordId} is "${doc.lemma}", a different word`);
+      }
+    }
+  }
+  const baseEntry = list.find((e) => tileLetters(e.word ?? "") === letters);
+  check(baseEntry, `${where}: the base word "${base.lemma}" must be one of the words`);
+  if (baseEntry) check(baseEntry.wordId === wc.baseWordId, `${where}: the base word's entry needs wordId ${wc.baseWordId}`);
+}
+
 for (const p of data.dailyPuzzles) {
   const where = `dailyPuzzles/${p.id}`;
   const groups = p.connections?.groups ?? [];
@@ -252,6 +298,8 @@ for (const p of data.dailyPuzzles) {
     `${where}: Word Guess answer ${wg.answer} should be a word from that day's deck`);
 
   if (p.crossword) checkCrossword(p.crossword, `${where} crossword`);
+  const deck = data.vocabLessons.find((l) => l.id === p.id)?.newWordIds ?? [];
+  if (check(p.wordCookies, `${where}: missing wordCookies`)) checkWordCookies(p.wordCookies, deck, `${where} wordCookies`);
 }
 
 for (const ex of data.exercises) {
@@ -332,6 +380,7 @@ for (const log of data.dailyLog) {
     if (game === "connections") expected = Math.max(0, 1 - (result.mistakes ?? 0) / 4);
     if (game === "wordGuess") expected = (7 - (result.guesses ?? []).length) / 6;
     if (game === "crossword") expected = Math.max(0, 1 - 0.1 * (result.hintsUsed ?? 0));
+    if (game === "wordCookies") expected = 1;   // can't be lost; hints cost XP, not score
     check(typeof result.score === "number" && near(result.score, expected), `${g}: score should be ${round2(expected)}, got ${result.score}`);
     xp += Math.round(30 * (result.score ?? 0));
   }

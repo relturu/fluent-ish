@@ -18,6 +18,7 @@ const GAME_RESULT = {
   status: "enum:notStarted|inProgress|completed", score: "number?", mistakes: "int?",
   solvedGroups: "int[]?", guesses: "string[]?", filledCells: "string[]?", hintsUsed: "int?",
   personalGroup: { optional: true, category: "string", words: "string[]", difficulty: "int" },
+  foundWords: "string[]?", revealedLetters: "string[]?",
 };
 const CLUE = { number: "int", row: "int", col: "int", clue: "string", answer: "string" };
 
@@ -53,6 +54,10 @@ const SCHEMAS = {
     connections: { groups: [{ category: "string", words: "string[]", difficulty: "int" }] },
     wordGuess: { answer: "string", length: "int", definitionEn: "string" },
     crossword: { size: "int", solution: "string[]", cluesAcross: [CLUE], cluesDown: [CLUE] },
+    wordCookies: {
+      optional: true, baseWordId: "string", letters: "string",
+      words: [{ word: "string", en: "string", wordId: "string?" }],
+    },
   },
   exercises: {
     language: "string", type: "enum:fillBlank|sentenceBuilder|definitionMatch", title: "string", subtitle: "string",

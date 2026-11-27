@@ -163,6 +163,53 @@ How words are picked across the app. There are two word banks:
 
 Touches teammates' screens (vocab lesson: Sean, Connections: Jessica, Word Guess: Sai). Tell them before merging.
 
+### Word Cookies (started Nov 24, 2026, Sai)
+A new daily game on branch `add-word-cookie`. Word Guess will be removed once Word Cookies is done.
+
+**How it plays:**
+- The day's letter tiles sit in a circle. The player drags across them to spell Spanish words.
+- A grid of blank slots shows how many words there are and how long each one is.
+- A found word fills its slots and shows its English translation.
+- The game ends when every word is found. Shuffle rearranges the tiles.
+
+**Decisions (Nov 24):**
+- **Base word:** each day's seed picks one word from that day's deck. It must be a single word (no phrases) with 6–9 letters. It's picked by hand in `dailyPuzzles.json`, not "the longest", so **everyone gets the same puzzle**.
+- **Word list:**
+  - Hand-picked in the seed, with English written by hand: 5–8 words of 3+ letters, including the base word.
+  - Only the base word has to come from the deck. The other words are everyday words (A1–A2) spelled from its letters, so B1 learners already know most of them.
+  - **Dictionary forms only:** singular nouns, infinitive verbs, masculine singular adjectives (*rosa*, not *rosas*; *ser*, not *eres*). `check-seed.js` can't tell a plural from a dictionary form, so whoever writes the list has to keep to this.
+  - Spanish stays neutral between Spain and Latin America (e.g. no *mesero*).
+  - The app has no dictionary, so a real word that isn't on the list just shakes.
+- **Letters:**
+  - Tiles are uppercase with every accent dropped (á→A, è→E, ç→C), except letters that are their own letter, i.e. Ñ. This works for any language, so new languages need puzzles, not code.
+  - Each tile is used at most once per word.
+- **Base words (Nov 27):** Sat sobremesa · Sun regatear · Mon atardecer · Tue ascensor · Wed sorpresa · Thu compañero · Fri descansar.
+- **Hints:**
+  - A hint reveals the leftmost hidden letter of the first unfound word that still has 2+ hidden letters, so a hint never gives a whole word away.
+  - There are at most 3 per puzzle, and each costs the usual −5 XP (`ProgressRules.gameXP`).
+- **Score:** always 1.0, since you can't lose. XP is 30 − 5 × hints.
+- **Word bank:** found words with a `wordId` (always including the base deck word) go to `record(..., words:)` the first time the game finishes. A word counts as correct if none of its letters were revealed by a hint.
+- **Doesn't use Word Guess code:** Word Cookies has its own normalization, preview, info text and save code. When Word Guess is removed, check whether `GameRules.normalize` is still used anywhere (e.g. `GameMix`, previews, tests) before deleting it.
+
+**Data:**
+- `dailyPuzzles.wordCookies` = `{ baseWordId, letters, words: [{ word, en, wordId? }] }`. It's optional, so days seeded before it still load.
+- Saved as `dailyLog.games.wordCookies`, with two new optional `GameResult` fields:
+  - `foundWords`: normalized words, e.g. `"TAREA"`
+  - `revealedLetters`: hint cells as `"WORD:index"`, e.g. `"TAREA:0"`, one string each, since Firestore doesn't allow arrays inside arrays
+- `hintsUsed` is reused.
+
+**Steps:**
+- [x] 1. Data model: `WordCookiesPuzzle` / `WordCookiesWord`, `DailyPuzzle.wordCookies`, `GameResult.foundWords` / `revealedLetters` in Swift, `schemas.js` and this doc. `check-seed.js` accepts the `wordCookies` game key, with score 1.0.
+- [x] 2. Seed: base words and lists approved and seeded to Firestore (Nov 27). `dailyPuzzles.json` has 52 words; 10 link to a `words` doc. `check-seed.js` now requires `wordCookies` on every day and checks:
+  - the base word is in that day's deck, is one word, and has 6–9 letters
+  - `letters` is the base word's tiles, and the base word is in `words` with its `wordId`
+  - there are 5–8 words; each fits in the base word's letters (counting repeats), has 3+ letters, isn't repeated, and has a non-empty `en`
+  - every `wordId` exists and is the same word
+- [x] 3. Rules: `Features/Games/WordCookies/WordCookiesGame.swift`, `ProgressRules.wordCookiesScore`, `GameMix.wordCookiesAnswers(rows:foundWords:hintedWords:)`, 23 tests in `WordCookiesGameTests.swift` (Nov 27, 286/286 pass).
+- [ ] 4. Screen: `WordCookiesView.swift` (slot grid, tile circle with drag, Shuffle, Hint x/3, shake, celebration, result card, tap fallback for VoiceOver). It saves through an `onSave` closure.
+- [ ] 5. Today: `TodayRoute.wordCookies`, a card with `WordCookiesPreview`, `TodayInfo.wordCookies`, `"wordCookies"` added to `V1Games.keys`, DEBUG `-todayOpen` / `-todaySheet wordCookies`.
+- [ ] 6. Docs: `docs/app-guide.md`. Tell Arielle (Today, word bank) and relturu (seed) before merging.
+
 **Ideas, not scheduled:** speech-to-text pronunciation practice (Speech framework + microphone permission); server-side XP checks with Cloud Functions.
 
 ---
@@ -522,6 +569,8 @@ struct GameResult: Codable {
     var filledCells: [String]?        // Crossword
     var hintsUsed: Int?
     var personalGroup: ConnectionsGroup? = nil   // Connections: the group from the user's word bank (GameMix)
+    var foundWords: [String]? = nil              // Word Cookies: normalized words found, e.g. "TAREA"
+    var revealedLetters: [String]? = nil         // Word Cookies: hint cells as "WORD:index", e.g. "TAREA:0"
 }
 
 struct DailyLog: Codable, Identifiable {            // users/{uid}/dailyLog/{lang_date}
@@ -530,7 +579,7 @@ struct DailyLog: Codable, Identifiable {            // users/{uid}/dailyLog/{lan
     var language: String
     var vocabCompleted: Bool
     var vocabScore: Double?
-    var games: [String: GameResult]   // "connections", "wordGuess", "crossword"
+    var games: [String: GameResult]   // "connections", "wordGuess", "crossword", "wordCookies"
     var exercisesCompleted: [String]
     var xpEarned: Int
     var minutesSpent: Int
@@ -607,6 +656,18 @@ struct CrosswordPuzzle: Codable {
     var cluesDown: [CrosswordClue]
 }
 
+struct WordCookiesWord: Codable {
+    var word: String                  // as written, with accents: "área"
+    var en: String                    // English shown when found: "area"
+    var wordId: String? = nil         // words/{id}, if the word has a doc (updates the word bank)
+}
+
+struct WordCookiesPuzzle: Codable {
+    var baseWordId: String            // the day's deck word: one word, 6–9 letters
+    var letters: String               // its tiles, normalized (no accents, Ñ kept): "REGATEAR"
+    var words: [WordCookiesWord]      // every answer, including the base word
+}
+
 struct DailyPuzzle: Codable, Identifiable {
     @DocumentID var id: String?
     var language: String
@@ -614,6 +675,7 @@ struct DailyPuzzle: Codable, Identifiable {
     var connections: ConnectionsPuzzle
     var wordGuess: WordGuessPuzzle
     var crossword: CrosswordPuzzle
+    var wordCookies: WordCookiesPuzzle? = nil   // optional so days seeded before Word Cookies still load
 }
 
 struct ExerciseItem: Codable {

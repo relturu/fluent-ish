@@ -78,6 +78,8 @@ struct GameResult: nonisolated Codable {
     var filledCells: [String]?        // Crossword
     var hintsUsed: Int?
     var personalGroup: ConnectionsGroup? = nil   // Connections: the group from the user's word bank (GameMix)
+    var foundWords: [String]? = nil              // Word Cookies: normalized words found, e.g. "TAREA"
+    var revealedLetters: [String]? = nil         // Word Cookies: hint cells as "WORD:index", e.g. "TAREA:0"
 }
 
 struct DailyLog: nonisolated Codable, Identifiable {            // users/{uid}/dailyLog/{lang_date}
@@ -86,7 +88,7 @@ struct DailyLog: nonisolated Codable, Identifiable {            // users/{uid}/d
     var language: String
     var vocabCompleted: Bool
     var vocabScore: Double?
-    var games: [String: GameResult]   // "connections", "wordGuess", "crossword"
+    var games: [String: GameResult]   // "connections", "wordGuess", "crossword", "wordCookies"
     var exercisesCompleted: [String]
     var xpEarned: Int
     var minutesSpent: Int
@@ -163,6 +165,18 @@ struct CrosswordPuzzle: nonisolated Codable {
     var cluesDown: [CrosswordClue]
 }
 
+struct WordCookiesWord: nonisolated Codable {
+    var word: String                  // as written, with accents: "área"
+    var en: String                    // English shown when found: "area"
+    var wordId: String? = nil         // words/{id}, if the word has a doc (updates the word bank)
+}
+
+struct WordCookiesPuzzle: nonisolated Codable {
+    var baseWordId: String            // the day's deck word: one word, 6–9 letters
+    var letters: String               // its tiles, normalized (no accents, Ñ kept): "REGATEAR"
+    var words: [WordCookiesWord]      // every answer, including the base word
+}
+
 struct DailyPuzzle: nonisolated Codable, Identifiable {         // dailyPuzzles/{lang_date}
     @DocumentID var id: String?
     var language: String
@@ -170,6 +184,7 @@ struct DailyPuzzle: nonisolated Codable, Identifiable {         // dailyPuzzles/
     var connections: ConnectionsPuzzle
     var wordGuess: WordGuessPuzzle
     var crossword: CrosswordPuzzle
+    var wordCookies: WordCookiesPuzzle? = nil   // optional so days seeded before Word Cookies still load
 }
 
 struct ExerciseItem: nonisolated Codable {

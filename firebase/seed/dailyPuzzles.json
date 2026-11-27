@@ -25,6 +25,20 @@
         { "number": 2, "row": 0, "col": 2, "clue": "Nunca faltan en la sobremesa", "answer": "RISAS" },
         { "number": 3, "row": 0, "col": 4, "clue": "Primer mes del año", "answer": "ENERO" }
       ]
+    },
+    "wordCookies": {
+      "baseWordId": "w_sobremesa",
+      "letters": "SOBREMESA",
+      "words": [
+        { "word": "mar", "en": "sea" },
+        { "word": "mes", "en": "month" },
+        { "word": "amor", "en": "love" },
+        { "word": "beso", "en": "kiss" },
+        { "word": "mesa", "en": "table" },
+        { "word": "sabor", "en": "flavor" },
+        { "word": "sombra", "en": "shade, shadow" },
+        { "word": "sobremesa", "en": "after-meal chat at the table", "wordId": "w_sobremesa" }
+      ]
     }
   },
   {
@@ -52,6 +66,20 @@
         { "number": 1, "row": 0, "col": 0, "clue": "Se compran en la panadería", "answer": "PANES" },
         { "number": 2, "row": 0, "col": 2, "clue": "Mes entre marzo y mayo", "answer": "ABRIL" },
         { "number": 3, "row": 0, "col": 4, "clue": "Parte del cuerpo para oír", "answer": "OREJA" }
+      ]
+    },
+    "wordCookies": {
+      "baseWordId": "w_regatear",
+      "letters": "REGATEAR",
+      "words": [
+        { "word": "área", "en": "area" },
+        { "word": "arte", "en": "art" },
+        { "word": "atar", "en": "to tie" },
+        { "word": "rata", "en": "rat" },
+        { "word": "regar", "en": "to water (plants)" },
+        { "word": "tarea", "en": "homework, task" },
+        { "word": "tragar", "en": "to swallow" },
+        { "word": "regatear", "en": "to haggle", "wordId": "w_regatear" }
       ]
     }
   },
@@ -81,6 +109,20 @@
         { "number": 2, "row": 0, "col": 2, "clue": "Número de días de la semana", "answer": "SIETE" },
         { "number": 3, "row": 0, "col": 4, "clue": "La ayuda que te da un amigo", "answer": "APOYO" }
       ]
+    },
+    "wordCookies": {
+      "baseWordId": "w_atardecer",
+      "letters": "ATARDECER",
+      "words": [
+        { "word": "dar", "en": "to give" },
+        { "word": "red", "en": "net; network" },
+        { "word": "cara", "en": "face" },
+        { "word": "acera", "en": "sidewalk", "wordId": "w_acera" },
+        { "word": "carta", "en": "letter; menu" },
+        { "word": "tarde", "en": "afternoon; late" },
+        { "word": "receta", "en": "recipe" },
+        { "word": "atardecer", "en": "sunset, dusk", "wordId": "w_atardecer" }
+      ]
     }
   },
   {
@@ -108,6 +150,20 @@
         { "number": 1, "row": 0, "col": 0, "clue": "La escribes antes de ir a la compra", "answer": "LISTA" },
         { "number": 2, "row": 0, "col": 2, "clue": "Tiene nombre, número y muchos vecinos", "answer": "CALLE" },
         { "number": 3, "row": 0, "col": 4, "clue": "Animal de los Andes... o el fuego de una vela", "answer": "LLAMA" }
+      ]
+    },
+    "wordCookies": {
+      "baseWordId": "w_ascensor",
+      "letters": "ASCENSOR",
+      "words": [
+        { "word": "ser", "en": "to be" },
+        { "word": "cena", "en": "dinner" },
+        { "word": "cosa", "en": "thing" },
+        { "word": "rosa", "en": "rose" },
+        { "word": "sano", "en": "healthy" },
+        { "word": "carne", "en": "meat" },
+        { "word": "casero", "en": "landlord; homemade" },
+        { "word": "ascensor", "en": "elevator", "wordId": "w_ascensor" }
       ]
     }
   },
@@ -137,6 +193,19 @@
         { "number": 2, "row": 0, "col": 2, "clue": "Lo que haces con los platos después de la fiesta", "answer": "LAVAR" },
         { "number": 3, "row": 0, "col": 4, "clue": "Ir de fiesta: ___ de noche", "answer": "SALIR" }
       ]
+    },
+    "wordCookies": {
+      "baseWordId": "w_sorpresa",
+      "letters": "SORPRESA",
+      "words": [
+        { "word": "paso", "en": "step" },
+        { "word": "pera", "en": "pear" },
+        { "word": "peso", "en": "weight" },
+        { "word": "sopa", "en": "soup" },
+        { "word": "paseo", "en": "walk, stroll" },
+        { "word": "perro", "en": "dog", "wordId": "w_perro" },
+        { "word": "sorpresa", "en": "surprise", "wordId": "w_sorpresa" }
+      ]
     }
   },
   {
@@ -165,6 +234,20 @@
           { "number": 2, "row": 0, "col": 2, "clue": "Lo tomas para un viaje de negocios", "answer": "AVION" },
           { "number": 3, "row": 0, "col": 4, "clue": "Cuando se pone el sol (sinónimo de atardecer)", "answer": "OCASO" }
       ]
+    },
+    "wordCookies": {
+      "baseWordId": "w_companero",
+      "letters": "COMPAÑERO",
+      "words": [
+        { "word": "año", "en": "year" },
+        { "word": "oro", "en": "gold" },
+        { "word": "pero", "en": "but" },
+        { "word": "ropa", "en": "clothes" },
+        { "word": "campo", "en": "countryside, field" },
+        { "word": "poema", "en": "poem" },
+        { "word": "compra", "en": "purchase; shopping" },
+        { "word": "compañero", "en": "colleague, classmate", "wordId": "w_companero" }
+      ]
     }
   },
   {
@@ -192,6 +275,20 @@
           { "number": 1, "row": 0, "col": 0, "clue": "Las apuntas en una libreta para no olvidar nada", "answer": "NOTAS" },
           { "number": 2, "row": 0, "col": 2, "clue": "Se pone en la parrilla en una barbacoa", "answer": "CARNE" },
           { "number": 3, "row": 0, "col": 4, "clue": "El mes de los propósitos de Año Nuevo", "answer": "ENERO" }
+      ]
+    },
+    "wordCookies": {
+      "baseWordId": "w_descansar",
+      "letters": "DESCANSAR",
+      "words": [
+        { "word": "sed", "en": "thirst" },
+        { "word": "casa", "en": "house, home", "wordId": "w_casa" },
+        { "word": "nada", "en": "nothing" },
+        { "word": "arena", "en": "sand" },
+        { "word": "nadar", "en": "to swim" },
+        { "word": "sacar", "en": "to take out" },
+        { "word": "secar", "en": "to dry" },
+        { "word": "descansar", "en": "to rest", "wordId": "w_descansar" }
       ]
     }
   }

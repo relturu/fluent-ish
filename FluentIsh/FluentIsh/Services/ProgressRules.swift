@@ -134,6 +134,10 @@ nonisolated enum ProgressRules {
         max(0, 1 - 0.1 * Double(hintsUsed))
     }
 
+    /// Word Cookies: always 1.0, since you can't lose. Hints cost XP
+    /// (gameXP), not score.
+    static func wordCookiesScore() -> Double { 1 }
+
     /// The vocab recap's 100-point scale for a score stored from 0 to 1.
     static func vocabScorePoints(score: Double) -> Int {
         Int((min(1, max(0, score)) * 100).rounded())
@@ -299,7 +303,7 @@ nonisolated enum ProgressRules {
 
     enum Activity {
         case vocab(score: Double)
-        case game(key: String, result: GameResult)      // "connections" | "wordGuess" | "crossword"
+        case game(key: String, result: GameResult)      // "connections" | "wordGuess" | "crossword" | "wordCookies"
         case exercise(id: String)
     }
 

@@ -136,4 +136,17 @@ nonisolated enum GameMix {
         guard let id = deck.first(where: { GameRules.normalize($0.lemma) == key })?.id else { return [] }
         return [VocabAnswer(wordId: id, correct: guesses.last.map { GameRules.normalize($0) == key } ?? false)]
     }
+
+    /// Word bank results for a finished Word Cookies game: one per found
+    /// word that has a `wordId` (always including the base deck word), in
+    /// grid order. Right if no letter of it was revealed by a hint. Words
+    /// without a word doc aren't tracked. The game is the same for everyone,
+    /// so nothing is mixed in.
+    static func wordCookiesAnswers(rows: [WordCookiesGame.Row], foundWords: [String],
+                                   hintedWords: Set<String>) -> [VocabAnswer] {
+        rows.compactMap { row in
+            guard let id = row.wordId, foundWords.contains(row.word) else { return nil }
+            return VocabAnswer(wordId: id, correct: !hintedWords.contains(row.word))
+        }
+    }
 }
