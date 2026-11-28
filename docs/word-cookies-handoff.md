@@ -50,7 +50,7 @@ _Updated Nov 27, 2026 (evening). Ask Claude to read this file in a new chat. Whe
 | 3. Game rules + tests | ✅ Committed |
 | 4. Game screen | ✅ Redesign A–C committed and checked on the simulator. Step D committed (Nov 27): D1 slots pop left to right when found (`SlotCell`), D2 rejected word stays in coral, shakes, fades (`showRejected`), D3 re-spelled or tapped row flashes (`flashes`). Reduce Motion drops the movement. Also: tiles 20% of the pan (was 23%) and a 70% hit radius, so dragging past a tile doesn't pick it up. |
 | 5. Today wiring | ✅ Committed (Nov 27): preview uses the top + two-column layout, info text updated, header comment says x/3 |
-| 6. Docs + tell teammates | Not started |
+| 6. Docs + tell teammates | 🟡 `app-guide.md` done and pushed (Nov 27). Sai still to message Arielle and relturu |
 
 Build passes; **297/297 tests pass** (Nov 27).
 

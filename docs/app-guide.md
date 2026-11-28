@@ -34,6 +34,7 @@ New files under `FluentIsh/FluentIsh/` are picked up by Xcode automatically (syn
 | Daily Vocab deck + Session Review (Sean) | `Features/VocabDeck/VocabLessonView.swift`, wired through `TodayDestination` in `Features/Today/TodayView.swift` | Today › Start | the attached Daily Vocab Lesson reference |
 | Connections (Jessica) | new `Features/Games/Connections/`, then `TodayDestination` | Today › Connections › Play | [1](design_screenshots/connections-1-playing.png), [2](design_screenshots/connections-2-group-solved.png) |
 | Word Guess (Sai) | new `Features/Games/WordGuess/`, then `TodayDestination` | Today › Word Guess › Play | [1](design_screenshots/word-guess-1-playing.png), [hint](design_screenshots/word-guess-2-hint-popup.png) |
+| Word Cookies (Sai, done; replaces Word Guess later) | `Features/Games/WordCookies/` (`WordCookiesGame` rules, `WordCookiesBoard` layout math, `WordCookiesView` screen), wired through `TodayDestination` | Today › Word Cookies › Play | no AI Studio design: uses the app's own pieces (see "Word Cookies" in plan.md) |
 | Exercises (Arielle, done) | `Features/Exercises/` | Today › Skill Exercises row | [info](design_screenshots/exercise-info-sheet.png), [fill in the blank](design_screenshots/fill-blank-playing.png) |
 | Progress tab (Sai) | `Features/Progress/ProgressTabView.swift` | Tab bar | [1](design_screenshots/progress-1.png), [2](design_screenshots/progress-2.png) |
 | Friends tab (Sean; V1 implementation) | `Features/Friends/FriendsView.swift` | Tab bar | [1](design_screenshots/friends-1.png), [2](design_screenshots/friends-2.png) |
@@ -143,6 +144,9 @@ Each seeded lesson provides the day's ten themed word IDs (each word is in one d
 **Rules** (all unit tested, so don't re-implement them):
 - `ProgressRules.connectionsScore(mistakes:)`, `wordGuessScore(guessesUsed:solved:)`, `gameXP(score:hintsUsed:)`
 - `GameRules.feedback(guess:answer:)` gives Word Guess colours. It handles repeated letters, ignores accents and treats Ñ as its own letter.
+- Word Cookies: `WordCookiesGame` (submit, hints, restore, `result()`), `ProgressRules.wordCookiesScore()` (always 1.0; hints cost XP through `gameXP`), `GameMix.wordCookiesAnswers(rows:foundWords:hintedWords:)` for the word bank. It has its own accent handling and doesn't use `GameRules`, so Word Guess can be deleted without touching it.
+
+**Word Cookies data.** The puzzle is `dailyPuzzles.wordCookies` (`baseWordId`, `letters`, `words: [{ word, en, wordId? }]`). It's optional: a day without it just hides the Today card. The game saves to `dailyLog.games.wordCookies` with `foundWords` (e.g. `"TAREA"`) and `revealedLetters` (e.g. `"TAREA:0"`). Its `record` call is in `TodayDestination`: it sends `words:` only on the first finish. To add or change a day: edit `firebase/seed/dailyPuzzles.json` (the base word must be a 6–9 letter word from that day's deck; 5–6 words in total, each 3+ letters and spelled from the base word's letters), run `node scripts/check-seed.js`, then `cd scripts && npm run seed:dry` and `npm run seed`.
 - The XP values and level floors are in `ProgressRules` and in plan.md "Defaults to implement".
 
 Firestore rules: the app reads content, and writes only to the signed-in user's own documents (plus posts and likes). A write anywhere else fails with "permission denied". Don't rename fields without updating `docs/plan.md` and `Models/FirestoreModels.swift` together.
@@ -171,9 +175,9 @@ Add these in Xcode › Product › Scheme › Edit Scheme › Run › Arguments,
 | Argument | Does |
 |---|---|
 | `-tab progress` (`friends`, `settings`) | Opens on that tab |
-| `-todayOpen connections` (`vocab`, `wordGuess`) | Opens that screen from Today |
+| `-todayOpen connections` (`vocab`, `wordGuess`, `wordCookies`) | Opens that screen from Today |
 | `-todayOpen fillBlank` (`sentenceBuilder`, `definitionMatch`) + `-exerciseDifficulty easy` | Opens that exercise at that difficulty |
-| `-todaySheet connections|wordGuess|crossword|fillBlank|level` | Opens a sheet on Today |
+| `-todaySheet connections|wordGuess|wordCookies|crossword|fillBlank|level` | Opens a sheet on Today |
 | `-darkMode YES` | Dark mode |
 | `-screen styleguide` | The design-system screen |
 | `-screen onboarding` | Previews onboarding. Don't finish it: that overwrites your progress |
