@@ -48,7 +48,7 @@ _Updated Nov 27, 2026 (evening). Ask Claude to read this file in a new chat. Whe
 | 1. Data model | ✅ Committed (`075e4b2`) |
 | 2. Seed + checks | ✅ Committed. Trim to 6 words committed and re-seeded to Firestore (Nov 27) |
 | 3. Game rules + tests | ✅ Committed |
-| 4. Game screen | 🟡 Redesign sub-steps A, option 1, B, C done and committed; Sai checked it on the simulator (looks good). **Step D (animations) not started.** |
+| 4. Game screen | ✅ Redesign A–C committed and checked on the simulator. Step D committed (Nov 27): D1 slots pop left to right when found (`SlotCell`), D2 rejected word stays in coral, shakes, fades (`showRejected`), D3 re-spelled or tapped row flashes (`flashes`). Reduce Motion drops the movement. Also: tiles 20% of the pan (was 23%) and a 70% hit radius, so dragging past a tile doesn't pick it up. |
 | 5. Today wiring | 🟡 Written before the redesign, committed, preview layout + info text still to update (see below) |
 | 6. Docs + tell teammates | Not started |
 
@@ -74,7 +74,7 @@ Build passes; **297/297 tests pass** (Nov 27).
   - `Feedback.found(display, en:)` → pill shows "tarea: homework, task". `showMeaning(of:)` for tapping a found row (not while spelling or after the game ends).
   - `baseRowIndex`: row with the puzzle's `baseWordId`, else the last row.
   - Previews use the new 6-word Sunday.
-- **Step D (next, optional polish):** letters fly from the pill into the found row's slots with a stagger and each slot pops; the pill shakes and fades on a wrong word; an already-found row flashes; maybe stronger haptics per letter.
+- **Step D (done):** staggered pop instead of letters flying from the pill (simpler; can add flying later). Gotcha: a 0-second keyframe makes the scale NaN and the view disappears, so `SlotCell`'s wait is `max(delay, 0.001)` (`if` isn't allowed in the keyframe builder).
 
 ### Step 5: what's already written (needs a look)
 - `WordCookiesPreview` in `TodayCards.swift`: mini slot rows (green when found). **Still a plain stack, not the new top + two columns.** Decide whether to match the board.
@@ -86,7 +86,7 @@ Build passes; **297/297 tests pass** (Nov 27).
 1. ~~Sai checks the screen~~ ✅ Nov 27, looks good.
 2. ~~Re-seed Firestore~~ ✅ Nov 27, 7 `dailyPuzzles` docs updated. **Tell relturu.**
 3. ~~Commit~~ ✅ Nov 27, on `add-word-cookie` (local, not pushed).
-4. Step D animations (if Sai wants them).
+4. ~~Step D animations~~ ✅ Nov 27, committed.
 5. Finish Step 5 (preview layout + info text), then tick steps 4–5 in `plan.md` and update its Step 4 description to the new layout.
 6. Step 6: `docs/app-guide.md`, tell Arielle (Today, word bank) and relturu (seed).
 

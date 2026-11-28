@@ -50,11 +50,17 @@ struct WordCookiesView: View {
     /// The message under the grid after a submit ("Not on the list" …).
     /// Cleared when the next word starts.
     @State private var feedback: Feedback?
-    /// Bumped on a rejected word: the shared `.shake(_:)` helper wiggles the
-    /// word pill whenever it changes.
+    /// Bumped on a rejected word (in `showRejected`): the shared `.shake(_:)`
+    /// helper wiggles the word pill whenever it changes.
     @State private var misses = 0
+    /// The letters of a word that was just rejected. They stay in the pill
+    /// in coral, shake, then fade out to the message. Empty otherwise.
+    @State private var rejected: [String] = []
     /// The row found (or re-found) last, briefly highlighted in the grid.
     @State private var highlighted: String?
+    /// How many times each row has flashed (re-spelled or tapped). A row
+    /// flashes whenever its own count goes up, so no other row moves.
+    @State private var flashes: [String: Int] = [:]
     /// Which "i" / "?" popup is open, if any.
     @State private var assist: AssistMode?
     /// Confetti message when the last word is found; nil hides the overlay.
@@ -96,7 +102,12 @@ struct WordCookiesView: View {
 
     /// Circle of tiles: overall size and the size of one tile.
     private var circleSide: CGFloat { WordCookiesBoard.circleSide(forHeight: screenHeight) }
-    private var tileSide: CGFloat { circleSide * 0.23 }
+    /// 20% of the circle leaves ~17pt between neighbours with 9 letters, so
+    /// dragging to the tile after next doesn't clip the one in between.
+    private var tileSide: CGFloat { circleSide * 0.2 }
+    /// A drag picks up a tile only this close to its center (70% of its
+    /// radius), so passing beside a tile doesn't add it.
+    private var hitRadius: CGFloat { tileSide / 2 * 0.7 }
 
     /// `saved` restores a game started (or finished) earlier today.
     ///
@@ -193,6 +204,7 @@ struct WordCookiesView: View {
                        found: found,
                        revealed: game.revealedIndices(in: row.word),
                        highlighted: highlighted == row.word,
+                       flashes: flashes[row.word, default: 0],
                        side: side)
             .onTapGesture { if found { showMeaning(of: row) } }
     }
@@ -204,36 +216,66 @@ struct WordCookiesView: View {
         guard selection.isEmpty, !game.isOver else { return }
         Haptics.tap()
         highlighted = row.word
+        flashes[row.word, default: 0] += 1
         feedback = .found(row.display, en: row.en)
     }
 
     // MARK: Word being spelled
 
-    /// The letters being spelled (as small flame tiles), or the result of the
-    /// last word, or a prompt. A fixed height so the circle doesn't jump.
-    @ViewBuilder
+    /// The letters being spelled (as small flame tiles), a rejected word (in
+    /// coral, shaking), or the result of the last word, or a prompt. A fixed
+    /// height so the circle doesn't jump.
     private var wordPill: some View {
-        if selection.isEmpty {
-            messagePill
-        } else {
-            let letters = selection.map { game.tiles[$0] }
-            HStack(spacing: 4) {
-                ForEach(Array(letters.enumerated()), id: \.offset) { _, letter in
-                    TactileDisc(shape: RoundedRectangle(cornerRadius: 8, style: .continuous),
-                                face: .flame, edge: .flameEdge, depth: 3) {
-                        Text(letter)
-                            .font(.jakarta(16, 800))
-                            .foregroundStyle(Color.white)
-                    }
-                    .frame(width: 30, height: 30)
-                    .transition(.scale.combined(with: .opacity))
-                }
+        Group {
+            if !selection.isEmpty {
+                let letters = selection.map { game.tiles[$0] }
+                letterChips(letters, face: .flame, edge: .flameEdge)
+                    .animation(.spring(duration: 0.2), value: selection)
+                    .accessibilityLabel("Spelling \(letters.joined())")
+            } else if !rejected.isEmpty {
+                letterChips(rejected, face: .coral, edge: Self.coralEdge)
+                    .transition(.opacity)
+                    .accessibilityHidden(true)      // VoiceOver hears the message instead
+            } else {
+                messagePill
+                    .transition(.opacity)
             }
-            .animation(.spring(duration: 0.2), value: selection)
-            .frame(maxWidth: .infinity)
-            .frame(height: 36)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Spelling \(letters.joined())")
+        }
+        // On the whole pill, not the coral chips: they appear in the same
+        // update that bumps `misses`, so they'd never see it change.
+        .shake(misses)
+    }
+
+    /// A row of small tactile letter chips, centered in the pill's height.
+    private func letterChips(_ letters: [String], face: Color, edge: Color) -> some View {
+        HStack(spacing: 4) {
+            ForEach(Array(letters.enumerated()), id: \.offset) { _, letter in
+                TactileDisc(shape: RoundedRectangle(cornerRadius: 8, style: .continuous),
+                            face: face, edge: edge, depth: 3) {
+                    Text(letter)
+                        .font(.jakarta(16, 800))
+                        .foregroundStyle(Color.white)
+                }
+                .frame(width: 30, height: 30)
+                .transition(.scale.combined(with: .opacity))
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 36)
+        .accessibilityElement(children: .ignore)
+    }
+
+    /// Shows a rejected word's letters in coral while they shake, then fades
+    /// them out to the message. A newer miss restarts this, so the older
+    /// task leaves the letters alone.
+    private func showRejected(_ letters: [String]) {
+        rejected = letters
+        misses += 1
+        let miss = misses
+        Task {
+            try? await Task.sleep(for: .milliseconds(600))
+            guard misses == miss, !rejected.isEmpty else { return }
+            withAnimation(.easeOut(duration: 0.25)) { rejected = [] }
         }
     }
 
@@ -255,7 +297,6 @@ struct WordCookiesView: View {
             .minimumScaleFactor(0.7)
             .frame(maxWidth: .infinity)
             .frame(height: 36)
-            .shake(misses)
     }
 
     // MARK: Play area
@@ -370,13 +411,13 @@ struct WordCookiesView: View {
     private func tileIndex(at point: CGPoint) -> Int? {
         game.tiles.indices.first { index in
             let c = center(of: index)
-            return hypot(point.x - c.x, point.y - c.y) <= tileSide / 2
+            return hypot(point.x - c.x, point.y - c.y) <= hitRadius
         }
     }
 
     private func dragChanged(to point: CGPoint) {
         guard !game.isOver else { return }
-        if selection.isEmpty { feedback = nil }
+        if selection.isEmpty { feedback = nil; rejected = [] }
         dragPoint = point
         guard let index = tileIndex(at: point), selection.last != index else { return }
         if selection.count >= 2, selection[selection.count - 2] == index {
@@ -402,7 +443,7 @@ struct WordCookiesView: View {
     /// VoiceOver: activating a tile adds it, or removes it if it's the last one.
     private func toggle(_ index: Int) {
         guard !game.isOver else { return }
-        if selection.isEmpty { feedback = nil }
+        if selection.isEmpty { feedback = nil; rejected = [] }
         if selection.last == index {
             selection.removeLast()
         } else if !selection.contains(index) {
@@ -414,6 +455,7 @@ struct WordCookiesView: View {
     private func submitSelection() {
         let tiles = selection
         let word = game.spelled(tiles)
+        let letters = tiles.map { game.tiles[$0] }
         selection = []
         switch game.submit(tiles) {
         case .found:
@@ -429,15 +471,16 @@ struct WordCookiesView: View {
         case .alreadyFound:
             Haptics.warning()
             highlighted = word
+            flashes[word, default: 0] += 1      // show which row it is
             feedback = .alreadyFound
         case .notInList:
             Haptics.error()
-            misses += 1
             feedback = .notInList
+            showRejected(letters)
         case .tooShort:
             Haptics.error()
-            misses += 1
             feedback = .tooShort
+            showRejected(letters)
         case .ignored:
             break
         }
@@ -459,6 +502,8 @@ struct WordCookiesView: View {
     /// The pan's colours: the indigo "Play" button (`.tactile(.secondary)`).
     private static let panFace = Color(light: 0x1F1B4D, dark: 0x292461)
     private static let panEdge = Color(light: 0x120F32, dark: 0x1A1646)
+    /// Darker edge under the coral chips of a rejected word.
+    private static let coralEdge = Color(hex: 0xD63A4B)
 
     // MARK: Hints
 
@@ -689,20 +734,40 @@ private struct SlotRow: View {
     let found: Bool
     let revealed: Set<Int>
     let highlighted: Bool
+    /// Goes up each time this row should flash (see `flashes` in the view).
+    let flashes: Int
     let side: CGFloat
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// The flash: brightness blinks twice while the row bounces once.
+    private struct Flash {
+        var glow = 0.0
+        var scale = 1.0
+    }
 
     var body: some View {
         HStack(spacing: WordCookiesBoard.slotGap) {
             ForEach(Array(row.word.enumerated()), id: \.offset) { index, letter in
-                let shown = found || revealed.contains(index)
-                let shape = RoundedRectangle(cornerRadius: side * 0.24, style: .continuous)
-                Text(shown ? String(letter) : "")
-                    .font(.jakarta(side * 0.5, 800))
-                    .foregroundStyle(found ? Color.indigo : Color.flame)
-                    .frame(width: side, height: side)
-                    .background(found ? Color.success : Color.raised, in: shape)
-                    .overlay(shape.strokeBorder(found ? Color.successEdge : Color.ink.opacity(revealed.contains(index) ? 0 : 0.08)))
-                    .overlay(shape.strokeBorder(Color.flame.opacity(revealed.contains(index) && !found ? 0.5 : 0), lineWidth: 1.5))
+                SlotCell(letter: letter, index: index, found: found,
+                         revealed: revealed.contains(index), side: side)
+            }
+        }
+        .keyframeAnimator(initialValue: Flash(), trigger: flashes) { content, flash in
+            content
+                .brightness(flash.glow)
+                .scaleEffect(flash.scale)
+        } keyframes: { _ in
+            KeyframeTrack(\.glow) {
+                LinearKeyframe(0.25, duration: 0.1)
+                LinearKeyframe(0, duration: 0.12)
+                LinearKeyframe(0.25, duration: 0.1)
+                LinearKeyframe(0, duration: 0.2)
+            }
+            // Brightness isn't motion, so only the bounce goes with Reduce Motion.
+            KeyframeTrack(\.scale) {
+                SpringKeyframe(reduceMotion ? 1 : 1.08, duration: 0.15, spring: .snappy)
+                SpringKeyframe(1, duration: 0.35, spring: .bouncy)
             }
         }
         .scaleEffect(highlighted && found ? 1.04 : 1)
@@ -719,6 +784,55 @@ private struct SlotRow: View {
         let letters = Array(row.word)
         let hints = revealed.sorted().map { "\(letters[$0]) at \($0 + 1)" }
         return hints.isEmpty ? "\(length), not found" : "\(length), hint: " + hints.joined(separator: ", ")
+    }
+}
+
+/// One slot of a row. When its word is found it turns green and pops, a
+/// little after the slot to its left, so the word fills in left to right.
+/// A hinted letter pops on its own when it's revealed. A game restored as
+/// already found starts green and doesn't animate.
+private struct SlotCell: View {
+    let letter: Character
+    let index: Int
+    let found: Bool
+    let revealed: Bool
+    let side: CGFloat
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// Time between one slot popping and the next.
+    private let stagger = 0.06
+
+    /// 0 empty, 1 hinted, 2 found. The pop runs whenever this goes up, so a
+    /// hinted slot pops again with the rest when its word is found.
+    private var stage: Int { found ? 2 : (revealed ? 1 : 0) }
+
+    /// Only a found word waits its turn; a hint pops straight away.
+    private var delay: Double { found && !reduceMotion ? Double(index) * stagger : 0 }
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: side * 0.24, style: .continuous)
+        Text(found || revealed ? String(letter) : "")
+            .font(.jakarta(side * 0.5, 800))
+            .foregroundStyle(found ? Color.indigo : Color.flame)
+            .frame(width: side, height: side)
+            .background(found ? Color.success : Color.raised, in: shape)
+            .overlay(shape.strokeBorder(found ? Color.successEdge : Color.ink.opacity(revealed ? 0 : 0.08)))
+            .overlay(shape.strokeBorder(Color.flame.opacity(revealed && !found ? 0.5 : 0), lineWidth: 1.5))
+            // The colour and letter change at this slot's turn, not all at once.
+            .animation(.easeOut(duration: 0.15).delay(delay), value: stage)
+            .keyframeAnimator(initialValue: 1.0, trigger: stage) { content, scale in
+                content.scaleEffect(scale)
+            } keyframes: { _ in
+                // Wait for this slot's turn, grow, then spring back. The wait
+                // is never exactly 0: a 0-second keyframe makes the scale NaN
+                // and the slot disappears (the builder doesn't allow `if`).
+                KeyframeTrack {
+                    LinearKeyframe(1.0, duration: max(delay, 0.001))
+                    SpringKeyframe(reduceMotion ? 1.0 : 1.22, duration: 0.12, spring: .snappy)
+                    SpringKeyframe(1.0, duration: 0.3, spring: .bouncy)
+                }
+            }
     }
 }
 
