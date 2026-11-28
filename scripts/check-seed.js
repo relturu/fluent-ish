@@ -243,7 +243,7 @@ const tileLetters = (s) => s.toUpperCase().normalize("NFD")
 const letterCounts = (s) => [...s].reduce((m, c) => m.set(c, (m.get(c) ?? 0) + 1), new Map());
 
 // docs/plan.md "Word Cookies": the base word is one word (no phrases) of 6–9
-// letters from that day's deck; 5–8 answers of 3+ letters, base included,
+// letters from that day's deck; 5–6 answers of 3+ letters, base included,
 // each spelled from the base word's tiles (a tile is used once per word).
 function checkWordCookies(wc, deckIds, where) {
   const base = words.get(wc.baseWordId);
@@ -255,7 +255,7 @@ function checkWordCookies(wc, deckIds, where) {
   check(wc.letters === letters, `${where}: letters should be "${letters}" (the base word's tiles), got "${wc.letters}"`);
 
   const list = wc.words ?? [];
-  check(list.length >= 5 && list.length <= 8, `${where}: needs 5–8 words, has ${list.length}`);
+  check(list.length >= 5 && list.length <= 6, `${where}: needs 5–6 words, has ${list.length}`);
   const available = letterCounts(letters);
   const seen = new Set();
   for (const entry of list) {

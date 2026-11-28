@@ -31,12 +31,10 @@
       "letters": "SOBREMESA",
       "words": [
         { "word": "mar", "en": "sea" },
-        { "word": "mes", "en": "month" },
         { "word": "amor", "en": "love" },
         { "word": "beso", "en": "kiss" },
         { "word": "mesa", "en": "table" },
         { "word": "sabor", "en": "flavor" },
-        { "word": "sombra", "en": "shade, shadow" },
         { "word": "sobremesa", "en": "after-meal chat at the table", "wordId": "w_sobremesa" }
       ]
     }
@@ -74,9 +72,7 @@
       "words": [
         { "word": "área", "en": "area" },
         { "word": "arte", "en": "art" },
-        { "word": "atar", "en": "to tie" },
         { "word": "rata", "en": "rat" },
-        { "word": "regar", "en": "to water (plants)" },
         { "word": "tarea", "en": "homework, task" },
         { "word": "tragar", "en": "to swallow" },
         { "word": "regatear", "en": "to haggle", "wordId": "w_regatear" }
@@ -115,10 +111,8 @@
       "letters": "ATARDECER",
       "words": [
         { "word": "dar", "en": "to give" },
-        { "word": "red", "en": "net; network" },
         { "word": "cara", "en": "face" },
         { "word": "acera", "en": "sidewalk", "wordId": "w_acera" },
-        { "word": "carta", "en": "letter; menu" },
         { "word": "tarde", "en": "afternoon; late" },
         { "word": "receta", "en": "recipe" },
         { "word": "atardecer", "en": "sunset, dusk", "wordId": "w_atardecer" }
@@ -160,9 +154,7 @@
         { "word": "cena", "en": "dinner" },
         { "word": "cosa", "en": "thing" },
         { "word": "rosa", "en": "rose" },
-        { "word": "sano", "en": "healthy" },
         { "word": "carne", "en": "meat" },
-        { "word": "casero", "en": "landlord; homemade" },
         { "word": "ascensor", "en": "elevator", "wordId": "w_ascensor" }
       ]
     }
@@ -200,7 +192,6 @@
       "words": [
         { "word": "paso", "en": "step" },
         { "word": "pera", "en": "pear" },
-        { "word": "peso", "en": "weight" },
         { "word": "sopa", "en": "soup" },
         { "word": "paseo", "en": "walk, stroll" },
         { "word": "perro", "en": "dog", "wordId": "w_perro" },
@@ -240,11 +231,9 @@
       "letters": "COMPAÑERO",
       "words": [
         { "word": "año", "en": "year" },
-        { "word": "oro", "en": "gold" },
         { "word": "pero", "en": "but" },
         { "word": "ropa", "en": "clothes" },
         { "word": "campo", "en": "countryside, field" },
-        { "word": "poema", "en": "poem" },
         { "word": "compra", "en": "purchase; shopping" },
         { "word": "compañero", "en": "colleague, classmate", "wordId": "w_companero" }
       ]
@@ -285,8 +274,6 @@
         { "word": "casa", "en": "house, home", "wordId": "w_casa" },
         { "word": "nada", "en": "nothing" },
         { "word": "arena", "en": "sand" },
-        { "word": "nadar", "en": "to swim" },
-        { "word": "sacar", "en": "to take out" },
         { "word": "secar", "en": "to dry" },
         { "word": "descansar", "en": "to rest", "wordId": "w_descansar" }
       ]

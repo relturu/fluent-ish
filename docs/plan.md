@@ -175,7 +175,7 @@ A new daily game on branch `add-word-cookie`. Word Guess will be removed once Wo
 **Decisions (Nov 24):**
 - **Base word:** each day's seed picks one word from that day's deck. It must be a single word (no phrases) with 6–9 letters. It's picked by hand in `dailyPuzzles.json`, not "the longest", so **everyone gets the same puzzle**.
 - **Word list:**
-  - Hand-picked in the seed, with English written by hand: 5–8 words of 3+ letters, including the base word.
+  - Hand-picked in the seed, with English written by hand: 5–6 words of 3+ letters, including the base word. (Was 5–8; cut to 6 per day on Nov 27 because 8 felt like too much for one daily game. Kept every base word and every word with a `wordId`.)
   - Only the base word has to come from the deck. The other words are everyday words (A1–A2) spelled from its letters, so B1 learners already know most of them.
   - **Dictionary forms only:** singular nouns, infinitive verbs, masculine singular adjectives (*rosa*, not *rosas*; *ser*, not *eres*). `check-seed.js` can't tell a plural from a dictionary form, so whoever writes the list has to keep to this.
   - Spanish stays neutral between Spain and Latin America (e.g. no *mesero*).
@@ -200,10 +200,10 @@ A new daily game on branch `add-word-cookie`. Word Guess will be removed once Wo
 
 **Steps:**
 - [x] 1. Data model: `WordCookiesPuzzle` / `WordCookiesWord`, `DailyPuzzle.wordCookies`, `GameResult.foundWords` / `revealedLetters` in Swift, `schemas.js` and this doc. `check-seed.js` accepts the `wordCookies` game key, with score 1.0.
-- [x] 2. Seed: base words and lists approved and seeded to Firestore (Nov 27). `dailyPuzzles.json` has 52 words; 10 link to a `words` doc. `check-seed.js` now requires `wordCookies` on every day and checks:
+- [x] 2. Seed: base words and lists approved and seeded to Firestore (Nov 27). `dailyPuzzles.json` has 42 words (6 per day, trimmed from 52 and re-seeded on Nov 27); 10 link to a `words` doc. `check-seed.js` now requires `wordCookies` on every day and checks:
   - the base word is in that day's deck, is one word, and has 6–9 letters
   - `letters` is the base word's tiles, and the base word is in `words` with its `wordId`
-  - there are 5–8 words; each fits in the base word's letters (counting repeats), has 3+ letters, isn't repeated, and has a non-empty `en`
+  - there are 5–6 words; each fits in the base word's letters (counting repeats), has 3+ letters, isn't repeated, and has a non-empty `en`
   - every `wordId` exists and is the same word
 - [x] 3. Rules: `Features/Games/WordCookies/WordCookiesGame.swift`, `ProgressRules.wordCookiesScore`, `GameMix.wordCookiesAnswers(rows:foundWords:hintedWords:)`, 23 tests in `WordCookiesGameTests.swift` (Nov 27, 286/286 pass).
 - [ ] 4. Screen: `WordCookiesView.swift` (slot grid, tile circle with drag, Shuffle, Hint x/3, shake, celebration, result card, tap fallback for VoiceOver). It saves through an `onSave` closure.
