@@ -12,7 +12,8 @@ import Testing
 
 struct WordCookiesGameTests {
 
-    /// Sunday's puzzle from the seed.
+    /// Sunday's puzzle as first seeded, with 8 words (the seed now has 6).
+    /// The rules work for any number of words, so the longer list stays.
     private let regatear = WordCookiesPuzzle(
         baseWordId: "w_regatear", letters: "REGATEAR",
         words: [

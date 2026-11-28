@@ -146,12 +146,14 @@ enum TodayRoute: Hashable {
     case vocab
     case connections
     case wordGuess
+    case wordCookies
     case exercise(id: String)
 }
 
-/// The games that count toward "x/2" on Today in V1.
+/// The games that count toward "x/3" on Today. Word Guess leaves this list
+/// when it's removed (docs/plan.md "Word Cookies").
 enum V1Games {
-    static let keys = ["connections", "wordGuess"]
+    static let keys = ["connections", "wordGuess", "wordCookies"]
 
     static func completed(in log: DailyLog?) -> Int {
         keys.filter { log?.games[$0]?.status == .completed }.count

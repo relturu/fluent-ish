@@ -226,6 +226,36 @@ struct WordGuessPreview: View {
     }
 }
 
+// MARK: - Word Cookies preview
+
+/// The game's slot grid in miniature: one row of small squares per word,
+/// shortest first, green once found. No letters, so it never spoils a word.
+struct WordCookiesPreview: View {
+    let puzzle: WordCookiesPuzzle
+    let saved: GameResult?
+
+    var body: some View {
+        // The game works out the rows and found words, so the preview
+        // matches the game screen exactly.
+        let game = WordCookiesGame(puzzle: puzzle, restoring: saved)
+        VStack(alignment: .leading, spacing: 4) {
+            ForEach(game.rows, id: \.word) { row in
+                let found = game.isFound(row.word)
+                HStack(spacing: 3) {
+                    ForEach(0..<row.word.count, id: \.self) { _ in
+                        RoundedRectangle(cornerRadius: 3, style: .continuous)
+                            .fill(found ? Color.success : Color.segmentTrack)
+                            .frame(width: 14, height: 14)
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(game.foundWords.count) of \(game.rows.count) words found")
+    }
+}
+
 // MARK: - Crossword preview
 
 /// The real 5×5 grid shape. White squares turn aqua once it's solved.

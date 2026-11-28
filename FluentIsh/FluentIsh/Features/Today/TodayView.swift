@@ -154,6 +154,15 @@ struct TodayView: View {
                     WordGuessPreview(length: puzzle.wordGuess.length, answer: puzzle.wordGuess.answer,
                                      guesses: games["wordGuess"]?.guesses ?? [])
                 }
+                // Hidden for a day seeded before Word Cookies existed.
+                if let wordCookies = puzzle.wordCookies {
+                    TodayCard {
+                        GameCardHeader(title: "Word Cookies", kind: .init(games["wordCookies"]),
+                                       onInfo: { info = TodayInfo.wordCookies(wordCookies, result: games["wordCookies"]) },
+                                       route: .wordCookies)
+                        WordCookiesPreview(puzzle: wordCookies, saved: games["wordCookies"])
+                    }
+                }
                 TodayCard {
                     GameCardHeader(title: "Mini Crossword", kind: .init(games["crossword"]),
                                    onInfo: { info = TodayInfo.crossword }, route: nil)
@@ -266,6 +275,7 @@ struct TodayView: View {
         case "vocab": pushed = .vocab
         case "connections": pushed = .connections
         case "wordGuess": pushed = .wordGuess
+        case "wordCookies": pushed = .wordCookies
         case let type? where Self.exerciseTypes.contains(where: { $0.0 == type }):
             // -todayOpen fillBlank|sentenceBuilder|definitionMatch, at the stored difficulty.
             Task {
@@ -285,6 +295,13 @@ struct TodayView: View {
                 while model.phase == .loading { try? await Task.sleep(for: .milliseconds(200)) }
                 if let puzzle = model.puzzle {
                     info = TodayInfo.wordGuess(puzzle, result: log?.games["wordGuess"])
+                }
+            }
+        case "wordCookies":
+            Task {
+                while model.phase == .loading { try? await Task.sleep(for: .milliseconds(200)) }
+                if let wordCookies = model.puzzle?.wordCookies {
+                    info = TodayInfo.wordCookies(wordCookies, result: log?.games["wordCookies"])
                 }
             }
         default: break
@@ -418,6 +435,30 @@ struct TodayDestination: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.canvas)
             }
+        case .wordCookies:
+            // Sai's screen (Features/Games/WordCookies/). The same puzzle for
+            // everyone; `saved` restores today's game from the live daily log.
+            if let wordCookies = puzzle?.wordCookies {
+                WordCookiesView(puzzle: wordCookies,
+                                saved: appState.todayLog?.games["wordCookies"]) { result, minutes in
+                    // Found words with a word doc (always the base deck word)
+                    // update the word bank, once, when the game first finishes.
+                    let firstFinish = result.status == .completed
+                        && appState.todayLog?.games["wordCookies"]?.status != .completed
+                    let game = WordCookiesGame(puzzle: wordCookies, restoring: result)
+                    let words = firstFinish
+                        ? GameMix.wordCookiesAnswers(rows: game.rows, foundWords: game.foundWords,
+                                                     hintedWords: game.hintedWords)
+                        : []
+                    return try await appState.record(.game(key: "wordCookies", result: result), minutes: minutes,
+                                                     words: words)
+                }
+            } else {
+                // Opened before today's puzzle finished loading (e.g. -todayOpen).
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.canvas)
+            }
         case .exercise(let id):
             if let exercise = exercises.first(where: { $0.id == id }), !exercise.items.isEmpty {
                 ExerciseView(exercise: exercise, wordIds: exerciseWordIds(id))
@@ -456,6 +497,22 @@ enum TodayInfo {
             description: "Guess today's \(puzzle.wordGuess.length)-letter Spanish word. After each guess, green means right letter in the right spot, yellow means it's in the word but somewhere else.",
             tip: "You don't need to type accents: á, é, í, ó and ú count as plain vowels. Ñ is its own letter.",
             reward: "Up to +\(ProgressRules.gameMaxXP) XP, fewer guesses earn more", actionLabel: action, route: .wordGuess)
+    }
+
+    /// `result` is today's saved Word Cookies, so the button matches the card.
+    /// Language-neutral: the same copy works for any language's puzzle.
+    static func wordCookies(_ puzzle: WordCookiesPuzzle, result: GameResult?) -> InfoContent {
+        let action = switch result?.status {
+        case .completed: "See results"
+        case .inProgress: "Continue Word Cookies"
+        default: "Play Word Cookies"
+        }
+        return InfoContent(
+            id: "wordCookies", badge: "Word builder", title: "Word Cookies",
+            subtitle: "\(puzzle.letters.count) letters · \(puzzle.words.count) words",
+            description: "Drag across a circle of letters to spell words. Every word is on the grid, and each one you find shows its English meaning. The longest word is from today's vocab.",
+            tip: "Stuck? Shuffle the letters to see new patterns. Accents don't matter: á counts as A.",
+            reward: "+\(ProgressRules.gameMaxXP) XP, −\(ProgressRules.hintPenaltyXP) per hint", actionLabel: action, route: .wordCookies)
     }
 
     static let crossword = InfoContent(
