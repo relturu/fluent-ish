@@ -228,31 +228,52 @@ struct WordGuessPreview: View {
 
 // MARK: - Word Cookies preview
 
-/// The game's slot grid in miniature: one row of small squares per word,
-/// shortest first, green once found. No letters, so it never spoils a word.
+/// The game's slot board in miniature, laid out like the game screen: the
+/// base (deck) word on top, the other words in two columns below
+/// (WordCookiesBoard.arrange). Small squares, green once found. No letters,
+/// so it never spoils a word.
 struct WordCookiesPreview: View {
     let puzzle: WordCookiesPuzzle
     let saved: GameResult?
 
     var body: some View {
-        // The game works out the rows and found words, so the preview
-        // matches the game screen exactly.
+        // The game works out the rows and found words, and the board code
+        // places them, so the preview matches the game screen exactly.
         let game = WordCookiesGame(puzzle: puzzle, restoring: saved)
-        VStack(alignment: .leading, spacing: 4) {
-            ForEach(game.rows, id: \.word) { row in
-                let found = game.isFound(row.word)
-                HStack(spacing: 3) {
-                    ForEach(0..<row.word.count, id: \.self) { _ in
-                        RoundedRectangle(cornerRadius: 3, style: .continuous)
-                            .fill(found ? Color.success : Color.segmentTrack)
-                            .frame(width: 14, height: 14)
-                    }
-                }
+        // Same rule as WordCookiesView: the row with baseWordId, else the last.
+        let top = game.rows.firstIndex { $0.wordId == puzzle.baseWordId } ?? game.rows.indices.last
+        let arrangement = WordCookiesBoard.arrange(rowCount: game.rows.count, top: top)
+        VStack(spacing: 4) {
+            if let top = arrangement.top {
+                slots(game.rows[top], found: game.isFound(game.rows[top].word))
+            }
+            HStack(alignment: .top, spacing: 14) {
+                column(arrangement.left, in: game, alignment: .leading)
+                column(arrangement.right, in: game, alignment: .trailing)
             }
         }
         .frame(maxWidth: .infinity)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(game.foundWords.count) of \(game.rows.count) words found")
+    }
+
+    private func column(_ rows: [Int], in game: WordCookiesGame, alignment: HorizontalAlignment) -> some View {
+        VStack(alignment: alignment, spacing: 4) {
+            ForEach(rows, id: \.self) { index in
+                slots(game.rows[index], found: game.isFound(game.rows[index].word))
+            }
+        }
+    }
+
+    /// One word's row of small squares.
+    private func slots(_ row: WordCookiesGame.Row, found: Bool) -> some View {
+        HStack(spacing: 3) {
+            ForEach(0..<row.word.count, id: \.self) { _ in
+                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                    .fill(found ? Color.success : Color.segmentTrack)
+                    .frame(width: 14, height: 14)
+            }
+        }
     }
 }
 

@@ -206,8 +206,8 @@ A new daily game on branch `add-word-cookie`. Word Guess will be removed once Wo
   - there are 5–6 words; each fits in the base word's letters (counting repeats), has 3+ letters, isn't repeated, and has a non-empty `en`
   - every `wordId` exists and is the same word
 - [x] 3. Rules: `Features/Games/WordCookies/WordCookiesGame.swift`, `ProgressRules.wordCookiesScore`, `GameMix.wordCookiesAnswers(rows:foundWords:hintedWords:)`, 23 tests in `WordCookiesGameTests.swift` (Nov 27, 286/286 pass).
-- [ ] 4. Screen: `WordCookiesView.swift` (slot grid, tile circle with drag, Shuffle, Hint x/3, shake, celebration, result card, tap fallback for VoiceOver). It saves through an `onSave` closure.
-- [ ] 5. Today: `TodayRoute.wordCookies`, a card with `WordCookiesPreview`, `TodayInfo.wordCookies`, `"wordCookies"` added to `V1Games.keys`, DEBUG `-todayOpen` / `-todaySheet wordCookies`.
+- [x] 4. Screen (Nov 27): `WordCookiesView.swift` + `WordCookiesBoard.swift` (layout math, 11 tests in `WordCookiesBoardTests.swift`). Laid out like the real game: the base word alone on top, the other words in two columns below, same-size slots sized to fit so the board never scrolls. An indigo pan of 3D tiles with drag, round Shuffle (bottom-left) and Hint with hints-left badge (bottom-right). A found word's English shows in the pill above the pan (tap a found row to see it again); the end card lists every word with its English. Animations: found slots pop left to right, a rejected word shakes in coral and fades, a re-spelled row flashes; Reduce Motion drops the movement. Tap fallback for VoiceOver. It saves through an `onSave` closure.
+- [x] 5. Today (Nov 27): `TodayRoute.wordCookies`, a card with `WordCookiesPreview` (the same top + two-column layout, letterless), `TodayInfo.wordCookies`, `"wordCookies"` added to `V1Games.keys` (counter x/3), DEBUG `-todayOpen` / `-todaySheet wordCookies`.
 - [ ] 6. Docs: `docs/app-guide.md`. Tell Arielle (Today, word bank) and relturu (seed) before merging.
 
 **Ideas, not scheduled:** speech-to-text pronunciation practice (Speech framework + microphone permission); server-side XP checks with Cloud Functions.

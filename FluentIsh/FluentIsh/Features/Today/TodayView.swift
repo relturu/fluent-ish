@@ -9,10 +9,10 @@
 //
 //  Play / Start pushes the teammate screen or the Daily Vocab lesson
 //  (TodayDestination below). Skill Exercises open ExerciseView. The Mini Crossword is V2: its card shows the
-//  grid with a "Soon" pill, and the counter is x/2.
+//  grid with a "Soon" pill, and the counter is x/3 (V1Games).
 //
-//  DEBUG: `-todaySheet connections|wordGuess|crossword|fillBlank|level`
-//  opens a sheet at launch; `-todayOpen vocab|connections|wordGuess` opens a
+//  DEBUG: `-todaySheet connections|wordGuess|wordCookies|crossword|fillBlank|level`
+//  opens a sheet at launch; `-todayOpen vocab|connections|wordGuess|wordCookies` opens a
 //  filler screen and `-todayOpen fillBlank|sentenceBuilder|definitionMatch`
 //  an exercise at the stored difficulty (for screenshots).
 //
@@ -510,7 +510,7 @@ enum TodayInfo {
         return InfoContent(
             id: "wordCookies", badge: "Word builder", title: "Word Cookies",
             subtitle: "\(puzzle.letters.count) letters · \(puzzle.words.count) words",
-            description: "Drag across a circle of letters to spell words. Every word is on the grid, and each one you find shows its English meaning. The longest word is from today's vocab.",
+            description: "Drag across a circle of letters to spell words. Today's deck word is on top, and each word you find shows its English meaning.",
             tip: "Stuck? Shuffle the letters to see new patterns. Accents don't matter: á counts as A.",
             reward: "+\(ProgressRules.gameMaxXP) XP, −\(ProgressRules.hintPenaltyXP) per hint", actionLabel: action, route: .wordCookies)
     }

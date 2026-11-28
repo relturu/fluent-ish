@@ -49,7 +49,7 @@ _Updated Nov 27, 2026 (evening). Ask Claude to read this file in a new chat. Whe
 | 2. Seed + checks | ✅ Committed. Trim to 6 words committed and re-seeded to Firestore (Nov 27) |
 | 3. Game rules + tests | ✅ Committed |
 | 4. Game screen | ✅ Redesign A–C committed and checked on the simulator. Step D committed (Nov 27): D1 slots pop left to right when found (`SlotCell`), D2 rejected word stays in coral, shakes, fades (`showRejected`), D3 re-spelled or tapped row flashes (`flashes`). Reduce Motion drops the movement. Also: tiles 20% of the pan (was 23%) and a 70% hit radius, so dragging past a tile doesn't pick it up. |
-| 5. Today wiring | 🟡 Written before the redesign, committed, preview layout + info text still to update (see below) |
+| 5. Today wiring | ✅ Committed (Nov 27): preview uses the top + two-column layout, info text updated, header comment says x/3 |
 | 6. Docs + tell teammates | Not started |
 
 Build passes; **297/297 tests pass** (Nov 27).
@@ -87,7 +87,7 @@ Build passes; **297/297 tests pass** (Nov 27).
 2. ~~Re-seed Firestore~~ ✅ Nov 27, 7 `dailyPuzzles` docs updated. **Tell relturu.**
 3. ~~Commit~~ ✅ Nov 27, on `add-word-cookie` (local, not pushed).
 4. ~~Step D animations~~ ✅ Nov 27, committed.
-5. Finish Step 5 (preview layout + info text), then tick steps 4–5 in `plan.md` and update its Step 4 description to the new layout.
+5. ~~Finish Step 5, tick steps 4–5 in `plan.md`~~ ✅ Nov 27.
 6. Step 6: `docs/app-guide.md`, tell Arielle (Today, word bank) and relturu (seed).
 
 ## How the app works (so you don't need to re-explore)
