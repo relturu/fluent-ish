@@ -147,6 +147,12 @@ Each seeded lesson provides the day's ten themed word IDs (each word is in one d
 - Word Cookies: `WordCookiesGame` (submit, hints, restore, `result()`), `ProgressRules.wordCookiesScore()` (always 1.0; hints cost XP through `gameXP`), `GameMix.wordCookiesAnswers(rows:foundWords:hintedWords:)` for the word bank. It has its own accent handling and doesn't use `GameRules`, so Word Guess can be deleted without touching it.
 
 **Word Cookies data.** The puzzle is `dailyPuzzles.wordCookies` (`baseWordId`, `letters`, `words: [{ word, en, wordId? }]`). It's optional: a day without it just hides the Today card. The game saves to `dailyLog.games.wordCookies` with `foundWords` (e.g. `"TAREA"`) and `revealedLetters` (e.g. `"TAREA:0"`). Its `record` call is in `TodayDestination`: it sends `words:` only on the first finish. To add or change a day: edit `firebase/seed/dailyPuzzles.json` (the base word must be a 6–9 letter word from that day's deck; 5–6 words in total, each 3+ letters and spelled from the base word's letters), run `node scripts/check-seed.js`, then `cd scripts && npm run seed:dry` and `npm run seed`.
+
+**What Word Cookies changes for other screens** (read before merging `add-word-cookie`):
+- **Today (Arielle):** a new Word Cookies card, shown only when the day has `wordCookies`. The games counter goes from x/2 to x/3, because `"wordCookies"` is in `V1Games.keys`. Word Guess leaves that list when it's removed.
+- **Word bank (Arielle):** on the first finish, every found word with a `wordId` (always including the day's deck word) is sent through `record(..., words:)`. It counts as right if none of its letters were hinted.
+- **Seed (relturu):** every day in `dailyPuzzles.json` now needs `wordCookies` (`check-seed.js` enforces it). The 7 days were re-seeded on Nov 27 with 6 words each. Only those 7 docs changed.
+- **Models:** `GameResult` has two new optional fields (`foundWords`, `revealedLetters`) and `DailyPuzzle` has an optional `wordCookies`. All of them are optional, so older data still loads, and Connections and Word Guess don't read them.
 - The XP values and level floors are in `ProgressRules` and in plan.md "Defaults to implement".
 
 Firestore rules: the app reads content, and writes only to the signed-in user's own documents (plus posts and likes). A write anywhere else fails with "permission denied". Don't rename fields without updating `docs/plan.md` and `Models/FirestoreModels.swift` together.
